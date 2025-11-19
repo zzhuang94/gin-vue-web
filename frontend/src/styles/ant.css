@@ -1,0 +1,93 @@
+:where(.css-1p3hq3p)[class^="ant-alert"],
+:where(.css-1p3hq3p)[class*=" ant-alert"],
+:where(.css-1p3hq3p)[class^="ant-modal"],
+:where(.css-1p3hq3p)[class*=" ant-modal"],
+:where(.css-1p3hq3p)[class^="ant-spin"],
+:where(.css-1p3hq3p)[class*=" ant-spin"],
+:where(.css-1p3hq3p)[class^="ant-space"],
+:where(.css-1p3hq3p)[class*=" ant-space"],
+:where(.css-1p3hq3p)[class^="ant-row"],
+:where(.css-1p3hq3p)[class*=" ant-row"],
+:where(.css-1p3hq3p)[class^="ant-col"],
+:where(.css-1p3hq3p)[class*=" ant-col"],
+:where(.css-1p3hq3p)[class^="ant-tabs"],
+:where(.css-1p3hq3p)[class*=" ant-tabs"],
+:where(.css-dev-only-do-not-override-1p3hq3p)[class^="ant-alert"],
+:where(.css-dev-only-do-not-override-1p3hq3p)[class*=" ant-alert"],
+:where(.css-dev-only-do-not-override-1p3hq3p)[class^="ant-modal"],
+:where(.css-dev-only-do-not-override-1p3hq3p)[class*=" ant-modal"],
+:where(.css-dev-only-do-not-override-1p3hq3p)[class^="ant-spin"],
+:where(.css-dev-only-do-not-override-1p3hq3p)[class*=" ant-spin"],
+:where(.css-dev-only-do-not-override-1p3hq3p)[class^="ant-space"],
+:where(.css-dev-only-do-not-override-1p3hq3p)[class*=" ant-space"],
+:where(.css-dev-only-do-not-override-1p3hq3p)[class^="ant-row"],
+:where(.css-dev-only-do-not-override-1p3hq3p)[class*=" ant-row"],
+:where(.css-dev-only-do-not-override-1p3hq3p)[class^="ant-col"],
+:where(.css-dev-only-do-not-override-1p3hq3p)[class*=" ant-col"],
+:where(.css-dev-only-do-not-override-1p3hq3p)[class^="ant-tabs"],
+:where(.css-dev-only-do-not-override-1p3hq3p)[class*=" ant-tabs"] {
+  font-family: inherit !important;
+  font-size: inherit !important;
+  line-height: inherit !important;
+  color: inherit !important;
+}
+
+.ant-alert {
+  border-radius: 0 !important;
+}
+
+.ant-modal {
+  top: 5% !important;
+}
+.ant-modal-body>hr {
+  margin: 15px -24px;
+}
+
+.ant-form-item {
+  margin-bottom: 10px;
+}
+.ant-form-item-label label {
+  padding-right: 5px;
+  font-weight: bold;
+}
+.ant-tree-treenode {
+  padding: 0 !important;
+}
+
+.ant-notification-notice {
+  width: 500px !important;
+  max-width: 80vw !important;
+}
+.ant-notification-notice-message, .ant-modal-confirm-title {
+  font-size: 18px !important;
+  font-weight: bold !important;
+}
+.ant-notification-notice-description, .ant-modal-confirm-content {
+  font-size: 17px !important;
+}
+
+.ant-collapse-header {
+  padding: 10px !important;
+}
+.ant-collapse-content-box  {
+  padding: 10px !important;
+}
+
+.ant-tabs-tab {
+  padding: 6px 0 !important;
+}
+.ant-tabs-nav {
+  margin: 0 0 10px 0 !important; 
+}
+
+.ant-collapse-header-text {
+  font-weight: bold;
+}
+
+.ant-modal-title>.fa {
+  font-size: 1.3rem !important;
+}
+
+.ant-segmented-item-selected .ant-segmented-item-label {
+  font-weight: bold !important;
+}

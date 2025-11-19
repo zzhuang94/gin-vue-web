@@ -1,0 +1,20 @@
+.portlet {
+  margin-bottom: 5px;
+  background-color: #ffffff;
+  -webkit-box-shadow: 0px 1px 15px 1px rgba(69, 65, 78, 0.08);
+  -moz-box-shadow: 0px 1px 15px 1px rgba(69, 65, 78, 0.08);
+  box-shadow: 0px 1px 15px 1px rgba(69, 65, 78, 0.08);
+}
+
+.portlet .portlet-head {
+  display: table;
+  padding: 0;
+  width: 100%;
+  padding: 10px;
+  border-bottom: 1px solid #ebedf2;
+}
+
+.portlet .portlet-body {
+  width: 100%;
+  padding: 10px;
+}

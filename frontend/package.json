@@ -1,0 +1,36 @@
+{
+  "name": "hzz",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vue-tsc -b && vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "@ant-design/icons-vue": "^7.0.1",
+    "@fortawesome/fontawesome-free": "^7.1.0",
+    "ant-design-vue": "^4.2.6",
+    "axios": "^1.12.2",
+    "echarts": "^6.0.0",
+    "lodash": "^4.17.21",
+    "unplugin-vue-components": "^29.1.0",
+    "vue": "^3.5.22",
+    "vue-router": "^4.5.1",
+    "vuedraggable": "^4.1.0"
+  },
+  "devDependencies": {
+    "@types/diff2html": "^0.0.5",
+    "@types/echarts": "^4.9.22",
+    "@types/highlight.js": "^9.12.4",
+    "@types/lodash": "^4.17.20",
+    "@types/node": "^24.7.1",
+    "@types/xlsx": "^0.0.35",
+    "@vitejs/plugin-vue": "^6.0.1",
+    "@vue/tsconfig": "^0.8.1",
+    "typescript": "~5.9.3",
+    "vite": "^7.1.7",
+    "vue-tsc": "^3.1.0"
+  }
+}

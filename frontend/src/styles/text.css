@@ -1,0 +1,108 @@
+.text-white {
+  color: #fff !important;
+}
+
+.text-primary {
+  color: #5867dd !important;
+}
+
+a.text-primary:hover,
+a.text-primary:focus {
+  color: #2e40d4 !important;
+}
+
+.text-secondary {
+  color: #ebedf2 !important;
+}
+
+a.text-secondary:hover,
+a.text-secondary:focus {
+  color: #ccd1de !important;
+}
+
+.text-success {
+  color: #34bfa3 !important;
+}
+
+a.text-success:hover,
+a.text-success:focus {
+  color: #299781 !important;
+}
+
+.text-info {
+  color: #36a3f7 !important;
+}
+
+a.text-info:hover,
+a.text-info:focus {
+  color: #0a8cf0 !important;
+}
+
+.text-warning {
+  color: #ffb822 !important;
+}
+
+a.text-warning:hover,
+a.text-warning:focus {
+  color: #eea200 !important;
+}
+
+.text-danger {
+  color: #f4516c !important;
+}
+
+a.text-danger:hover,
+a.text-danger:focus {
+  color: #f12143 !important;
+}
+
+.text-light {
+  color: #f8f9fa !important;
+}
+
+a.text-light:hover,
+a.text-light:focus {
+  color: #dae0e5 !important;
+}
+
+.text-dark {
+  color: #343a40 !important;
+}
+
+a.text-dark:hover,
+a.text-dark:focus {
+  color: #1d2124 !important;
+}
+
+.text-body {
+  color: #212529 !important;
+}
+
+.text-muted {
+  color: #6c757d !important;
+}
+
+.text-black-50 {
+  color: rgba(0, 0, 0, 0.5) !important;
+}
+
+.text-white-50 {
+  color: rgba(255, 255, 255, 0.5) !important;
+}
+
+.text-hide {
+  font: 0/0 a;
+  color: transparent;
+  text-shadow: none;
+  background-color: transparent;
+  border: 0;
+}
+
+.text-bold {
+  font-weight: bold;
+}
+
+.delete-text {
+  text-decoration: line-through;
+  text-decoration-color: red;
+}

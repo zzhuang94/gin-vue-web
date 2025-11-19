@@ -1,0 +1,445 @@
+{
+    "action": [
+        {
+            "key": "path",
+            "name": "路由",
+            "search": 2,
+            "readonly": true
+        },
+        {
+            "key": "remark",
+            "name": "备注",
+            "search": 2
+        },
+        {
+            "key": "green",
+            "name": "免鉴权",
+            "search": 1,
+            "limit": [
+                { "key": "1", "label": "启用", "badge": "success" },
+                { "key": "0", "label": "禁用", "badge": "metal" }
+            ]
+        },
+        {
+            "key": "status",
+            "name": "状态",
+            "search": 1,
+            "limit": [
+                { "key": "1", "label": "启用", "badge": "success" },
+                { "key": "0", "label": "禁用", "badge": "metal" }
+            ]
+        }
+    ],
+    "role":  [
+        {
+            "key": "name",
+            "name": "角色",
+            "required": true,
+            "readonly": true,
+            "search": 2
+        },
+        {
+            "key": "remark",
+            "name": "备注",
+            "search": 2,
+            "default": ""
+        },
+        {
+            "key": "icon",
+            "name": "icon",
+            "search": 2,
+            "default": "circle-user"
+        },
+        {
+            "key": "status",
+            "name": "状态",
+            "search": 1,
+            "default": "1",
+            "limit": [
+                { "key": "1", "label": "启用", "badge": "success" },
+                { "key": "0", "label": "禁用", "badge": "metal" }
+            ]
+        }
+    ],
+    "user": [
+        {
+            "key": "username",
+            "name": "账号",
+            "search": 2,
+            "readonly": true
+        },
+        {
+            "key": "email",
+            "name": "邮箱",
+            "search": 2,
+            "default": ""
+        },
+        {
+            "key": "cn_name",
+            "name": "中文名",
+            "search": 2,
+            "default": ""
+        },
+        {
+            "key": "fold",
+            "name": "左侧导航",
+            "search": 1,
+            "default": "0",
+            "limit": [
+                { "key": "1", "label": "折叠", "badge": "success" },
+                { "key": "0", "label": "展开", "badge": "metal" }
+            ]
+        },
+        {
+            "key": "page_size",
+            "name": "分页大小",
+            "search": 1,
+            "default": "10",
+            "limit_list": ["5", "10", "20", "50", "100", "200", "500"]
+        }
+    ],
+    "role_user": [
+        {
+            "key": "role_id",
+            "name": "角色",
+            "search": 1,
+            "required": true,
+            "trans": { "table": "role", "key": "id", "val": "name" }
+        },
+        {
+            "key": "username",
+            "name": "用户",
+            "search": 1,
+            "required": true,
+            "trans": { "table": "user", "key": "username", "val": "username", "ajax": true }
+        },
+        {
+            "key": "remark",
+            "name": "备注",
+            "search": 2
+        },
+        {
+            "key": "status",
+            "name": "状态",
+            "search": 1,
+            "default": "1",
+            "limit": [
+                { "key": "1", "label": "启用", "badge": "success" },
+                { "key": "0", "label": "禁用", "badge": "metal" }
+            ]
+        }
+    ],
+    "navtree": [
+        {
+            "key": "name",
+            "name": "名称"
+        },
+        {
+            "key": "action_id",
+            "name": "路由",
+            "default": "0",
+            "limit": [
+                { "key": "0", "label": "无", "badge": "none" }
+            ],
+            "trans": {
+                "table": "action",
+                "key": "id",
+                "val": "path"
+            }
+        },
+        {
+            "key": "parent_id",
+            "name": "父ID",
+            "trans": {
+                "sql": "SELECT t.id, (SELECT GROUP_CONCAT(p.name ORDER BY p.`level` SEPARATOR ' / ') FROM navtree p WHERE FIND_IN_SET(p.id, REPLACE(CONCAT(t.key_path, '_', t.id), '_', ',')) > 0) AS val FROM navtree t",
+                "key": "id",
+                "val": "val"
+            }
+        },
+        {
+            "key": "rank",
+            "name": "排序",
+            "default": "0"
+        },
+        {
+            "key": "icon",
+            "name": "icon",
+            "default": ""
+        },
+        {
+            "key": "status",
+            "name": "状态",
+            "default": "1",
+            "limit": [
+                { "key": "1", "label": "启用", "badge": "success" },
+                { "key": "0", "label": "禁用", "badge": "metal" }
+            ]
+        }
+    ],
+
+    "ip": [
+        {
+            "key": "ip",
+            "name": "IP地址",
+            "search": 2,
+            "readonly": true,
+            "required": true
+        },
+        {
+            "key": "type",
+            "name": "IP类型",
+            "search": 1,
+            "default": "IPv4",
+            "limit": [
+                { "key": "IPv4", "label": "IPv4", "badge": "primary" },
+                { "key": "IPv6", "label": "IPv6", "badge": "info" }
+            ]
+        },
+        {
+            "key": "sn",
+            "name": "序列号",
+            "search": 2,
+            "default": ""
+        },
+        {
+            "key": "isp",
+            "name": "运营商",
+            "search": 3,
+            "default": "LAN",
+            "limit": [
+                { "key": "LAN", "label": "内网" },
+                { "key": "CMN", "label": "移动" },
+                { "key": "CNC", "label": "联通" },
+                { "key": "CTC", "label": "电信" },
+                { "key": "OHT", "label": "其它" }
+            ]
+        },
+        {
+            "key": "mac",
+            "name": "MAC地址",
+            "search": 2,
+            "default": ""
+        },
+        {
+            "key": "bandwidth",
+            "name": "带宽",
+            "search": 0,
+            "default": "0"
+        },
+        {
+            "key": "status",
+            "name": "状态",
+            "search": 1,
+            "default": "1",
+            "limit": [
+                { "key": "1", "label": "启用", "badge": "success" },
+                { "key": "0", "label": "禁用", "badge": "metal" }
+            ]
+        }
+    ],
+    "vidc": [
+        {
+            "key": "name",
+            "name": "名称",
+            "search": 2,
+            "readonly": true,
+            "required": true
+        },
+        {
+            "key": "type",
+            "name": "类型",
+            "search": 1,
+            "default": "CACHE",
+            "limit": [
+                { "key": "CACHE", "label": "缓存", "badge": "primary" },
+                { "key": "ORIGIN", "label": "源站", "badge": "success" },
+                { "key": "EDGE", "label": "边缘", "badge": "info" }
+            ]
+        },
+        {
+            "key": "location",
+            "name": "位置",
+            "search": 2,
+            "default": ""
+        },
+        {
+            "key": "status",
+            "name": "状态",
+            "search": 1,
+            "default": "1",
+            "limit": [
+                { "key": "1", "label": "启用", "badge": "success" },
+                { "key": "0", "label": "禁用", "badge": "metal" }
+            ]
+        }
+    ],
+    "vidc_ip": [
+        {
+            "key": "vidc_id",
+            "name": "VIDC",
+            "search": 1,
+            "required": true,
+            "trans": { "ajax": true, "db": "core", "table": "vidc", "key": "id", "val": "name" }
+        },
+        {
+            "key": "ip_id",
+            "name": "IP地址",
+            "search": 1,
+            "required": true,
+            "trans": { "ajax": true, "db": "core", "table": "ip", "key": "id", "val": "ip" }
+        },
+        {
+            "key": "weight",
+            "name": "权重",
+            "default": "1",
+            "search": 2
+        },
+        {
+            "key": "remark",
+            "name": "备注",
+            "search": 2
+        },
+        {
+            "key": "status",
+            "name": "状态",
+            "search": 1,
+            "default": "1",
+            "limit": [
+                { "key": "1", "label": "启用", "badge": "success" },
+                { "key": "0", "label": "禁用", "badge": "metal" }
+            ]
+        }
+    ],
+
+    "service": [
+        {
+            "key": "name",
+            "name": "名称",
+            "search": 2,
+            "required": true,
+            "readonly": true
+        },
+        {
+            "key": "business",
+            "name": "业务类型",
+            "search": 1,
+            "default": "MP4",
+            "limit": [
+                { "key": "MP4", "label": "MP4" },
+                { "key": "FLV", "label": "FLV" },
+                { "key": "HLS", "label": "HLS" },
+                { "key": "M3U8", "label": "M3U8" },
+                { "key": "MPEG-DASH", "label": "MPEG-DASH" },
+                { "key": "MPEG-DASH", "label": "MPEG-DASH" }
+            ]
+        },
+        {
+            "key": "remark",
+            "name": "备注",
+            "search": 2,
+            "textarea": true
+        },
+        {
+            "key": "owner",
+            "name": "负责人",
+            "search": 1,
+            "required": true,
+            "split_sep": ",",
+            "trans": { "table": "user", "key": "username", "val": "username" }
+        },
+        {
+            "key": "status",
+            "name": "状态",
+            "search": 1,
+            "default": "1",
+            "limit": [
+                { "key": "1", "label": "启用", "badge": "success" },
+                { "key": "0", "label": "禁用", "badge": "metal" }
+            ]
+        }
+    ],
+    
+    "policy": [
+        {
+            "key": "name",
+            "name": "名称",
+            "describe": "常规单行字段，支持模糊查询，只读，必填",
+            "search": 2,
+            "required": true,
+            "readonly": true
+        },
+        {
+            "key": "remark",
+            "name": "备注",
+            "describe": "常规多行字段，支持换行，支持模糊查询",
+            "search": 2,
+            "textarea": true
+        },
+        {
+            "key": "service_id",
+            "name": "服务",
+            "describe": "常规字段，外键选择，支持查询，小量映射，查询全量数据构建下拉列表",
+            "search": 1,
+            "required": true,
+            "trans": { "db": "core", "table": "service", "key": "id", "val": "name" }
+        },
+        {
+            "key": "vidc_id",
+            "name": "VIDC",
+            "describe": "常规字段，外键选择，支持查询，大量映射，使用ajax查询数据构建下拉列表",
+            "search": 1,
+            "required": true,
+            "trans": { "ajax": true, "db": "core", "table": "vidc", "key": "id", "val": "name" }
+        },
+        {
+            "key": "status",
+            "name": "状态",
+            "describe": "常规字段，候选项选择，支持查询，默认值为1",
+            "search": 1,
+            "default": "1",
+            "limit": [
+                { "key": "1", "label": "启用", "badge": "success" },
+                { "key": "0", "label": "禁用", "badge": "metal" },
+                { "key": "-1", "label": "异常", "badge": "danger" }
+            ]
+        },
+        {
+            "key": "labels",
+            "name": "标签",
+            "describe": "常规字段，候选项选择，可选择多项，支持查询，默认值为a，limit不设置badge，则随机生成一个badge",
+            "search": 2,
+            "default": "a",
+            "split_sep": ",",
+            "limit": [
+                { "key": "a", "label": "标签A" },
+                { "key": "b", "label": "标签B" },
+                { "key": "c", "label": "标签C" },
+                { "key": "d", "label": "标签D" },
+                { "key": "e", "label": "标签E" },
+                { "key": "f", "label": "标签F" },
+                { "key": "g", "label": "标签G" },
+                { "key": "h", "label": "标签H" },
+                { "key": "i", "label": "标签I" },
+                { "key": "j", "label": "标签J" }
+            ]
+        },
+        {
+            "key": "args",
+            "name": "参数",
+            "describe": "JSON字段，支持模糊查询，JSON合法性校验，支持换行，设置成JSON必须同时设置为textarea",
+            "search": 2,
+            "default": "{}",
+            "textarea": true,
+            "json": true
+        },
+        {
+            "key": "vers",
+            "name": "匹配版本",
+            "describe": "多行文本，自动去重，去除空白",
+            "search": 2,
+            "default": "",
+            "textarea": true,
+            "split_sep": ","
+        }
+    ]
+}

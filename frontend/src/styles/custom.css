@@ -1,0 +1,155 @@
+:root {
+  --blue: #007bff;
+  --indigo: #6610f2;
+  --purple: #6f42c1;
+  --pink: #e83e8c;
+  --red: #dc3545;
+  --orange: #fd7e14;
+  --yellow: #ffc107;
+  --green: #28a745;
+  --teal: #20c997;
+  --cyan: #17a2b8;
+  --white: #fff;
+  --gray: #6c757d;
+  --gray-dark: #343a40;
+  --primary: #5867dd;
+  --secondary: #ebedf2;
+  --success: #34bfa3;
+  --info: #36a3f7;
+  --warning: #ffb822;
+  --danger: #f4516c;
+  --light: #f8f9fa;
+  --dark: #343a40;
+  --breakpoint-xs: 0;
+  --breakpoint-sm: 576px;
+  --breakpoint-md: 768px;
+  --breakpoint-lg: 992px;
+  --breakpoint-xl: 1200px;
+  --font-family-sans-serif: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+  --font-family-monospace: SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+}
+
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+html {
+  font-family: sans-serif;
+  text-size-adjust: 100%;
+  line-height: 1.15;
+  -ms-overflow-style: scrollbar;
+  -ms-text-size-adjust: 100%;
+  -webkit-text-size-adjust: 100%;
+  -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+}
+body {
+  margin: 0;
+  font-family: "Poppins";
+  font-size: 1rem;
+  font-weight: 400;
+  line-height: 1.5;
+  color: #212529;
+  text-align: left;
+  background-color: #fff;
+}
+html, body {
+  margin: 0px;
+  padding: 0px;
+  font-size: 14px;
+  font-weight: 300;
+  font-family: Poppins;
+  -ms-text-size-adjust: 100%;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+hr {
+  border: 0;
+  border-top: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+input[type="checkbox"], .click-swal {
+  cursor: pointer;
+}
+
+.pull-right {
+  float: right;
+}
+
+b, strong {
+  font-weight: bold;
+}
+code {
+  background: #ebedf2;
+  padding: 0.2rem 0.4rem;
+  font-size: 0.95rem;
+  color: #e83e8c;
+  word-break: break-word;
+}
+h5, .h5 {
+  font-size: 1.25rem;
+}
+
+.link {
+  color: gray;
+  text-decoration: none;
+  position: relative;
+  display: inline-block;
+  cursor: pointer;
+}
+
+.link:hover {
+  font-weight: bolder;
+}
+
+img {
+  vertical-align: middle;
+  border-style: none;
+}
+
+input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+  cursor: pointer;
+}
+
+input[type="checkbox"]:checked:hover {
+  background-color: #2196F3;
+  border-color: #2196F3;
+}
+input[type="checkbox"]:checked {
+  background-color: #1677ff;
+  border-color: #1677ff;
+}
+
+input[type="checkbox"]:checked::after {
+  content: "";
+  position: absolute;
+  left: 5px;
+  top: 0px;
+  width: 6px;
+  height: 10px;
+  border: solid white;
+  border-width: 0 2px 2px 0;
+  transform: rotate(45deg);
+}
+
+input[type="checkbox"]:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  background-color: #eee;
+}
+
+input[type="checkbox"]:disabled:checked {
+  background-color: #aaa;
+  border-color: #aaa;
+}
+
+@media (max-width: 1000px) {
+  .auto-hide-l1 {
+    display: none !important;
+  }
+  .ant-modal {
+    width: 90% !important;
+  }
+}

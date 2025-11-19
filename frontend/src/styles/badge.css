@@ -1,0 +1,320 @@
+.badge {
+  font-weight: bolder;
+  font-size: 0.95rem;
+  padding: 1px 8px;
+  border-radius: 5px;
+  background: #eaeaea;
+  color: #444;
+  line-height: 20px;
+  min-height: 20px;
+  min-width: 20px;
+  vertical-align: middle;
+  text-align: center;
+  display: inline-block;
+  white-space: nowrap !important;
+}
+
+.badge.badge-brand {
+  background-color: #716aca;
+  color: #ffffff;
+}
+
+.badge.badge-metal {
+  background-color: #c4c5d6;
+  color: #ffffff;
+}
+
+.badge.badge-light {
+  background-color: #ffffff;
+  color: #282a3c;
+}
+
+.badge.badge-accent {
+  background-color: #00c5dc;
+  color: #ffffff;
+}
+
+.badge.badge-focus {
+  background-color: #9816f4;
+  color: #ffffff;
+}
+
+.badge.badge-primary {
+  background-color: #5867dd;
+  color: #ffffff;
+}
+
+.badge.badge-success {
+  background-color: #34bfa3;
+  color: #ffffff;
+}
+
+.badge.badge-info {
+  background-color: #36a3f7;
+  color: #ffffff;
+}
+
+.badge.badge-warning {
+  background-color: #ffb822;
+  color: #111111;
+}
+
+.badge.badge-danger {
+  background-color: #f4516c;
+  color: #ffffff;
+}
+
+.badge.badge-dark {
+  background-color: black;
+  color: #ffffff;
+}
+
+.badge.badge-rand-0 {
+  background-color: #42a5f5;
+  color: #fff9c4;
+}
+
+.badge.badge-rand-1 {
+  background-color: #ffcc80;
+  color: #0d47a1;
+}
+
+.badge.badge-rand-2 {
+  background-color: #e1f5fe;
+  color: #b71c1c;
+}
+
+.badge.badge-rand-3 {
+  background-color: #22f9c4;
+  color: #4a148c;
+}
+
+.badge.badge-rand-4 {
+  background-color: #fffd07;
+  color: #4a148c;
+}
+
+.badge.badge-rand-5 {
+  background-color: #4fe042;
+  color: #fdf7f1;
+}
+
+.badge.badge-rand-6 {
+  background-color: #e302fd;
+  color: #f7fcfc;
+}
+
+.badge.badge-rand-7 {
+  background-color: #f8a6a9;
+  color: #373cfc;
+}
+
+.badge.badge-rand-8 {
+  background-color: #1565c0;
+  color: #fff9c4;
+}
+
+.badge.badge-rand-9 {
+  background-color: #f53f57;
+  color: #fdf7f1;
+}
+
+.badge.badge-rand-10 {
+  background-color: #a1bee7;
+  color: #1b5e20;
+}
+
+.badge.badge-rand-11 {
+  background-color: #e65100;
+  color: #c8e6c9;
+}
+
+.badge.badge-rand-12 {
+  background-color: #a5d6a7;
+  color: #b71c1c;
+}
+
+.badge.badge-rand-13 {
+  background-color: #03e5e5;
+  color: #1b5e20;
+}
+
+.badge.badge-rand-14 {
+  background-color: #ff8b8e;
+  color: #fbfe20;
+}
+
+.badge.badge-rand-15 {
+  background-color: #f0cdd2;
+  color: #1b5e20;
+}
+
+.badge.badge-rand-16 {
+  background-color: #6a1b9a;
+  color: #fff9c4;
+}
+
+.badge.badge-rand-17 {
+  background-color: #fff3e0;
+  color: #0d47a1;
+}
+
+.badge.badge-rand-18 {
+  background-color: #1b5e20;
+  color: #fff9c4;
+}
+
+.badge.badge-rand-19 {
+  background-color: #0d47a1;
+  color: #ffcdd2;
+}
+
+.badge.badge-rand-20 {
+  background-color: #b71c1c;
+  color: #c8e6c9;
+}
+
+.badge.badge-rand-21 {
+  background-color: #f57f17;
+  color: #0d47a1;
+}
+
+.badge.badge-rand-22 {
+  background-color: #4a148c;
+  color: #fff9c4;
+}
+
+.badge.badge-rand-23 {
+  background-color: #e65100;
+  color: #c8e6c9;
+}
+
+.badge.badge-rand-24 {
+  background-color: #81c784;
+  color: #b71c1c;
+}
+
+.badge.badge-rand-25 {
+  background-color: #2e7d32;
+  color: #fff9c4;
+}
+
+.badge.badge-rand-26 {
+  background-color: #ef03f0;
+  color: #fbfe20;
+}
+
+.badge.badge-rand-27 {
+  background-color: #ffb74d;
+  color: #4a148c;
+}
+
+.badge.badge-rand-28 {
+  background-color: #ba68c8;
+  color: #1b5e20;
+}
+
+.badge.badge-rand-29 {
+  background-color: #afb850;
+  color: #adf7a1;
+}
+
+.badge.badge-rand-30 {
+  background-color: #c5e1a5;
+  color: #b71c1c;
+}
+
+.badge.badge-rand-31 {
+  background-color: #1e88e5;
+  color: #fff9c4;
+}
+
+.badge.badge-rand-32 {
+  background-color: #a8bbd0;
+  color: #1b5e20;
+}
+
+.badge.badge-rand-33 {
+  background-color: #fff59d;
+  color: #4a148c;
+}
+
+.badge.badge-rand-34 {
+  background-color: #ce93d8;
+  color: #1b5e20;
+}
+
+.badge.badge-rand-35 {
+  background-color: #197692;
+  color: #fff9c4;
+}
+
+.badge.badge-rand-36 {
+  background-color: #080e3c;
+  color: #fff9c4;
+}
+
+.badge.badge-rand-37 {
+  background-color: #c62828;
+  color: #c8e6c9;
+}
+
+.badge.badge-rand-38 {
+  background-color: #d38f2f;
+  color: #c8e6c9;
+}
+
+.badge.badge-rand-39 {
+  background-color: #af27e6;
+  color: #fdf7a1;
+}
+
+.badge.badge-rand-40 {
+  background-color: #8e24aa;
+  color: #fff9c4;
+}
+
+.badge.badge-rand-41 {
+  background-color: #fb8c00;
+  color: #c8e6c9;
+}
+
+.badge.badge-rand-42 {
+  background-color: #66bb6a;
+  color: #b71c1c;
+}
+
+.badge.badge-rand-43 {
+  background-color: #0288d1;
+  color: #fff9c4;
+}
+
+.badge.badge-rand-44 {
+  background-color: #ffebee;
+  color: #1b5e20;
+}
+
+.badge.badge-rand-45 {
+  background-color: #fff8e1;
+  color: #4a148c;
+}
+
+.badge.badge-rand-46 {
+  background-color: #f3e5f5;
+  color: #1b5e20;
+}
+
+.badge.badge-rand-47 {
+  background-color: #ffe0b2;
+  color: #0d47a1;
+}
+
+.badge.badge-rand-48 {
+  background-color: #2e7d32;
+  color: #fff9c4;
+}
+
+.badge.badge-rand-49 {
+  background-color: #0277bd;
+  color: #ffcdd2;
+}

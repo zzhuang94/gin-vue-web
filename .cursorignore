@@ -1,0 +1,5 @@
+.git*
+
+cfg.json
+*.xml
+*.cfg.j2

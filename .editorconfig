@@ -1,0 +1,13 @@
+root = true
+
+[*]  # 默认所有文件用 4 空格
+indent_style = space
+indent_size = 4
+end_of_line = lf
+charset = utf-8
+trim_trailing_whitespace = true
+insert_final_newline = true
+
+# 针对特定文件类型覆盖为 2 空格
+[*.{js,ts,vue}]
+indent_size = 2
