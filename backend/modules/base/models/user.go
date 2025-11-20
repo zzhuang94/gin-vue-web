@@ -32,5 +32,10 @@ func (u *User) Save(sess *xorm.Session) error {
 }
 
 func (u *User) Delete(sess *xorm.Session) error {
+	ru := new(RoleUser)
+	has, _ := sess.Where("username = ?", u.Username).Get(ru)
+	if has {
+		ru.Delete(sess)
+	}
 	return u.DeleteBean(sess, u)
 }

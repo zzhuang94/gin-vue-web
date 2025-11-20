@@ -27,6 +27,16 @@ func (r *Role) Save(sess *xorm.Session) error {
 }
 
 func (r *Role) Delete(sess *xorm.Session) error {
+	ra := new(RoleAction)
+	has, _ := sess.Where("role_id = ?", r.ID).Get(ra)
+	if has {
+		ra.Delete(sess)
+	}
+	ru := new(RoleUser)
+	has, _ = sess.Where("role_id = ?", r.ID).Get(ru)
+	if has {
+		ru.Delete(sess)
+	}
 	return r.DeleteBean(sess, r)
 }
 
