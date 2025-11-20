@@ -149,7 +149,7 @@
         },
         {
             "key": "parent_id",
-            "name": "父ID",
+            "name": "父节点",
             "trans": {
                 "sql": "SELECT t.id, (SELECT GROUP_CONCAT(p.name ORDER BY p.`level` SEPARATOR ' / ') FROM navtree p WHERE FIND_IN_SET(p.id, REPLACE(CONCAT(t.key_path, '_', t.id), '_', ',')) > 0) AS val FROM navtree t",
                 "key": "id",
@@ -183,7 +183,8 @@
             "name": "IP地址",
             "search": 2,
             "readonly": true,
-            "required": true
+            "required": true,
+            "validation": { "is_ip": true }
         },
         {
             "key": "type",
@@ -199,7 +200,8 @@
             "key": "sn",
             "name": "序列号",
             "search": 2,
-            "default": ""
+            "default": "",
+            "validation": { "regex": "^[A-Za-z0-9]+$" }
         },
         {
             "key": "isp",
@@ -218,13 +220,15 @@
             "key": "mac",
             "name": "MAC地址",
             "search": 2,
-            "default": ""
+            "default": "",
+            "validation": { "regex": "^[0-9A-Fa-f]{2}(:[0-9A-Fa-f]{2}){5}$" }
         },
         {
             "key": "bandwidth",
             "name": "带宽",
             "search": 0,
-            "default": "0"
+            "default": "0",
+            "validation": { "is_int": true, "int_range": true, "int_min": 0, "int_max": 10000 }
         },
         {
             "key": "status",
@@ -292,7 +296,8 @@
             "key": "weight",
             "name": "权重",
             "default": "1",
-            "search": 2
+            "search": 2,
+            "validation": { "is_int": true, "int_range": true, "int_min": 0, "int_max": 100 }
         },
         {
             "key": "remark",

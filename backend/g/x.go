@@ -8,6 +8,7 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/asaskevich/govalidator"
 	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
 	"xorm.io/builder"
@@ -358,7 +359,7 @@ func (x *X) ActionSave(c *gin.Context) {
 }
 
 func (x *X) saveModel(m ModelX, payload []byte, sess *xorm.Session) error {
-	payload, err := x.parsePayload(payload)
+	payload, err := x.parseCheckPayload(payload)
 	if err != nil {
 		return err
 	}
@@ -371,10 +372,13 @@ func (x *X) saveModel(m ModelX, payload []byte, sess *xorm.Session) error {
 	return nil
 }
 
-func (x *X) parsePayload(payload []byte) ([]byte, error) {
+func (x *X) parseCheckPayload(payload []byte) ([]byte, error) {
 	args := make(map[string]string)
 	json.Unmarshal(payload, &args)
 	for _, r := range x.Rules {
+		if r.Required && args[r.Key] == "" {
+			return nil, fmt.Errorf("参数[%s]不能为空", r.Name)
+		}
 		if r.Textarea && r.SplitSep != "" {
 			lines := libs.SplitLines(args[r.Key])
 			for _, line := range lines {
@@ -391,8 +395,56 @@ func (x *X) parsePayload(payload []byte) ([]byte, error) {
 			}
 			args[r.Key] = v
 		}
+		if r.Validation != nil {
+			err := x.checkValidation(r.Validation, r.Name, args[r.Key])
+			if err != nil {
+				return nil, err
+			}
+		}
 	}
 	return json.Marshal(args)
+}
+
+func (x *X) checkValidation(v *Validation, name, val string) error {
+	if v.IsInt {
+		valInt, err := strconv.Atoi(val)
+		if err != nil {
+			return fmt.Errorf("参数 [%s: %s] 不是整数", name, val)
+		}
+		if v.IntRange && (valInt < v.IntMin || valInt > v.IntMax) {
+			return fmt.Errorf("参数 [%s: %s] 不在范围[%d,%d]内", name, val, v.IntMin, v.IntMax)
+		}
+	}
+	if v.IsFloat {
+		valFloat, err := strconv.ParseFloat(val, 64)
+		if err != nil {
+			return fmt.Errorf("参数 [%s: %s] 不是浮点数", name, val)
+		}
+		if v.FloatRange && (valFloat < v.FloatMin || valFloat > v.FloatMax) {
+			return fmt.Errorf("参数 [%s: %s] 不在范围[%f,%f]内", name, val, v.FloatMin, v.FloatMax)
+		}
+	}
+	if v.IsIP {
+		if !govalidator.IsIP(val) {
+			return fmt.Errorf("参数 [%s: %s] 不是合法IP", name, val)
+		}
+	}
+	if v.IsIPv4 {
+		if !govalidator.IsIPv4(val) {
+			return fmt.Errorf("参数 [%s: %s] 不是合法IPv4", name, val)
+		}
+	}
+	if v.IsIPv6 {
+		if !govalidator.IsIPv6(val) {
+			return fmt.Errorf("参数 [%s: %s] 不是合法IPv6", name, val)
+		}
+	}
+	if v.Regex != "" {
+		if !govalidator.Matches(val, v.Regex) {
+			return fmt.Errorf("参数 [%s: %s] 不符合正则表达式%s", name, val, v.Regex)
+		}
+	}
+	return nil
 }
 
 func (x *X) ActionDelete(c *gin.Context) {

@@ -29,9 +29,6 @@ func (Ip) New() g.ModelX {
 }
 
 func (i *Ip) Save(sess *xorm.Session) error {
-	if !govalidator.IsIP(i.Ip) {
-		return fmt.Errorf("IP地址格式错误")
-	}
 	if i.Type == "IPv4" && !govalidator.IsIPv4(i.Ip) {
 		return fmt.Errorf("IPv4地址格式错误")
 	}

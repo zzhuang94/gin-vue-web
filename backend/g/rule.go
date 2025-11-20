@@ -10,24 +10,25 @@ import (
 )
 
 type Rule struct {
-	Key       string            `json:"key"`                  // 数据表字段名
-	Name      string            `json:"name"`                 // 显示中文名称
-	Default   string            `json:"default,omitempty"`    // 默认值
-	Readonly  bool              `json:"readonly,omitempty"`   // 是否只读
-	Required  bool              `json:"required,omitempty"`   // 是否必填
-	Describe  string            `json:"describe,omitempty"`   // 字段描述，一般在form表单时提示
-	Textarea  bool              `json:"textarea,omitempty"`   // 是否多行文本
-	Json      bool              `json:"json,omitempty"`       // 是否JSON
-	Bold      bool              `json:"bold,omitempty"`       // 是否加粗展示
-	SplitSep  string            `json:"split_sep,omitempty"`  // 分割符
-	Limit     []*Limit          `json:"limit,omitempty"`      // 下拉选项
-	LimitList []string          `json:"limit_list,omitempty"` // 下拉选项列表
-	LimitMap  map[string]*Limit `json:"limit_map,omitempty"`  // 下拉选项映射
-	Search    int               `json:"search,omitempty"`     // 搜索匹配方式 0: none, 1: eq, 2: like, 3: in
-	NoSort    bool              `json:"no_sort,omitempty"`    // 是否不排序
-	Hide      bool              `json:"hide,omitempty"`       // 是否在table中隐藏
-	Width     string            `json:"width,omitempty"`      // 宽度
-	Trans     *Trans            `json:"trans,omitempty"`      // 转译，自动将 外键id转换为外键值
+	Key        string            `json:"key"`                  // 数据表字段名
+	Name       string            `json:"name"`                 // 显示中文名称
+	Default    string            `json:"default,omitempty"`    // 默认值
+	Readonly   bool              `json:"readonly,omitempty"`   // 是否只读
+	Required   bool              `json:"required,omitempty"`   // 是否必填
+	Describe   string            `json:"describe,omitempty"`   // 字段描述，一般在form表单时提示
+	Textarea   bool              `json:"textarea,omitempty"`   // 是否多行文本
+	Json       bool              `json:"json,omitempty"`       // 是否JSON
+	Bold       bool              `json:"bold,omitempty"`       // 是否加粗展示
+	SplitSep   string            `json:"split_sep,omitempty"`  // 分割符
+	Limit      []*Limit          `json:"limit,omitempty"`      // 下拉选项
+	LimitList  []string          `json:"limit_list,omitempty"` // 下拉选项列表
+	LimitMap   map[string]*Limit `json:"limit_map,omitempty"`  // 下拉选项映射
+	Search     int               `json:"search,omitempty"`     // 搜索匹配方式 0: none, 1: eq, 2: like, 3: in
+	NoSort     bool              `json:"no_sort,omitempty"`    // 是否不排序
+	Hide       bool              `json:"hide,omitempty"`       // 是否在table中隐藏
+	Width      string            `json:"width,omitempty"`      // 宽度
+	Trans      *Trans            `json:"trans,omitempty"`      // 转译，自动将 外键id转换为外键值
+	Validation *Validation       `json:"validation,omitempty"` // 验证规则
 }
 
 type Limit struct {
@@ -43,6 +44,24 @@ type Trans struct {
 	Table string `json:"table,omitempty"`
 	Key   string `json:"key"`
 	Val   string `json:"val"`
+}
+
+type Validation struct {
+	IsInt    bool `json:"is_int,omitempty"`
+	IntRange bool `json:"int_range,omitempty"`
+	IntMin   int  `json:"int_min,omitempty"`
+	IntMax   int  `json:"int_max,omitempty"`
+
+	IsFloat    bool    `json:"is_float,omitempty"`
+	FloatRange bool    `json:"float_range,omitempty"`
+	FloatMin   float64 `json:"float_min,omitempty"`
+	FloatMax   float64 `json:"float_max,omitempty"`
+
+	IsIP   bool `json:"is_ip,omitempty"`
+	IsIPv4 bool `json:"is_ipv4,omitempty"`
+	IsIPv6 bool `json:"is_ipv6,omitempty"`
+
+	Regex string `json:"regex,omitempty"`
 }
 
 func initRules() error {
@@ -62,21 +81,22 @@ func initRules() error {
 
 func (r *Rule) SelfWrap() *Rule {
 	ans := &Rule{
-		Key:      r.Key,
-		Name:     r.Name,
-		Default:  r.Default,
-		Readonly: r.Readonly,
-		Required: r.Required,
-		Describe: r.Describe,
-		Textarea: r.Textarea,
-		Json:     r.Json,
-		Bold:     r.Bold,
-		SplitSep: r.SplitSep,
-		Search:   r.Search,
-		NoSort:   r.NoSort,
-		Hide:     r.Hide,
-		Width:    r.Width,
-		Trans:    r.Trans,
+		Key:        r.Key,
+		Name:       r.Name,
+		Default:    r.Default,
+		Readonly:   r.Readonly,
+		Required:   r.Required,
+		Describe:   r.Describe,
+		Textarea:   r.Textarea,
+		Json:       r.Json,
+		Bold:       r.Bold,
+		SplitSep:   r.SplitSep,
+		Search:     r.Search,
+		NoSort:     r.NoSort,
+		Hide:       r.Hide,
+		Width:      r.Width,
+		Trans:      r.Trans,
+		Validation: r.Validation,
 	}
 	ans.Limit, ans.LimitMap = r.smartLimit()
 	return ans
