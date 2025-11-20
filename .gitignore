@@ -24,6 +24,7 @@ dist-ssr
 *.sln
 *.sw?
 
+backend/backend.exe
 backend/backend
 backend/go.sum
 

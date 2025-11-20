@@ -22,7 +22,7 @@ func Route(rg *gin.RouterGroup) {
 }
 
 func initSession(rg *gin.RouterGroup) {
-	store, err := redis.NewStore(10, "tcp", "127.0.0.1:6379", "", "hzz123", []byte("hzz_session_secret"))
+	store, err := redis.NewStore(10, "tcp", "gin-vue.web.domain:6379", "", "hzz123", []byte("hzz_session_secret"))
 	if err != nil {
 		panic(err)
 	}
