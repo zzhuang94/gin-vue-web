@@ -39,6 +39,7 @@ func initSession(rg *gin.RouterGroup) {
 func routeBase() {
 	g.RegController("base", "helper", base.NewHelper())
 	g.RegController("base", "user", base.NewUser())
+	g.RegController("base", "user-log", base.NewUserLog())
 	g.RegController("base", "action", base.NewAction())
 	g.RegController("base", "navtree", base.NewNavtree())
 	g.RegController("base", "role", base.NewRole())

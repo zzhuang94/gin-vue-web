@@ -38,6 +38,11 @@ func WebAuth(c *gin.Context) {
 
 	c.Set("username", user.Name)
 	c.Set("user", user)
+
+	// 记录用户访问日志
+	sql := "INSERT INTO user_log (username, path) VALUES (?, ?)"
+	BaseDB.Exec(sql, user.Name, path)
+
 	c.Next()
 }
 

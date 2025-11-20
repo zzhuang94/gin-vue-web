@@ -98,6 +98,19 @@
             "limit_list": ["5", "10", "20", "50", "100", "200", "500"]
         }
     ],
+    "user_log": [
+        {
+            "key": "username",
+            "name": "用户",
+            "search": 1,
+            "trans": { "table": "user", "key": "username", "val": "username" }
+        },
+        {
+            "key": "path",
+            "name": "路由",
+            "search": 2
+        }
+    ],
     "role_user": [
         {
             "key": "role_id",
