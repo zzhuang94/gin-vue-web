@@ -43,7 +43,7 @@ A **minimal MVC web framework** built with **Gin + Vue 3 + Ant Design Vue + Vite
   <tr>
     <td align="center">
       <strong>List page · search/sort/pagination</strong><br>
-      <img src="docs/screenshots/x-list.png" width="240" />  
+      <img src="docs/screenshots/x-list.png" width="240" />
     </td>
     <td align="center">
       <strong>Create modal</strong><br>

@@ -41,7 +41,7 @@
   </p>
   <div style="display:flex;flex-wrap:wrap;gap:12px;justify-content:center;">
     <a href="docs/screenshots/gin-vue-show.webm?raw=1" target="_blank" style="padding:10px 24px;border-radius:999px;background:#ff7a18;color:#fff;font-weight:600;text-decoration:none;box-shadow:0 8px 20px rgba(255,122,24,0.35);">
-      🔗 GitHub 原始播放
+      🔗 下载视频播放
     </a>
   </div>
 </div>
@@ -52,7 +52,7 @@
   <tr>
     <td align="center">
       <strong>列表页 · 搜索/排序/分页</strong><br>
-      <img src="docs/screenshots/x-list.png" width="240" />  
+      <img src="docs/screenshots/x-list.png" width="240" />
     </td>
     <td align="center">
       <strong>新增弹窗</strong><br>
