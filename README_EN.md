@@ -361,6 +361,7 @@ The `X` struct contains many fields, each with a specific purpose:
 - `Option`: Row operation button configuration, such as "Edit" and "Delete" buttons for each row
 - `AndWheres`: Fixed query conditions, such as only showing published data
 - `WrapData`: Data processing function, can perform custom processing before returning data
+- `Dump`: When enabled, shows an "Export" button on the list page so users can export the current search result set to Excel for offline analysis
 
 **`xb.go` - Batch Operation Extension**
 
@@ -587,6 +588,7 @@ Through `rule.json`, you can define:
 - Field search types (for building query conditions)
 - Field dropdown options (for generating dropdown select boxes)
 - Field translation rules (for converting foreign key IDs to display names)
+- Field validation rules (for enforcing type, range, and pattern checks before saving)
 
 The framework will automatically generate frontend forms and backend validation logic based on these rules—you don't need to write code.
 
@@ -624,6 +626,8 @@ The `limit` field is used to define dropdown option lists. Each option contains:
 - `badge`: Option badge style (for table display, such as "success", "danger", etc.)
 
 **Translation Configuration (Trans)**
+- **Validation Configuration**
+- The `validation` field lets you attach rich validation logic to any rule. You can require integer/float values, define min/max ranges, limit input to valid IP/IPv4/IPv6 formats, or provide custom regular expressions. All validations run inside `ActionSave`, ensuring invalid payloads never reach the database.
 
 The `trans` field is used to convert foreign key IDs to display names. This is very useful in relational queries.
 
