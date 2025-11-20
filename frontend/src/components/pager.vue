@@ -19,6 +19,7 @@
 <script setup>
 import { h, ref, inject, computed, watch } from 'vue';
 import zhCN from 'ant-design-vue/es/locale/zh_CN';
+import lib from '@libs/lib.ts';
 
 const locale = zhCN;
 const props = defineProps(['loading', 'curr', 'size', 'total']);
@@ -27,9 +28,14 @@ const emit = defineEmits(['update:curr', 'update:size', 'page-change'])
 const showTotal = (total) => {
   return h('span', ['共', h('strong', {style: 'font-size: 1.1rem; padding: 0 8px;'}, total), '条']);
 }
+
 const curr = computed({get: () => props.curr, set: (value) => emit('update:curr', value)})
 const size = computed({get: () => props.size, set: (value) => emit('update:size', value)})
 watch(() => [curr.value, size.value], () => emit('page-change'))
+
+watch(() => size.value, (newSize) => {
+  lib.curl(`/base/user/set?key=page_size&val=${newSize}`)
+})
 
 </script>
 
