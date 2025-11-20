@@ -28,3 +28,4 @@ backend/backend
 backend/go.sum
 
 frontend/components.d.ts
+frontend/package-lock.json
