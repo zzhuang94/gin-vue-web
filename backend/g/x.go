@@ -50,6 +50,7 @@ type X struct {
 	HeaderHint  string
 	BatchEdit   bool
 	BatchDelete bool
+	Dump        bool
 	Tool        []*Tool
 	Option      [][]any
 	WrapData    func([]map[string]string)
@@ -179,6 +180,7 @@ func (x *X) ActionIndex(c *gin.Context) {
 	}
 	data := gin.H{
 		"batch":      x.BatchEdit || x.BatchDelete,
+		"dump":       x.Dump,
 		"tool":       x.buildTool(),
 		"option":     x.buildOption(),
 		"sort":       x.initSort(c),

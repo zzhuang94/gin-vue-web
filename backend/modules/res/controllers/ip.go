@@ -18,6 +18,7 @@ func NewIp() *Ip {
 	r := &Ip{XB: g.NewXB(&models.Ip{})}
 	r.Option = append([][]any{{"流量统计", "chart-line", "flow"}}, r.Option...)
 	r.DB = g.CoreDB
+	r.Dump = true
 	return r
 }
 

@@ -1,14 +1,17 @@
 <template>
   <div>
-    <!-- 头部通知自子组件 -->
     <component :is="headerHintComponent" v-if="headerHintComponent" />
-    <!-- 动态加载modal -->
     <component :is="modalCurr" v-bind="modalProps" @submit="fetchData(true)" @reload="reloadModal()" />
 
     <div class="portlet">
-      <div v-if="! isEmpty(tool) || ! isEmpty(lock)" class="portlet-head">
+      <div v-if="! isEmpty(tool) || ! isEmpty(lock) || dump" class="portlet-head">
         <a-space :size="6">
           <Button v-for="btn, i in tool" :key="i" v-bind="btn" />
+
+          <button v-if="dump" :disabled="dumping" class="btn btn-accent" @click="dumpExcel">
+            <i class="fa fa-file-excel"></i> 导出Excel
+          </button>
+
           <Lock v-for="lck, i in lock" :key="i" v-bind="lck" />
         </a-space>
       </div>
@@ -18,7 +21,7 @@
 
         <Table ref="tableRef"
            :loading :rules :data :option
-           :batch-select="batch"
+           :batch-select="batch" :id="tableId"
            v-model:sort-key="sort.key" v-model:sort-order="sort.order"
            @sort-change="fetchData(true)"
            @op-click="toolClick"
@@ -31,12 +34,13 @@
 </template>
 
 <script setup>
-import { computed, onMounted, provide, ref, shallowRef } from 'vue'
+import { computed, onMounted, provide, ref, shallowRef, nextTick } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { isEmpty } from 'lodash'
 
 import lib from '@libs/lib.ts'
 import swal from '@libs/swal.ts'
+import excel from '@libs/excel.ts'
 
 import Lock from '@components/lock.vue'
 import Button from '@components/button.vue'
@@ -44,7 +48,7 @@ import Searcher from '@components/searcher.vue'
 import Table from '@components/table.vue'
 import Pager from '@components/pager.vue'
 
-const props = defineProps(['headerHint', 'rules', 'lock', 'tool', 'option', 'arg', 'page_size', 'sort', 'batch'])
+const props = defineProps(['headerHint', 'rules', 'lock', 'tool', 'option', 'arg', 'page_size', 'sort', 'batch', 'dump'])
 
 const route = useRoute()
 const router = useRouter()
@@ -55,6 +59,8 @@ const arg = ref(props.arg)
 const sort = ref(props.sort)
 const page = ref({ curr: 1, size: props.page_size })
 
+const tableId = 'index-table-id'
+const dumping = ref(false)
 const tableRef = ref(null)
 
 const headerHintComponent = computed(() => {
@@ -129,6 +135,13 @@ const updateUrl = () => {
     path: route.path,
     query: lib.mapToUriParams(arg.value),
   })
+}
+
+const dumpExcel = async () => {
+  dumping.value = true
+  await nextTick()
+  excel.exportTableToExcel(tableId)
+  dumping.value = false
 }
 
 provide('toolClick', toolClick)
