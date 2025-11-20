@@ -33,6 +33,22 @@ func (u *User) ActionEdit(c *gin.Context) {
 	})
 }
 
+func (u *User) ActionSet(c *gin.Context) {
+	key := c.Query("key")
+	val := c.Query("val")
+	if key != "fold" && key != "page_size" {
+		u.JsonFail(c, fmt.Errorf("key错误"))
+		return
+	}
+	sql := "UPDATE user SET " + key + " = ? WHERE username = ?"
+	_, err := u.DB.Exec(sql, val, u.GetUsername(c))
+	if err != nil {
+		u.JsonFail(c, err)
+		return
+	}
+	u.JsonSucc(c, "设置成功")
+}
+
 func (u *User) ActionSave(c *gin.Context) {
 	username := u.GetUsername(c)
 	user := &models.User{}

@@ -57,8 +57,8 @@ const headTitle = computed(() => {
 
 const toggleFold = () => {
   fold.value = !fold.value
-  const url = `/base/personal/user-setting?full_screen=` + (fold.value ? '0' : '1')
-  lib.curlGet(url)
+  const url = `/base/user/set?key=fold&val=` + (fold.value ? '1' : '0')
+  lib.curl(url)
 }
 </script>
 
