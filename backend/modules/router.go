@@ -46,6 +46,7 @@ func routeBase() {
 	g.RegController("base", "role-user", base.NewRoleUser())
 	g.RegController("base", "trans", base.NewTrans())
 	g.RegController("base", "chart", base.NewChart())
+	g.RegController("base", "op", base.NewOp())
 }
 
 func routeRes() {

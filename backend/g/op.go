@@ -41,6 +41,18 @@ func (Event) TableName() string {
 	return "op_event"
 }
 
+func (Event) New() ModelX {
+	return &Event{}
+}
+
+func (Event) Save(*Sess) error {
+	return nil
+}
+
+func (Event) Delete(*Sess) error {
+	return nil
+}
+
 type Log struct {
 	Model     `xorm:"extends"`
 	Eid       int    `xorm:"eid" json:"eid,string"`

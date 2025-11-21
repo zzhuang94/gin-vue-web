@@ -48,6 +48,7 @@ type X struct {
 	Tool        []*Tool
 	Option      [][]any
 	WrapData    func([]map[string]string)
+	BuildQuery  func(cond builder.Cond, sele bool) *xorm.Session
 }
 
 func NewX(m ModelX) *X {
@@ -70,7 +71,12 @@ func NewX(m ModelX) *X {
 		},
 	}
 
-	x.WrapData = func(data []map[string]string) { x.WrapDataX(data) }
+	x.BuildQuery = func(cond builder.Cond, withSelect bool) *xorm.Session {
+		return x.BuildQueryX(cond, withSelect)
+	}
+	x.WrapData = func(data []map[string]string) {
+		x.WrapDataX(data)
+	}
 
 	return x
 }
@@ -168,20 +174,16 @@ func (x *X) initSort(c *gin.Context) map[string]string {
 }
 
 func (x *X) ActionIndex(c *gin.Context) {
-	pageSize, _ := strconv.Atoi(x.GetUser(c).User["page_size"])
-	if pageSize == 0 {
-		pageSize = 10
-	}
 	data := gin.H{
+		"headerHint": x.HeaderHint,
 		"batch":      x.BatchEdit || x.BatchDelete,
 		"dump":       x.Dump,
 		"tool":       x.buildTool(),
 		"option":     x.buildOption(),
 		"sort":       x.initSort(c),
 		"rules":      x.getTableRules(),
-		"headerHint": x.HeaderHint,
 		"arg":        x.GetUriArg(c),
-		"page_size":  pageSize,
+		"page_size":  x.GetPageSize(c),
 	}
 	x.RenderDataPage(c, data, "templates/index")
 }
@@ -202,7 +204,7 @@ func (x *X) ActionFetch(c *gin.Context) {
 	}
 
 	cond := x.buildCondition(params.Arg)
-	query := x.DB.Table(x.Model.TableName()).Where(cond)
+	query := x.BuildQuery(cond, false)
 
 	total, err := query.Count()
 	if err != nil {
@@ -215,7 +217,7 @@ func (x *X) ActionFetch(c *gin.Context) {
 		page.Curr = 1
 	}
 
-	query = x.DB.Table(x.Model.TableName()).Where(cond).Select(x.buildSelectFields())
+	query = x.BuildQuery(cond, true)
 
 	if params.Sort != nil && params.Sort["key"] != "" {
 		query = query.OrderBy(params.Sort["key"] + " " + params.Sort["order"])
@@ -240,6 +242,29 @@ func (x *X) ActionFetch(c *gin.Context) {
 		},
 		"data": data,
 	})
+}
+
+func (x *X) BuildQueryX(cond builder.Cond, withSelect bool) *xorm.Session {
+	ans := x.DB.Table(x.Model.TableName()).Where(cond)
+	if !withSelect {
+		return ans
+	}
+
+	fields := make([]string, 0)
+	if !x.NoID {
+		fields = append(fields, "`id`")
+	}
+	for _, rule := range x.Rules {
+		if !rule.Hide && rule.Key != "" {
+			fields = append(fields, "`"+rule.Key+"`")
+		}
+	}
+	if x.WrapTime {
+		fields = append(fields, "DATE_FORMAT(`created`, '%Y-%m-%d %H:%i:%s') as `created`")
+		fields = append(fields, "DATE_FORMAT(`updated`, '%Y-%m-%d %H:%i:%s') as `updated`")
+	}
+	ans = ans.Select(strings.Join(fields, ", "))
+	return ans
 }
 
 func (x *X) buildCondition(arg map[string]any) builder.Cond {
@@ -278,23 +303,6 @@ func (x *X) buildCondition(arg map[string]any) builder.Cond {
 		}
 	}
 	return cond
-}
-
-func (x *X) buildSelectFields() string {
-	fields := make([]string, 0)
-	if !x.NoID {
-		fields = append(fields, "`id`")
-	}
-	for _, rule := range x.Rules {
-		if !rule.Hide && rule.Key != "" {
-			fields = append(fields, "`"+rule.Key+"`")
-		}
-	}
-	if x.WrapTime {
-		fields = append(fields, "DATE_FORMAT(`created`, '%Y-%m-%d %H:%i:%s') as `created`")
-		fields = append(fields, "DATE_FORMAT(`updated`, '%Y-%m-%d %H:%i:%s') as `updated`")
-	}
-	return strings.Join(fields, ", ")
 }
 
 func (x *X) WrapDataX(data []map[string]string) {

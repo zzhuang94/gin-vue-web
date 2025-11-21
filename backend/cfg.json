@@ -17,7 +17,6 @@
             "name": "hzz_core",
             "type": "mysql",
             "uri": "root:Hzz123!@tcp(gin-vue.web.domain:3306)/hzz_core?charset=utf8&parseTime=true&loc=Local",
-            "show_sql": true,
             "max_open": 300,
             "max_idle": 50
         }

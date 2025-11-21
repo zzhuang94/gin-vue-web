@@ -190,6 +190,42 @@
         }
     ],
 
+    "op_event": [
+        {
+            "key": "user",
+            "name": "用户",
+            "search": 1,
+            "trans": { "table": "user", "key": "username", "val": "username" }
+        },
+        {
+            "key": "path",
+            "name": "路由",
+            "search": 2
+        },
+        {
+            "key": "remark",
+            "name": "备注",
+            "search": 2
+        }
+    ],
+    "op_log": [
+        {
+            "key": "op",
+            "name": "操作类型",
+            "search": 1,
+            "limit": [
+                { "key": "-1", "label": "删除", "badge": "danger" },
+                { "key": "0", "label": "修改", "badge": "success" },
+                { "key": "1", "label": "新增", "badge": "primary" }
+            ]
+        },
+        {
+            "key": "data_id",
+            "name": "数据ID",
+            "search": 1
+        }
+    ],
+
     "ip": [
         {
             "key": "ip",

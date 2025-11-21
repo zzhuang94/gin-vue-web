@@ -1,6 +1,8 @@
 package g
 
 import (
+	"strconv"
+
 	"github.com/gin-gonic/gin"
 	"xorm.io/xorm"
 )
@@ -92,6 +94,14 @@ func (w *Web) GetUriArg(c *gin.Context) map[string]any {
 		}
 	}
 	return arg
+}
+
+func (w *Web) GetPageSize(c *gin.Context) int {
+	ans, _ := strconv.Atoi(w.GetUser(c).User["page_size"])
+	if ans == 0 {
+		ans = 10
+	}
+	return ans
 }
 
 type Sess struct {
