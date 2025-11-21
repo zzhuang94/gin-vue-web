@@ -316,34 +316,28 @@ CREATE TABLE `user_log`  (
   PRIMARY KEY (`id`) USING BTREE
 ) ENGINE = InnoDB AUTO_INCREMENT = 27 CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = Dynamic;
 
--- ----------------------------
--- Records of user_log
--- ----------------------------
-INSERT INTO `user_log` VALUES (1, 'admin', '/res/ip/index', '2025-11-20 17:11:12', '2025-11-20 17:11:12');
-INSERT INTO `user_log` VALUES (2, 'admin', '/res/ip/fetch', '2025-11-20 17:11:12', '2025-11-20 17:11:12');
-INSERT INTO `user_log` VALUES (3, 'admin', '/base/helper/fa-icon', '2025-11-20 17:11:14', '2025-11-20 17:11:14');
-INSERT INTO `user_log` VALUES (4, 'admin', '/base/navtree/index', '2025-11-20 17:12:01', '2025-11-20 17:12:01');
-INSERT INTO `user_log` VALUES (5, 'admin', '/base/navtree/add', '2025-11-20 17:12:15', '2025-11-20 17:12:15');
-INSERT INTO `user_log` VALUES (6, 'admin', '/base/navtree/save', '2025-11-20 17:15:59', '2025-11-20 17:15:59');
-INSERT INTO `user_log` VALUES (7, 'admin', '/base/navtree/fetch', '2025-11-20 17:16:00', '2025-11-20 17:16:00');
-INSERT INTO `user_log` VALUES (8, 'admin', '/base/navtree/add', '2025-11-20 17:16:03', '2025-11-20 17:16:03');
-INSERT INTO `user_log` VALUES (9, 'admin', '/base/navtree/save', '2025-11-20 17:17:40', '2025-11-20 17:17:40');
-INSERT INTO `user_log` VALUES (10, 'admin', '/base/navtree/fetch', '2025-11-20 17:17:40', '2025-11-20 17:17:40');
-INSERT INTO `user_log` VALUES (11, 'admin', '/base/navtree/edit', '2025-11-20 17:17:46', '2025-11-20 17:17:46');
-INSERT INTO `user_log` VALUES (12, 'admin', '/base/navtree/save', '2025-11-20 17:17:54', '2025-11-20 17:17:54');
-INSERT INTO `user_log` VALUES (13, 'admin', '/base/navtree/fetch', '2025-11-20 17:17:54', '2025-11-20 17:17:54');
-INSERT INTO `user_log` VALUES (14, 'admin', '/base/helper/fa-icon', '2025-11-20 17:17:55', '2025-11-20 17:17:55');
-INSERT INTO `user_log` VALUES (15, 'admin', '/base/user-log/index', '2025-11-20 17:17:58', '2025-11-20 17:17:58');
-INSERT INTO `user_log` VALUES (16, 'admin', '/base/user-log/fetch', '2025-11-20 17:17:58', '2025-11-20 17:17:58');
-INSERT INTO `user_log` VALUES (17, 'admin', '/base/user-log/index', '2025-11-20 17:19:17', '2025-11-20 17:19:17');
-INSERT INTO `user_log` VALUES (18, 'admin', '/base/user/get-avatar', '2025-11-20 17:19:17', '2025-11-20 17:19:17');
-INSERT INTO `user_log` VALUES (19, 'admin', '/base/user-log/fetch', '2025-11-20 17:19:18', '2025-11-20 17:19:18');
-INSERT INTO `user_log` VALUES (20, 'admin', '/base/user-log/index', '2025-11-20 17:19:25', '2025-11-20 17:19:25');
-INSERT INTO `user_log` VALUES (21, 'admin', '/base/user/get-avatar', '2025-11-20 17:19:26', '2025-11-20 17:19:26');
-INSERT INTO `user_log` VALUES (22, 'admin', '/base/user-log/fetch', '2025-11-20 17:19:26', '2025-11-20 17:19:26');
-INSERT INTO `user_log` VALUES (23, 'admin', '/res/ip/index', '2025-11-20 17:19:43', '2025-11-20 17:19:43');
-INSERT INTO `user_log` VALUES (24, 'admin', '/res/ip/fetch', '2025-11-20 17:19:43', '2025-11-20 17:19:43');
-INSERT INTO `user_log` VALUES (25, 'admin', '/base/helper/fa-icon', '2025-11-20 17:19:45', '2025-11-20 17:19:45');
-INSERT INTO `user_log` VALUES (26, 'admin', '/base/navtree/index', '2025-11-20 17:19:45', '2025-11-20 17:19:45');
+CREATE TABLE `op_log` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `eid` int(11) NOT NULL,
+  `uuid` varchar(36) NOT NULL DEFAULT '',
+  `op` tinyint(1) NOT NULL DEFAULT 0,
+  `data_table` varchar(32) NOT NULL DEFAULT '0',
+  `data_id` int(11) NOT NULL DEFAULT 10,
+  `data_old` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin DEFAULT NULL,
+  `data_new` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin DEFAULT NULL,
+  `created` datetime NOT NULL DEFAULT current_timestamp(),
+  `updated` datetime NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  PRIMARY KEY (`id`) USING BTREE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+CREATE TABLE `op_event` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `user` varchar(32) NOT NULL,
+  `path` varchar(255) NOT NULL DEFAULT '',
+  `remark` varchar(255) NOT NULL DEFAULT '',
+  `created` datetime NOT NULL DEFAULT current_timestamp(),
+  `updated` datetime NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  PRIMARY KEY (`id`) USING BTREE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 SET FOREIGN_KEY_CHECKS = 1;
