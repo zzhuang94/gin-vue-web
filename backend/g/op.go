@@ -1,10 +1,33 @@
 package g
 
-import "github.com/gin-gonic/gin"
+import (
+	"encoding/json"
+	"fmt"
+	"os"
 
-func recordUserLog(user, path string) {
-	sql := "INSERT INTO user_log (username, path) VALUES (?, ?)"
-	BaseDB.Exec(sql, user, path)
+	"github.com/gin-gonic/gin"
+)
+
+type Op struct {
+	Name string         `json:"name"`
+	Db   string         `json:"db"`
+	Show []string       `json:"show"`
+	Rela map[string]FKs `json:"rela"`
+}
+
+type FKs map[string]string
+
+func initOps() error {
+	bytes, err := os.ReadFile("op.json")
+	if err != nil {
+		return err
+	}
+	ops := make(map[string]*Op)
+	if err = json.Unmarshal(bytes, &ops); err != nil {
+		return fmt.Errorf("parse op file failed: %v", err)
+	}
+	Ops = ops
+	return nil
 }
 
 type Event struct {
@@ -31,6 +54,11 @@ type Log struct {
 
 func (Log) TableName() string {
 	return "op_log"
+}
+
+func recordUserLog(user, path string) {
+	sql := "INSERT INTO user_log (username, path) VALUES (?, ?)"
+	BaseDB.Exec(sql, user, path)
 }
 
 func recordOp(c *gin.Context) {

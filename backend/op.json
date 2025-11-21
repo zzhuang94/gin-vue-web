@@ -1,0 +1,43 @@
+{
+    "ip": {
+        "name": "IP",
+        "db": "core",
+        "show": ["ip"],
+        "primary": {
+            "id": {
+                "vidc_ip": "ip_id"
+            }
+        }
+    },
+    "vidc": {
+        "name": "VIDC",
+        "db": "core",
+        "show": ["vidc"],
+        "primary": {
+            "id": {
+                "vidc_ip": "vidc_id",
+                "policy": "vidc_id"
+            }
+        }
+    },
+    "vidc_ip": {
+        "name": "VIDC-IP",
+        "db": "core",
+        "show": ["vidc_id", "ip_id"]
+    },
+    "service": {
+        "name": "服务",
+        "db": "core",
+        "show": ["service"],
+        "primary": {
+            "id": {
+                "policy": "service_id"
+            }
+        }
+    },
+    "policy": {
+        "name": "策略",
+        "db": "core",
+        "show": ["name"]
+    }
+}

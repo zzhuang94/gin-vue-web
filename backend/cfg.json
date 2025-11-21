@@ -24,7 +24,7 @@
     },
 
     "log": {
-        "path": "/data/logs/hzz/backend/log.log",
+        "path": "logs/log.log",
         "keep_days": 7
     }
 }

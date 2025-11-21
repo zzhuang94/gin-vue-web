@@ -58,13 +58,34 @@ func (m *Model) updateBean(sess *Sess, bean ModelX) error {
 }
 
 func (m *Model) saveLog(sess *Sess, bean ModelX, op int, dataOld, dataNew string) {
+	tableName := bean.TableName()
+	if _, ok := Ops[tableName]; !ok {
+		return
+	}
+	oldStr := formatDataStr(dataOld)
+	newStr := formatDataStr(dataNew)
+	if oldStr == newStr {
+		return
+	}
 	log := &Log{
 		Uuid:      sess.Ctx.GetString("op_uuid"),
 		Op:        op,
-		DataTable: bean.TableName(),
+		DataTable: tableName,
 		DataId:    m.Id,
-		DataOld:   dataOld,
-		DataNew:   dataNew,
+		DataOld:   oldStr,
+		DataNew:   newStr,
 	}
 	BaseDB.Insert(log)
+}
+
+func formatDataStr(str string) string {
+	if str == "{}" {
+		return str
+	}
+	m := make(map[string]string)
+	json.Unmarshal([]byte(str), &m)
+	delete(m, "created")
+	delete(m, "updated")
+	bs, _ := json.Marshal(m)
+	return string(bs)
 }
