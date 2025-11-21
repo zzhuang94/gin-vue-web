@@ -5,6 +5,7 @@ import (
 
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
 	"github.com/sirupsen/logrus"
 )
 
@@ -38,12 +39,13 @@ func WebAuth(c *gin.Context) {
 
 	c.Set("username", user.Name)
 	c.Set("user", user)
+	c.Set("op_uuid", uuid.New().String())
 
-	// 记录用户访问日志
-	sql := "INSERT INTO user_log (username, path) VALUES (?, ?)"
-	BaseDB.Exec(sql, user.Name, path)
+	recordUserLog(user.Name, path)
 
 	c.Next()
+
+	recordOp(c)
 }
 
 func ApiAuth(c *gin.Context) {

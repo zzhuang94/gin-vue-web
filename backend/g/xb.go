@@ -43,7 +43,7 @@ func (xb *XB[T]) ActionBatchSave(c *gin.Context) {
 
 	payload, _ := io.ReadAll(c.Request.Body)
 
-	sess := xb.BeginSess(xb.DB)
+	sess := xb.BeginSess(xb.DB, c)
 	for _, m := range list {
 		if err := xb.saveModel(m, payload, sess); err != nil {
 			sess.Rollback()
@@ -61,7 +61,7 @@ func (xb *XB[T]) ActionBatchDelete(c *gin.Context) {
 		xb.JsonFail(c, err)
 		return
 	}
-	sess := xb.BeginSess(xb.DB)
+	sess := xb.BeginSess(xb.DB, c)
 	for _, m := range list {
 		if err := m.Delete(sess); err != nil {
 			sess.Rollback()

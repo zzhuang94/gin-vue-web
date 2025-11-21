@@ -2,8 +2,6 @@ package models
 
 import (
 	"backend/g"
-
-	"xorm.io/xorm"
 )
 
 type Action struct {
@@ -22,18 +20,18 @@ func (Action) New() g.ModelX {
 	return &Action{}
 }
 
-func (a *Action) Save(sess *xorm.Session) error {
+func (a *Action) Save(sess *g.Sess) error {
 	return a.SaveBean(sess, a)
 }
 
-func (a *Action) Delete(sess *xorm.Session) error {
+func (a *Action) Delete(sess *g.Sess) error {
 	ra := new(RoleAction)
-	has, _ := sess.Where("action_id = ?", a.ID).Get(ra)
+	has, _ := sess.Where("action_id = ?", a.Id).Get(ra)
 	if has {
 		ra.Delete(sess)
 	}
 	nt := new(Navtree)
-	has, _ = sess.Where("action_id = ?", a.ID).Get(nt)
+	has, _ = sess.Where("action_id = ?", a.Id).Get(nt)
 	if has {
 		nt.Delete(sess)
 	}

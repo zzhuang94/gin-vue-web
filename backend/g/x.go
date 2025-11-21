@@ -15,13 +15,6 @@ import (
 	"xorm.io/xorm"
 )
 
-type ModelX interface {
-	New() ModelX
-	TableName() string
-	Save(session *xorm.Session) error
-	Delete(session *xorm.Session) error
-}
-
 type Tool struct {
 	Title string `json:"title"`
 	Icon  string `json:"icon"`
@@ -348,7 +341,7 @@ func (x *X) ActionSave(c *gin.Context) {
 		}
 	}
 	payload, _ := io.ReadAll(c.Request.Body)
-	sess := x.BeginSess(x.DB)
+	sess := x.BeginSess(x.DB, c)
 	if err := x.saveModel(m, payload, sess); err != nil {
 		sess.Rollback()
 		x.JsonFail(c, err)
@@ -358,7 +351,7 @@ func (x *X) ActionSave(c *gin.Context) {
 	x.JsonSucc(c, "保存成功")
 }
 
-func (x *X) saveModel(m ModelX, payload []byte, sess *xorm.Session) error {
+func (x *X) saveModel(m ModelX, payload []byte, sess *Sess) error {
 	payload, err := x.parseCheckPayload(payload)
 	if err != nil {
 		return err
@@ -376,6 +369,9 @@ func (x *X) parseCheckPayload(payload []byte) ([]byte, error) {
 	args := make(map[string]string)
 	json.Unmarshal(payload, &args)
 	for _, r := range x.Rules {
+		if _, ok := args[r.Key]; !ok {
+			continue
+		}
 		if r.Required && args[r.Key] == "" {
 			return nil, fmt.Errorf("参数[%s]不能为空", r.Name)
 		}
@@ -455,7 +451,7 @@ func (x *X) ActionDelete(c *gin.Context) {
 		x.JsonFail(c, fmt.Errorf("数据不存在"))
 		return
 	}
-	sess := x.BeginSess(x.DB)
+	sess := x.BeginSess(x.DB, c)
 	err = m.Delete(sess)
 	if err != nil {
 		sess.Rollback()

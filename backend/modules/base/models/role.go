@@ -2,8 +2,6 @@ package models
 
 import (
 	"backend/g"
-
-	"xorm.io/xorm"
 )
 
 type Role struct {
@@ -22,18 +20,18 @@ func (Role) New() g.ModelX {
 	return &Role{}
 }
 
-func (r *Role) Save(sess *xorm.Session) error {
+func (r *Role) Save(sess *g.Sess) error {
 	return r.SaveBean(sess, r)
 }
 
-func (r *Role) Delete(sess *xorm.Session) error {
+func (r *Role) Delete(sess *g.Sess) error {
 	ra := new(RoleAction)
-	has, _ := sess.Where("role_id = ?", r.ID).Get(ra)
+	has, _ := sess.Where("role_id = ?", r.Id).Get(ra)
 	if has {
 		ra.Delete(sess)
 	}
 	ru := new(RoleUser)
-	has, _ = sess.Where("role_id = ?", r.ID).Get(ru)
+	has, _ = sess.Where("role_id = ?", r.Id).Get(ru)
 	if has {
 		ru.Delete(sess)
 	}
@@ -43,6 +41,6 @@ func (r *Role) Delete(sess *xorm.Session) error {
 func (r *Role) GetActionIds() []string {
 	ids := []string{}
 	sql := "SELECT action_id FROM role_action WHERE role_id = ?"
-	g.BaseDB.SQL(sql, r.ID).Find(&ids)
+	g.BaseDB.SQL(sql, r.Id).Find(&ids)
 	return ids
 }

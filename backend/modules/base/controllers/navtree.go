@@ -33,7 +33,7 @@ func (n *Navtree) getData() map[int]map[string]any {
 		if r.Status == 0 {
 			color = "danger"
 		}
-		ans[r.ID] = map[string]any{
+		ans[r.Id] = map[string]any{
 			"name":      fmt.Sprintf("%s [No. %d]", r.Name, r.Rank),
 			"parent_id": r.ParentId,
 			"expanded":  r.Level < 2,

@@ -2,8 +2,6 @@ package models
 
 import (
 	"backend/g"
-
-	"xorm.io/xorm"
 )
 
 type VidcIp struct {
@@ -24,10 +22,10 @@ func (VidcIp) New() g.ModelX {
 	return &VidcIp{}
 }
 
-func (v *VidcIp) Save(sess *xorm.Session) error {
+func (v *VidcIp) Save(sess *g.Sess) error {
 	return v.SaveBean(sess, v)
 }
 
-func (v *VidcIp) Delete(sess *xorm.Session) error {
+func (v *VidcIp) Delete(sess *g.Sess) error {
 	return v.DeleteBean(sess, v)
 }

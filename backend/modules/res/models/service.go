@@ -2,8 +2,6 @@ package models
 
 import (
 	"backend/g"
-
-	"xorm.io/xorm"
 )
 
 type Service struct {
@@ -23,10 +21,10 @@ func (Service) New() g.ModelX {
 	return &Service{}
 }
 
-func (s *Service) Save(sess *xorm.Session) error {
+func (s *Service) Save(sess *g.Sess) error {
 	return s.SaveBean(sess, s)
 }
 
-func (s *Service) Delete(sess *xorm.Session) error {
+func (s *Service) Delete(sess *g.Sess) error {
 	return s.DeleteBean(sess, s)
 }

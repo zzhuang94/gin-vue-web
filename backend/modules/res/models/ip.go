@@ -5,7 +5,6 @@ import (
 	"fmt"
 
 	"github.com/asaskevich/govalidator"
-	"xorm.io/xorm"
 )
 
 type Ip struct {
@@ -28,7 +27,7 @@ func (Ip) New() g.ModelX {
 	return &Ip{}
 }
 
-func (i *Ip) Save(sess *xorm.Session) error {
+func (i *Ip) Save(sess *g.Sess) error {
 	if i.Type == "IPv4" && !govalidator.IsIPv4(i.Ip) {
 		return fmt.Errorf("IPv4地址格式错误")
 	}
@@ -38,9 +37,9 @@ func (i *Ip) Save(sess *xorm.Session) error {
 	return i.SaveBean(sess, i)
 }
 
-func (i *Ip) Delete(sess *xorm.Session) error {
+func (i *Ip) Delete(sess *g.Sess) error {
 	vis := []*VidcIp{}
-	sess.Where("ip_id = ?", i.ID).Find(&vis)
+	sess.Where("ip_id = ?", i.Id).Find(&vis)
 	for _, vi := range vis {
 		vi.Delete(sess)
 	}

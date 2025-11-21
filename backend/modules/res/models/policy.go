@@ -2,8 +2,6 @@ package models
 
 import (
 	"backend/g"
-
-	"xorm.io/xorm"
 )
 
 type Policy struct {
@@ -26,10 +24,10 @@ func (Policy) New() g.ModelX {
 	return &Policy{}
 }
 
-func (p *Policy) Save(sess *xorm.Session) error {
+func (p *Policy) Save(sess *g.Sess) error {
 	return p.SaveBean(sess, p)
 }
 
-func (p *Policy) Delete(sess *xorm.Session) error {
+func (p *Policy) Delete(sess *g.Sess) error {
 	return p.DeleteBean(sess, p)
 }

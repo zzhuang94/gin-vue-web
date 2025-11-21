@@ -2,8 +2,6 @@ package models
 
 import (
 	"backend/g"
-
-	"xorm.io/xorm"
 )
 
 type User struct {
@@ -27,11 +25,11 @@ func (User) New() g.ModelX {
 	return &User{}
 }
 
-func (u *User) Save(sess *xorm.Session) error {
+func (u *User) Save(sess *g.Sess) error {
 	return u.SaveBean(sess, u)
 }
 
-func (u *User) Delete(sess *xorm.Session) error {
+func (u *User) Delete(sess *g.Sess) error {
 	ru := new(RoleUser)
 	has, _ := sess.Where("username = ?", u.Username).Get(ru)
 	if has {

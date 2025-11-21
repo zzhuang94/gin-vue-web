@@ -2,8 +2,6 @@ package models
 
 import (
 	"backend/g"
-
-	"xorm.io/xorm"
 )
 
 type Vidc struct {
@@ -23,13 +21,13 @@ func (Vidc) New() g.ModelX {
 	return &Vidc{}
 }
 
-func (v *Vidc) Save(sess *xorm.Session) error {
+func (v *Vidc) Save(sess *g.Sess) error {
 	return v.SaveBean(sess, v)
 }
 
-func (v *Vidc) Delete(sess *xorm.Session) error {
+func (v *Vidc) Delete(sess *g.Sess) error {
 	vis := []*VidcIp{}
-	sess.Where("vidc_id = ?", v.ID).Find(&vis)
+	sess.Where("vidc_id = ?", v.Id).Find(&vis)
 	for _, vi := range vis {
 		vi.Delete(sess)
 	}

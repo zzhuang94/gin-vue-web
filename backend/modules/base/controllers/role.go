@@ -68,7 +68,7 @@ func (r *Role) buildTree() map[string]map[string]any {
 			"icon":      "bookmark",
 			"size":      "1.15",
 		}
-		id := strconv.Itoa(r.ID)
+		id := strconv.Itoa(r.Id)
 		icon := "circle"
 		color := "success"
 		if r.Green == 0 {
@@ -95,7 +95,7 @@ func (r *Role) ActionAccessSave(c *gin.Context) {
 		r.JsonFail(c, err)
 		return
 	}
-	sess := r.BeginSess(r.DB)
+	sess := r.BeginSess(r.DB, c)
 	olds := []*models.RoleAction{}
 	news := []*models.Action{}
 	sess.Where("role_id = ?", a.Id).Find(&olds)
@@ -106,14 +106,14 @@ func (r *Role) ActionAccessSave(c *gin.Context) {
 		oldMap[o.ActionId] = true
 	}
 	for _, n := range news {
-		logrus.Infof("new %d", n.ID)
-		if !oldMap[n.ID] {
+		logrus.Infof("new %d", n.Id)
+		if !oldMap[n.Id] {
 			ra := new(models.RoleAction)
 			ra.RoleId, _ = strconv.Atoi(a.Id)
-			ra.ActionId = n.ID
+			ra.ActionId = n.Id
 			ra.Save(sess)
 		}
-		newMap[n.ID] = true
+		newMap[n.Id] = true
 	}
 	for _, o := range olds {
 		if !newMap[o.ActionId] {

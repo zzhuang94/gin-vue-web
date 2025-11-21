@@ -2,8 +2,6 @@ package models
 
 import (
 	"backend/g"
-
-	"xorm.io/xorm"
 )
 
 type RoleUser struct {
@@ -22,10 +20,10 @@ func (RoleUser) New() g.ModelX {
 	return &RoleUser{}
 }
 
-func (r *RoleUser) Save(sess *xorm.Session) error {
+func (r *RoleUser) Save(sess *g.Sess) error {
 	return r.SaveBean(sess, r)
 }
 
-func (r *RoleUser) Delete(sess *xorm.Session) error {
+func (r *RoleUser) Delete(sess *g.Sess) error {
 	return r.DeleteBean(sess, r)
 }

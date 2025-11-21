@@ -69,7 +69,7 @@ func (u *User) ActionSave(c *gin.Context) {
 	old.CnName = user.CnName
 	old.Fold = user.Fold
 	old.PageSize = user.PageSize
-	sess := u.BeginSess(u.DB)
+	sess := u.BeginSess(u.DB, c)
 	if err := old.Save(sess); err != nil {
 		sess.Rollback()
 		u.JsonFail(c, err)
@@ -131,7 +131,7 @@ func (u *User) ActionUploadAvatar(c *gin.Context) {
 
 	logrus.Infof("准备更新用户头像: %s, 压缩后大小: %d bytes", username, len(compressedData))
 	old.Avatar = compressedData
-	sess := u.BeginSess(u.DB)
+	sess := u.BeginSess(u.DB, c)
 	if err := old.Save(sess); err != nil {
 		sess.Rollback()
 		logrus.Errorf("更新头像失败: %v", err)
@@ -265,7 +265,7 @@ func (u *User) ActionSignUp(c *gin.Context) {
 		Password: arg.Password,
 		PageSize: 10,
 	}
-	sess := u.BeginSess(u.DB)
+	sess := u.BeginSess(u.DB, c)
 	if err := newUser.Save(sess); err != nil {
 		sess.Rollback()
 		u.JsonFail(c, fmt.Errorf("注册失败: %v", err))

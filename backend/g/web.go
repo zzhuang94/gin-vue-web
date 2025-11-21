@@ -58,6 +58,8 @@ func (w *Web) JsonFail(c *gin.Context, err error) {
 }
 
 func (w *Web) JsonSucc(c *gin.Context, data any) {
+	c.Set("op_ok", true)
+
 	c.JSON(200, gin.H{
 		"code": 1,
 		"data": data,
@@ -92,8 +94,13 @@ func (w *Web) GetUriArg(c *gin.Context) map[string]any {
 	return arg
 }
 
-func (w *Web) BeginSess(engine *xorm.Engine) *xorm.Session {
+type Sess struct {
+	*xorm.Session
+	Ctx *gin.Context
+}
+
+func (w *Web) BeginSess(engine *xorm.Engine, c *gin.Context) *Sess {
 	sess := engine.NewSession()
 	sess.Begin()
-	return sess
+	return &Sess{Session: sess, Ctx: c}
 }

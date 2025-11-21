@@ -2,8 +2,6 @@ package models
 
 import (
 	"backend/g"
-
-	"xorm.io/xorm"
 )
 
 type UserLog struct {
@@ -20,10 +18,10 @@ func (UserLog) New() g.ModelX {
 	return &UserLog{}
 }
 
-func (u *UserLog) Save(sess *xorm.Session) error {
+func (u *UserLog) Save(sess *g.Sess) error {
 	return u.SaveBean(sess, u)
 }
 
-func (u *UserLog) Delete(sess *xorm.Session) error {
+func (u *UserLog) Delete(sess *g.Sess) error {
 	return u.DeleteBean(sess, u)
 }
