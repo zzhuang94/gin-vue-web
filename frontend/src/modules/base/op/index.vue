@@ -1,5 +1,8 @@
 <template>
   <div class="portlet">
+
+    <Logs v-model:open="logsOpen" :lids :log_rules />
+
     <div class="portlet-head">
       <button @click="tryRollback" v-show="! rollbacking" :disabled="loading" class="btn btn-primary">
         <i class="fa fa-undo"></i> 回滚操作
@@ -27,7 +30,7 @@
             </tr>
           </thead>
           <tbody>
-            <tr v-for="d, i in data" :key="i">
+            <tr v-for="d, i in data" :key="d.id">
               <td><input v-show="! rollbacking" type="checkbox" v-model="ids" :value="d.id" /></td>
               <td>{{ d.id }}</td>
               <td>{{ d.user }}</td>
@@ -62,8 +65,9 @@ import swal from '@libs/swal.ts'
 import Searcher from '@components/searcher.vue'
 import Pager from '@components/pager.vue'
 import Log from './log.vue'
+import Logs from './logs.vue'
 
-const props = defineProps(['rules', 'arg', 'page_size'])
+const props = defineProps(['rules', 'log_rules', 'arg', 'page_size'])
 const route = useRoute()
 const router = useRouter()
 const modalCurr = shallowRef(null)
@@ -73,6 +77,8 @@ const rollbacking = ref(false)
 const data = ref([])
 const arg = ref(props.arg)
 const page = ref({ curr: 1, size: props.page_size })
+const logsOpen = ref(false)
+const lids = ref('')
 
 const ids = ref([])
 const confirmIds = ref([])
@@ -109,8 +115,10 @@ const updateUrl = () => {
   })
 }
 
-const logs = (id) => {
-  lib.loadModal('logs?id=' + id, modalCurr, modalProps)
+const logs = (ids) => {
+  console.log(ids, "IDS")
+  logsOpen.value = true
+  lids.value = ids
 }
 
 const tryRollback = async () => {

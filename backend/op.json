@@ -1,6 +1,6 @@
 {
     "ip": {
-        "name": "IP",
+        "name": "服务器",
         "db": "core",
         "show": ["ip", "type", "isp"],
         "primary": {
@@ -10,7 +10,7 @@
         }
     },
     "vidc": {
-        "name": "VIDC",
+        "name": "VIDC资源组",
         "db": "core",
         "show": ["vidc", "type"],
         "primary": {
@@ -21,22 +21,22 @@
         }
     },
     "vidc_ip": {
-        "name": "VIDC-IP",
+        "name": "VIDC资源组-服务器",
         "db": "core",
         "show": ["vidc_id", "ip_id"]
     },
     "service": {
-        "name": "服务",
+        "name": "服务实例",
         "db": "core",
         "show": ["service", "owner"],
-        "primary": {
+        "primary": {    
             "id": {
                 "policy": "service_id"
             }
         }
     },
     "policy": {
-        "name": "策略",
+        "name": "服务策略",
         "db": "core",
         "show": ["name", "service_id", "vidc_id"]
     }

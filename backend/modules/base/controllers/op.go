@@ -55,6 +55,7 @@ func (r *Op) ActionIndex(c *gin.Context) {
 		"rules":     r.Rules,
 		"arg":       r.GetUriArg(c),
 		"page_size": r.GetPageSize(c),
+		"log_rules": g.Rules["op_log"],
 	}
 	r.RenderData(c, data)
 }
