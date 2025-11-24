@@ -52,7 +52,6 @@ func (r *Op) buildQuery(cond builder.Cond, withSelect bool) *xorm.Session {
 
 func (r *Op) ActionIndex(c *gin.Context) {
 	data := gin.H{
-		"ops":       g.Ops,
 		"rules":     r.Rules,
 		"arg":       r.GetUriArg(c),
 		"page_size": r.GetPageSize(c),
@@ -66,6 +65,7 @@ func (r *Op) ActionLog(c *gin.Context) {
 	g.BaseDB.Where("id = ?", id).Get(log)
 	c.JSON(200, gin.H{
 		"log":   log,
-		"rules": g.Rules[log.DataTable],
+		"diffs": log.CalcDiffs(),
+		"name":  g.Ops[log.DataTable].Name,
 	})
 }

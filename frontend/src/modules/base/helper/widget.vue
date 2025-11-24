@@ -192,7 +192,7 @@
           <p><strong>用法：</strong>&lt;TableV :config="config" :data="data" /&gt;</p>
           <p><strong>Props：</strong>config(字段配置对象), data(数据对象)</p>
         </div>
-        <TableV :config="tableVConfig" :data="tableVData" />
+        <TableV :rules="tableVRules" :data="tableVData" />
       </Card>
 
       <!-- Lock 组件 -->
@@ -304,11 +304,12 @@ const treeOps = [
 const pagerCurr = ref(1)
 const pagerSize = ref(10)
 const pagerTotal = ref(100)
-const tableVConfig = {
-  name: { name: '名称' },
-  status: { name: '状态' }
-}
+const tableVRules = [
+  { key: 'name', name: '名称' },
+  { key: 'status', name: '状态' }
+]
 const tableVData = {
+  id: 1,
   name: '测试数据',
   status: '启用'
 }

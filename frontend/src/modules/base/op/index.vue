@@ -37,7 +37,7 @@
                   <i class="fa fa-search"></i> <b style="font-size: 1.02em">{{ d.lids.split(',').length }}</b>
                 </label>
               </td>
-              <td><Log :id="d.lids.split(',')[0]" :ops="ops" /></td>
+              <td><Log :id="d.lids.split(',')[0]" /></td>
               <td>{{ d.created }}</td>
             </tr>
           </tbody>
@@ -63,7 +63,7 @@ import Searcher from '@components/searcher.vue'
 import Pager from '@components/pager.vue'
 import Log from './log.vue'
 
-const props = defineProps(['ops', 'rules', 'arg', 'page_size'])
+const props = defineProps(['rules', 'arg', 'page_size'])
 const route = useRoute()
 const router = useRouter()
 const modalCurr = shallowRef(null)

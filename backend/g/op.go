@@ -74,14 +74,14 @@ func recordUserLog(user, path string) {
 }
 
 func recordOp(c *gin.Context) {
+	log := c.GetBool("log_exists")
+	if !log {
+		return
+	}
 	ok := c.GetBool("op_ok")
 	uuid := c.GetString("op_uuid")
 	if !ok {
 		BaseDB.Where("uuid = ?", uuid).Delete(new(Log))
-		return
-	}
-	has, _ := BaseDB.Where("uuid = ?", uuid).Exist(new(Log))
-	if !has {
 		return
 	}
 	event := &Event{
@@ -92,4 +92,56 @@ func recordOp(c *gin.Context) {
 	BaseDB.Insert(event)
 	sql := "UPDATE op_log SET eid = ?, uuid = '' WHERE uuid = ?"
 	BaseDB.Exec(sql, event.Id, uuid)
+}
+
+func (l *Log) CalcDiffs() []map[string]any {
+	op := Ops[l.DataTable]
+	rules := Rules[l.DataTable]
+	od, nd := l.GetOdNd()
+	keys := l.CalcDiffKeys(od, nd, op, rules)
+	ans := make([]map[string]any, 0)
+	for _, r := range rules {
+		if _, ok := keys[r.Key]; !ok {
+			continue
+		}
+		if r.Trans != nil {
+			r.Translate([]map[string]string{od, nd})
+		}
+		ans = append(ans, map[string]any{
+			"rule": r,
+			"old":  od[r.Key],
+			"new":  nd[r.Key],
+		})
+	}
+	return ans
+}
+
+func (l *Log) GetOdNd() (map[string]string, map[string]string) {
+	od := make(map[string]string)
+	json.Unmarshal([]byte(l.DataOld), &od)
+	nd := make(map[string]string)
+	json.Unmarshal([]byte(l.DataNew), &nd)
+	return od, nd
+}
+
+func (l *Log) CalcDiffKeys(od, nd map[string]string, op *Op, rules []*Rule) map[string]bool {
+	ans := make(map[string]bool)
+	for _, k := range op.Show {
+		ans[k] = true
+	}
+	if l.Op != 0 {
+		if len(ans) > 0 {
+			return ans
+		}
+		for _, r := range rules {
+			ans[r.Key] = true
+		}
+		return ans
+	}
+	for k, v := range od {
+		if nd[k] != v {
+			ans[k] = true
+		}
+	}
+	return ans
 }

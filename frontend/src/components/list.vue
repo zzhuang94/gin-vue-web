@@ -36,7 +36,7 @@
 
               <span
                 v-else-if="activeRow !== element.id || !action.edit || rule.is_readonly"
-                v-html="lib.displayDK(element, rule.key, rule, true)"
+                v-html="lib.displayDK(rule, element[rule.key], true)"
               ></span>
 
               <BadgeSelect

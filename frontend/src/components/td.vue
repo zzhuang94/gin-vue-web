@@ -1,16 +1,19 @@
 <template>
-  <a v-if="v.link_prefix" :href="`${v.link_prefix}${d[k]}`" target="_blank">{{ d[k] }}</a>
-  <span v-else-if="v.format_func" v-html="strlib.formatFunc(v.format_func, d[k])" :class="calcClass(d, k, v)"
-    @click="v.click_swal_modal && swal.modal(v.name, d[k], v.swal_width)">
+  <span>
+    <a v-if="r.link_prefix" :href="`${r.link_prefix}${v}`" target="_blank">{{ v }}</a>
+    <span v-else-if="r.format_func" v-html="strlib.formatFunc(r.format_func, v)" :class="calcClass(r, v)"
+      @click="r.click_swal_modal && swal.modal(r.name, v, r.swal_width)">
+    </span>
+    <span v-else-if="r.click_swal_modal && !r.format_func" class="fa fa-search text-info click-swal"
+      @click="swal.modal(r.name, v, r.swal_width)">
+    </span>
+    <span v-else-if="r.click_swal_info" class="fa fa-search text-info click-swal" @click="swal.info(r.name, v)"></span>
+    <span v-else-if="r.wrap_badge" v-html="strlib.wrapBadge(r.wrap_badge, v)" :class="calcClass(r, v)"></span>
+    <span v-else-if="r.textarea && r.split_sep && v" v-html="v.split(r.split_sep).join('<br/>')"
+      :class="calcClass(r, v)"></span>
+    <pre v-else-if="r.textarea && r.json && v" :class="calcClass(r, v)">{{ strlib.formatJson(v) }}</pre>
+    <span v-else v-html="lib.displayDK(r, v)" :class="calcClass(r, v)"></span>
   </span>
-  <span v-else-if="v.click_swal_modal && ! v.format_func" class="fa fa-search text-info click-swal"
-    @click="swal.modal(v.name, d[k], v.swal_width)">
-  </span>
-  <span v-else-if="v.click_swal_info" class="fa fa-search text-info click-swal" @click="swal.info(v.name, d[k])"></span>
-  <span v-else-if="v.wrap_badge" v-html="strlib.wrapBadge(v.wrap_badge, d[k])" :class="calcClass(d, k, v)"></span>
-  <span v-else-if="v.textarea && v.split_sep && d[k]" v-html="d[k].split(v.split_sep).join('<br/>')" :class="calcClass(d, k, v)"></span>
-  <pre v-else-if="v.textarea && v.json && d[k]" :class="calcClass(d, k, v)">{{ strlib.formatJson(d[k]) }}</pre>
-  <span v-else v-html="lib.displayDK(d, k, v)" :class="calcClass(d, k, v)"></span>
 </template>
 
 <script setup>
@@ -18,13 +21,13 @@ import lib from '@libs/lib.ts'
 import strlib from '@libs/strlib.ts'
 import swal from '@libs/swal.ts'
 
-const props = defineProps(['d', 'k', 'v'])
+const props = defineProps(['r', 'v'])
 
-const calcClass = (d, k, v) => {
+const calcClass = (r, v) => {
   return [
-    v.bold ? 'span-bold' : '',
-    v.textcolor ? 'text-' + v.textcolor : '',
-    v.dangers && v.dangers.includes(d[k]) ? 'text-danger' : '',
+    r.bold ? 'span-bold' : '',
+    r.textcolor ? 'text-' + r.textcolor : '',
+    r.dangers && r.dangers.includes(v) ? 'text-danger' : '',
   ]
 }
 </script>

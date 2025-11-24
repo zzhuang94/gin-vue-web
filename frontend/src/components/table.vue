@@ -7,8 +7,8 @@
             <th v-if="batchSelect" style="width: 15px;">
               <input type="checkbox" v-model="allSelected" @change="toggleAll" />
             </th>
-            <th v-for="v in rulesArray" :key="v.key" :class="calcClass(v)" style="white-space: nowrap; cursor: pointer" @click="sortChange(v.key, v)">
-              <span v-html="v.name"></span> <i v-if="! noSort && ! v.no_sort" :class="sortIcon(v.key)"></i>
+            <th v-for="r in rules" :key="r.key" :class="calcClass(r)" style="white-space: nowrap; cursor: pointer" @click="sortChange(r.key, r)">
+              <span v-html="r.name"></span> <i v-if="! noSort && ! r.no_sort" :class="sortIcon(r.key)"></i>
             </th>
             <th v-if="option.length" class="table-op-col">操作</th>
           </tr>
@@ -18,8 +18,8 @@
             <td v-if="batchSelect">
               <input type="checkbox" v-model="selectedRows" :value="d.id" />
             </td>
-            <td v-for="v in rulesArray" :key="v.key" :class="calcClass(v)" :style="v.width ? { 'word-break': 'break-all', 'max-width': v.width } : {}">
-              <Td :d :k="v.key" :v />
+            <td v-for="r in rules" :key="r.key" :class="calcClass(r)" :style="r.width ? { 'word-break': 'break-all', 'max-width': r.width } : {}">
+              <Td :r :v="d[r.key]" />
               </td>
               <template v-if="option.length">
                 <td v-if="d.option.length > 1" class="table-op-col">
@@ -80,18 +80,6 @@ const props = defineProps({
   margin: { type: String, default: '0' },
 })
 
-// 将 rules 统一转换为数组格式，保证顺序
-const rulesArray = computed(() => {
-  if (Array.isArray(props.rules)) {
-    return props.rules
-  }
-  // 如果是对象，转换为数组（但会丢失顺序，不推荐）
-  return Object.keys(props.rules || {}).map(key => ({
-    key,
-    ...props.rules[key]
-  }))
-})
-
 const selectedRows = ref([])
 const allSelected = ref(false)
 
@@ -114,11 +102,11 @@ watch(selectedRows, (newVal) => {
   allSelected.value = newVal.length === props.data.length
 })
 
-const calcClass = (v) => {
-  if (isEmpty(v.auto_hide)) {
+const calcClass = (r) => {
+  if (isEmpty(r.auto_hide)) {
     return ''
   }
-  return 'auto-hide-' + v.auto_hide
+  return 'auto-hide-' + r.auto_hide
 }
 
 const getSelectedIds = () => {

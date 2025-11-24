@@ -195,3 +195,7 @@ func (r *Rule) Translate(data []map[string]string) []map[string]string {
 	}
 	return data
 }
+
+func (r *Rule) Transone(d map[string]string) {
+	r.Translate([]map[string]string{d})
+}

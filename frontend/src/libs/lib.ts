@@ -153,24 +153,34 @@ function removeHtmlTags(html: string): string  {
     return doc.body.textContent || ''
 }
 
-function displayDK(d: any, k: string, v: any, autoBreak: boolean = true): string {
-  if (v.limit_map) {
-    if (v.split_sep) {
+function displayDK(r: any, v: any, autoBreak: boolean = true): string {
+  if (r.limit && ! r.limit_map) {
+    r.limit_map = {}
+    for (let i = 0; i < r.limit.length; i++) {
+      let l = r.limit[i]
+      if (! l.badge) {
+        l.badge = 'rand-' + i % 40
+      }
+      r.limit_map[l.key] = l
+    }
+  }
+  if (r.limit_map) {
+    if (r.split_sep) {
       const arr = []
-      for (let dv of d[k].split(v.split_sep)) {
-        arr.push(calcLimit(dv, v.limit_map))
+      for (let dv of v.split(r.split_sep)) {
+        arr.push(calcLimit(dv, r.limit_map))
       }
       return arr.join('<br/>')
     }
-    return calcLimit(d[k], v.limit_map)
+    return calcLimit(v, r.limit_map)
   }
   if (autoBreak) {
-    return d[k].replace(/\n/g, '<br/>')
+    return v.replace(/\n/g, '<br/>')
   }
-  if (v.split_sep && v.textarea) {
-    return d[k].split(v.split_sep).join('<br/>')
+  if (r.split_sep && r.textarea) {
+    return v.split(r.split_sep).join('<br/>')
   }
-  return d[k]
+  return v
 }
 
 function calcLimit(value: string, map: any): any {

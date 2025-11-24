@@ -76,6 +76,8 @@ func (m *Model) saveLog(sess *Sess, bean ModelX, op int, dataOld, dataNew string
 		DataNew:   newStr,
 	}
 	BaseDB.Insert(log)
+
+	sess.Ctx.Set("log_exists", true)
 }
 
 func formatDataStr(str string) string {

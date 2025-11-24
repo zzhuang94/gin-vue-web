@@ -1,12 +1,24 @@
 <template>
   <table style="width: 100%; border: 0;">
-    <tr><td colspan="2" class="table-op-col"><b>{{ op.name }}</b></td></tr>
-    <tr v-for="r, i in rules" :key="i">
+    <tr>
       <td style="padding: 0 5px 0 0; text-align: right; width: 100px; border: 0;">
-        {{ r.name }}
+        <code><b>改动对象</b></code>
       </td>
-      <td style="padding: 0 0 0 5px; text-align: left; width: 100px; border: 0;">
-        {{ r.key }}
+      <td style="padding: 0; border: 0; max-width: 500px; word-break: break-all;">
+        <code><b>{{ name }}</b></code>
+      </td>
+    </tr>
+    <tr v-for="d, i in diffs" :key="i">
+      <td style="padding: 0 5px 0 0; text-align: right; width: 100px; border: 0;">
+        <code><b>{{ d.rule.name }}</b></code>
+      </td>
+      <td style="padding: 0; border: 0; max-width: 500px; word-break: break-all;">
+        <mark v-if="d.old !== d.new" style="display: inline-flex; align-items: center; flex-wrap: nowrap;">
+          <Td :r="d.rule" :v="d.old" />
+          <i class="fa fa-arrow-right" style="margin: 0 5px; flex-shrink: 0;"></i>
+          <Td :r="d.rule" :v="d.new" />
+        </mark>
+        <span v-else><Td :r="d.rule" :v="d.old" /></span>
       </td>
     </tr>
   </table>
@@ -16,24 +28,17 @@
 import { ref, onMounted, computed } from 'vue'
 
 import lib from '@libs/lib.ts'
+import Td from '@components/td.vue'
 
-const props = defineProps(['id', 'ops'])
-const op = ref({})
+const props = defineProps(['id'])
+const name = ref('')
 const log = ref({})
-const rules = ref([])
-const dnew = ref({})
-const dold = ref({})
-
-const keys = computed(() => {
-  
-})
+const diffs = ref([])
 
 onMounted(async () => {
   const r = await lib.curl(`log?id=${props.id}`)
+  name.value = r.name
   log.value = r.log
-  rules.value = r.rules
-  op.value = props.ops[r.log.data_table]
-  dold.value = JSON.parse(r.log.data_old)
-  dnew.value = JSON.parse(r.log.data_new)
+  diffs.value = r.diffs
 })
 </script>

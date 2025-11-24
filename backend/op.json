@@ -2,7 +2,7 @@
     "ip": {
         "name": "IP",
         "db": "core",
-        "show": ["ip"],
+        "show": ["ip", "type", "isp"],
         "primary": {
             "id": {
                 "vidc_ip": "ip_id"
@@ -12,7 +12,7 @@
     "vidc": {
         "name": "VIDC",
         "db": "core",
-        "show": ["vidc"],
+        "show": ["vidc", "type"],
         "primary": {
             "id": {
                 "vidc_ip": "vidc_id",
@@ -28,7 +28,7 @@
     "service": {
         "name": "服务",
         "db": "core",
-        "show": ["service"],
+        "show": ["service", "owner"],
         "primary": {
             "id": {
                 "policy": "service_id"
@@ -38,6 +38,6 @@
     "policy": {
         "name": "策略",
         "db": "core",
-        "show": ["name"]
+        "show": ["name", "service_id", "vidc_id"]
     }
 }
