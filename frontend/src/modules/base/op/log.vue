@@ -7,7 +7,7 @@
     <td>{{ log.data_table }}</td>
     <td>{{ log.data_id }}</td>
     <td><LogDiffs :diffs="diffs" /></td>
-    <td>{{ log.created }}</td>
+    <td>{{ time }}</td>
   </tr>
 </template>
 
@@ -26,6 +26,7 @@ const props = defineProps({
 const name = ref('')
 const log = ref({})
 const diffs = ref([])
+const time = ref('')
 
 const fetchLog = async () => {
   if (!props.id) return
@@ -33,6 +34,7 @@ const fetchLog = async () => {
   name.value = r.name
   log.value = r.log
   diffs.value = r.diffs
+  time.value = r.time
 }
 
 onMounted(fetchLog)

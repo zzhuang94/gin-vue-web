@@ -68,5 +68,6 @@ func (r *Op) ActionLog(c *gin.Context) {
 		"log":   log,
 		"diffs": log.CalcDiffs(),
 		"name":  g.Ops[log.DataTable].Name,
+		"time":  log.Created.Format("2006-01-02 15:04:05"),
 	})
 }

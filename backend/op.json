@@ -12,7 +12,7 @@
     "vidc": {
         "name": "VIDC资源组",
         "db": "core",
-        "show": ["vidc", "type"],
+        "show": ["name", "type"],
         "primary": {
             "id": {
                 "vidc_ip": "vidc_id",
@@ -28,7 +28,7 @@
     "service": {
         "name": "服务实例",
         "db": "core",
-        "show": ["service", "owner"],
+        "show": ["name", "owner"],
         "primary": {    
             "id": {
                 "policy": "service_id"
