@@ -56,6 +56,10 @@
       <strong>关联管理弹窗</strong><br>
       <img src="docs/screenshots/x-rela.png" width="240" />
     </td>
+      <td align="center">
+      <strong>改动日志</strong><br>
+      <img src="docs/screenshots/op-log.png" width="240" />
+    </td>
   </tr>
   <tr>
     <td align="center">
