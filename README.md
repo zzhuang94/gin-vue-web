@@ -29,16 +29,6 @@
 ### 功能演示视频
 
 <div align="center" style="margin: 16px 0 32px;">
-  <video
-    src="docs/screenshots/gin-vue-show.webm?raw=1"
-    controls
-    preload="metadata"
-    style="max-width:720px;width:100%;border-radius:20px;box-shadow:0 20px 45px rgba(20,20,20,0.25);">
-      您的浏览器不支持内联播放，请使用下方直链。
-  </video>
-  <p style="margin:18px 0 6px;color:#7f8aa7;font-size:14px;">
-    如遇网络限制，可使用下方直链在新标签中打开。
-  </p>
   <div style="display:flex;flex-wrap:wrap;gap:12px;justify-content:center;">
     <a href="docs/screenshots/gin-vue-show.webm?raw=1" target="_blank" style="padding:10px 24px;border-radius:999px;background:#ff7a18;color:#fff;font-weight:600;text-decoration:none;box-shadow:0 8px 20px rgba(255,122,24,0.35);">
       🔗 下载视频播放
