@@ -208,9 +208,35 @@ The framework includes **out-of-the-box** enterprise-grade base feature modules,
 | **Permission Management** | RBAC + Route Guards | Fine-grained permission control based on roles and routes |
 | **Menu Management** | Dynamic menu tree | Supports multi-level menus, icons, permission binding |
 | **Session Management** | Redis distributed sessions | Supports cluster deployment, session sharing |
+| **Operation Logging** | Auto-logging + Rollback | Automatically records data changes, supports viewing details and rollback operations |
 | **Component Library** | Ant Design Vue | 60+ high-quality components, ready to use |
 | **Chart Library** | ECharts | 20+ chart types, supports data visualization |
 | **Icon Library** | Font Awesome | 1000+ icons, meets various scenario needs |
+
+**Operation Logging Feature Details:**
+
+The framework includes a powerful **operation logging (op-log)** feature that automatically records all data changes and provides complete audit and rollback capabilities.
+
+**Core Features:**
+- **Auto-logging**: Automatically records data changes for all configured tables in the core database based on `op.json` configuration
+- **Event Aggregation**: Multiple data changes in the same request are automatically aggregated into a single operation event
+- **Detailed Records**: Records operation type (create/update/delete), data table, data ID, and data before/after changes
+- **Diff Comparison**: Intelligently calculates and displays field-level change differences, supports field translation and formatted display
+- **One-click Rollback**: Supports rolling back data to the state before changes, automatically handles dependency checking
+- **Audit Trail**: Records complete audit information including operating user, operation path, operation time, etc.
+
+**How It Works:**
+1. Configure tables to be logged in `op.json` (core database only)
+2. Framework automatically detects and records changes when data is saved/deleted
+3. Multiple changes in the same request are linked via UUID and aggregated into one operation event
+4. Operation events are stored in the `op_event` table in the `base` database
+5. Detailed change information is stored in the `op_log` table in the `base` database
+
+**Use Cases:**
+- **Data Auditing**: Track who changed what data and when
+- **Error Recovery**: Quickly roll back mistaken operations and restore data to previous state
+- **Compliance Requirements**: Meet enterprise-level data change auditing and compliance requirements
+- **Problem Troubleshooting**: Quickly locate problem causes through operation history
 
 **Extension Capabilities:**
 - **Plugin mechanism**: Supports custom plugin extensions
@@ -996,7 +1022,34 @@ If customization is needed, you can configure `Tool` (toolbar buttons) and `Opti
 
 Register the Controller in `router.go`, then execute SQL to create the database table.
 
-Done! Now you have a complete CRUD feature, including list page, search, create, edit, delete, and all other functionality.
+#### 6.2.5 Step 5: Enable Operation Logging (Optional)
+
+If you need to enable operation logging, add table configuration in `backend/op.json`:
+
+```json
+{
+    "your_table_name": {
+        "name": "Table Display Name",
+        "db": "core",
+        "show": ["field1", "field2", "field3"],
+        "primary": {
+            "id": {
+                "related_table": "foreign_key_field"
+            }
+        }
+    }
+}
+```
+
+Configuration Description:
+- `name`: Table display name, used for operation log display
+- `db`: Database name, must be `"core"` (operation logging only records tables in the core database)
+- `show`: List of fields to display in operation logs, used for diff comparison display
+- `primary`: Primary key relationships, defining which tables' foreign keys reference this table's primary key
+
+After configuration, the framework will automatically record all data changes (create, update, delete) for this table. You can view and rollback these operations in the operation log page.
+
+Done! Now you have a complete CRUD feature, including list page, search, create, edit, delete, and all other functionality. If operation logging is configured, all data changes will be automatically recorded.
 
 ### 6.3 Custom Feature Extensions
 
@@ -1025,6 +1078,26 @@ Override the `ActionSave` method to perform custom validation and processing bef
 #### 6.3.6 Extension 6: Relational Queries
 
 Implement relational queries in `WrapData` to convert foreign key IDs to related data. For example, display category names and author names in article lists.
+
+#### 6.3.7 Extension 7: Operation Log Management
+
+The framework includes complete operation logging functionality. You can:
+
+**View Operation History**:
+- Access `/base/op/index` to view all operation events
+- Support searching by data table, user, time, etc.
+- Click the details button to view specific change records and field differences
+
+**Rollback Operations**:
+- Select operation events to rollback
+- Framework automatically checks operation dependencies
+- Confirm to execute rollback, data is restored to the state before changes
+- Rollback operations themselves are also recorded, forming a complete audit chain
+
+**Customize Display Fields**:
+- Configure fields to display in the `show` field of `op.json`
+- Framework calculates differences and displays based on these fields
+- Supports field translation, automatically converts foreign key IDs to display names
 
 ---
 
