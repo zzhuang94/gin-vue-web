@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
+	"strings"
 
 	"github.com/gin-gonic/gin"
 )
@@ -144,4 +145,75 @@ func (l *Log) CalcDiffKeys(od, nd map[string]string, op *Op, rules []*Rule) map[
 		}
 	}
 	return ans
+}
+
+func (l *Log) Rollback(sess *Sess) error {
+	_, err := sess.Exec(l.buildRollbackArgs()...)
+	if err != nil {
+		return fmt.Errorf("执行回滚SQL失败: %v", err)
+	}
+
+	rollbackLog := &Log{
+		Uuid:      sess.Ctx.GetString("op_uuid"),
+		Op:        -l.Op,
+		DataTable: l.DataTable,
+		DataId:    l.DataId,
+		DataOld:   l.DataNew,
+		DataNew:   l.DataOld,
+	}
+	_, err = BaseDB.Insert(rollbackLog)
+	if err != nil {
+		return fmt.Errorf("插入回滚log失败: %v", err)
+	}
+
+	sess.Ctx.Set("log_exists", true)
+	return nil
+}
+
+func (l *Log) buildRollbackArgs() []any {
+	if l.Op == 1 {
+		sql := fmt.Sprintf("DELETE FROM `%s` WHERE id = ?", l.DataTable)
+		return []any{sql, l.DataId}
+	}
+
+	od, _ := l.GetOdNd()
+
+	if l.Op == 0 {
+		sets := make([]string, 0)
+		vals := make([]any, 0)
+		for k, v := range od {
+			sets = append(sets, fmt.Sprintf("`%s` = ?", k))
+			vals = append(vals, v)
+		}
+		vals = append(vals, l.DataId)
+		sql := fmt.Sprintf("UPDATE `%s` SET %s WHERE id = ?", l.DataTable, strings.Join(sets, ", "))
+		return append([]any{sql}, vals...)
+	}
+
+	var args, keys []string
+	var vals []any
+	for k, v := range od {
+		args = append(args, "?")
+		keys = append(keys, fmt.Sprintf("`%s`", k))
+		vals = append(vals, v)
+	}
+	sql := fmt.Sprintf("INSERT INTO `%s` (%s) VALUES (%s)", l.DataTable, strings.Join(keys, ", "), strings.Join(args, ", "))
+	return append([]any{sql}, vals...)
+}
+
+type relyChecker struct {
+	Eids []string
+}
+
+func CheckRely(eids []string) []string {
+	rc := &relyChecker{Eids: eids}
+	return rc.check()
+}
+
+func (rc *relyChecker) check() []string {
+	// TODO check op rely
+	// example:
+	// op1: a -> b; op2: b -> c;  ------>  op2 rely op1
+	// if rollback op1, must rollback op2 first
+	return []string{}
 }

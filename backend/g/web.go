@@ -96,6 +96,16 @@ func (w *Web) GetUriArg(c *gin.Context) map[string]any {
 	return arg
 }
 
+func (w *Web) GetIds(c *gin.Context) ([]string, error) {
+	arg := new(struct {
+		Ids []string `json:"ids"`
+	})
+	if err := c.ShouldBindJSON(arg); err != nil {
+		return nil, err
+	}
+	return arg.Ids, nil
+}
+
 func (w *Web) GetPageSize(c *gin.Context) int {
 	ans, _ := strconv.Atoi(w.GetUser(c).User["page_size"])
 	if ans == 0 {

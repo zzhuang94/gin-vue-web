@@ -127,7 +127,7 @@ const tryRollback = async () => {
     return
   }
   loading.value = true
-  const r = await lib.curlPost('confirm', { ids: ids.value })
+  const r = await lib.curl('confirm', { ids: ids.value })
   if (r.code) {
     rollback(ids.value)
   } else {
@@ -145,7 +145,7 @@ const rollback = async (ids) => {
     loading.value = false
     return
   }
-  await lib.ajaxPost('rollback', { ids })
+  await lib.ajax('rollback', { ids })
   cancel()
 }
 

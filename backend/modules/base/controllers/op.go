@@ -5,6 +5,7 @@ import (
 	"strings"
 
 	"github.com/gin-gonic/gin"
+	"github.com/sirupsen/logrus"
 	"xorm.io/builder"
 	"xorm.io/xorm"
 )
@@ -70,4 +71,33 @@ func (r *Op) ActionLog(c *gin.Context) {
 		"name":  g.Ops[log.DataTable].Name,
 		"time":  log.Created.Format("2006-01-02 15:04:05"),
 	})
+}
+
+func (r *Op) ActionConfirm(c *gin.Context) {
+	ids, _ := r.GetIds(c)
+	relys := g.CheckRely(ids)
+	if len(relys) == 0 {
+		r.JsonSucc(c, "ok")
+		return
+	}
+	c.JSON(200, gin.H{
+		"ids": ids,
+	})
+}
+
+func (r *Op) ActionRollback(c *gin.Context) {
+	ids, _ := r.GetIds(c)
+	logs := make([]*g.Log, 0)
+	g.BaseDB.In("eid", ids).OrderBy("id DESC").Find(&logs)
+	sess := r.BeginSess(g.CoreDB, c)
+	for _, log := range logs {
+		if err := log.Rollback(sess); err != nil {
+			logrus.Errorf("rollback log %d failed: %v", log.Id, err)
+			sess.Rollback()
+			r.JsonFail(c, err)
+			return
+		}
+	}
+	sess.Commit()
+	r.JsonSucc(c, "ok")
 }
