@@ -275,9 +275,7 @@ func (rc *relyChecker) getRelyEids(eids []string, log *Log) []string {
 	// 如果 rollback 操作1, 则必须同时 rollback 操作2，因为操作2 依赖于操作1
 	rl := new(Log)
 	has, _ := BaseDB.NotIn("eid", eids).Where("id > ?", log.Id).
-		And("data_id = ?", log.DataId).
-		And("data_table = ?", log.DataTable).
-		And("data_old = ?", log.DataNew).
+		And("data_id = ?", log.DataId).And("data_table = ?", log.DataTable).
 		OrderBy("id").Get(rl)
 	if has {
 		ans = append(ans, strconv.Itoa(rl.Eid))
@@ -296,7 +294,8 @@ func (rc *relyChecker) getRelyEids(eids []string, log *Log) []string {
 				rl := new(Log)
 				has, _ := BaseDB.NotIn("eid", eids).Where("id > ?", log.Id).
 					And("data_table = ?", ft).And("op != -1").
-					And("JSON_EXTRACT(data_new, '$."+fk+"') = ?", val).Get(rl)
+					And("JSON_EXTRACT(data_new, '$."+fk+"') = ?", val).
+					OrderBy("id").Get(rl)
 				if has {
 					ans = append(ans, strconv.Itoa(rl.Eid))
 				}
@@ -315,7 +314,8 @@ func (rc *relyChecker) getRelyEids(eids []string, log *Log) []string {
 				rl := new(Log)
 				has, _ := BaseDB.NotIn("eid", eids).Where("id > ?", log.Id).
 					And("data_table = ?", pt).And("op = -1").
-					And("JSON_EXTRACT(data_old, '$."+pk+"') = ?", val).Get(rl)
+					And("JSON_EXTRACT(data_old, '$."+pk+"') = ?", val).
+					OrderBy("id").Get(rl)
 				if has {
 					ans = append(ans, strconv.Itoa(rl.Eid))
 				}
