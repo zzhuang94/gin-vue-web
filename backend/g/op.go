@@ -1,22 +1,22 @@
 package g
 
 import (
+	"backend/libs"
 	"encoding/json"
 	"fmt"
 	"os"
+	"strconv"
 	"strings"
 
 	"github.com/gin-gonic/gin"
 )
 
 type Op struct {
-	Name string         `json:"name"`
-	Db   string         `json:"db"`
-	Show []string       `json:"show"`
-	Rela map[string]FKs `json:"rela"`
+	Name    string                       `json:"name"`
+	Db      string                       `json:"db"`
+	Show    []string                     `json:"show"`
+	Primary map[string]map[string]string `json:"primary,omitempty"`
 }
-
-type FKs map[string]string
 
 func initOps() error {
 	bytes, err := os.ReadFile("op.json")
@@ -186,7 +186,10 @@ func (l *Log) buildRollbackArgs() []any {
 			vals = append(vals, v)
 		}
 		vals = append(vals, l.DataId)
-		sql := fmt.Sprintf("UPDATE `%s` SET %s WHERE id = ?", l.DataTable, strings.Join(sets, ", "))
+		sql := fmt.Sprintf(
+			"UPDATE `%s` SET %s WHERE id = ?",
+			l.DataTable, strings.Join(sets, ", "),
+		)
 		return append([]any{sql}, vals...)
 	}
 
@@ -197,23 +200,127 @@ func (l *Log) buildRollbackArgs() []any {
 		keys = append(keys, fmt.Sprintf("`%s`", k))
 		vals = append(vals, v)
 	}
-	sql := fmt.Sprintf("INSERT INTO `%s` (%s) VALUES (%s)", l.DataTable, strings.Join(keys, ", "), strings.Join(args, ", "))
+	sql := fmt.Sprintf(
+		"INSERT INTO `%s` (%s) VALUES (%s)",
+		l.DataTable, strings.Join(keys, ", "), strings.Join(args, ", "),
+	)
 	return append([]any{sql}, vals...)
 }
 
-type relyChecker struct {
-	Eids []string
-}
-
 func CheckRely(eids []string) []string {
-	rc := &relyChecker{Eids: eids}
-	return rc.check()
+	rc := &relyChecker{}
+	rc.init()
+	return rc.check(eids)
 }
 
-func (rc *relyChecker) check() []string {
-	// TODO check op rely
-	// example:
-	// op1: a -> b; op2: b -> c;  ------>  op2 rely op1
-	// if rollback op1, must rollback op2 first
-	return []string{}
+type relyChecker struct {
+	Primary map[string]map[string]map[string]string
+	Foreign map[string]map[string]map[string]string
+}
+
+func (rc *relyChecker) init() {
+	rc.Primary = make(map[string]map[string]map[string]string)
+	rc.Foreign = make(map[string]map[string]map[string]string)
+	for pt, op := range Ops {
+		if op.Primary == nil {
+			continue
+		}
+		rc.Primary[pt] = make(map[string]map[string]string)
+		for pk, pv := range op.Primary {
+			rc.Primary[pt][pk] = pv
+			for ft, fk := range pv {
+				if _, ok := rc.Foreign[ft]; !ok {
+					rc.Foreign[ft] = make(map[string]map[string]string)
+				}
+				if _, ok := rc.Foreign[ft][pk]; !ok {
+					rc.Foreign[ft][fk] = make(map[string]string)
+				}
+				rc.Foreign[ft][fk][pt] = pk
+			}
+		}
+	}
+}
+
+func (rc *relyChecker) check(eids []string) []string {
+	ans := []string{}
+	for {
+		eids = rc.checkRely(eids)
+		if len(eids) == 0 {
+			return ans
+		}
+		ans = append(ans, eids...)
+	}
+}
+
+func (rc *relyChecker) checkRely(eids []string) []string {
+	ans := []string{}
+	logs := []*Log{}
+	BaseDB.In("eid", eids).OrderBy("id").Find(&logs)
+	for _, log := range logs {
+		reids := rc.getRelyEids(eids, log)
+		if len(reids) > 0 {
+			ans = append(ans, reids...)
+		}
+	}
+	return libs.UniqSlice(ans)
+}
+
+// 数据库的改动一定要遵循主键-外键依赖关系，否则会导致数据不一致
+// 比如 b.a_id = a.id  那么再删除数据a之前，必须先删除数据b，否则数据b将无法映射主键
+func (rc *relyChecker) getRelyEids(eids []string, log *Log) []string {
+	ans := []string{}
+
+	// 同一条数据的连续改动，
+	// 操作1: a -> b， 操作2: b -> c;
+	// 如果 rollback 操作1, 则必须同时 rollback 操作2，因为操作2 依赖于操作1
+	rl := new(Log)
+	has, _ := BaseDB.NotIn("eid", eids).Where("id > ?", log.Id).
+		And("data_id = ?", log.DataId).
+		And("data_table = ?", log.DataTable).
+		And("data_old = ?", log.DataNew).
+		OrderBy("id").Get(rl)
+	if has {
+		ans = append(ans, strconv.Itoa(rl.Eid))
+	}
+
+	od, nd := log.GetOdNd()
+
+	// 主键依赖
+	// 操作1: 新增了数据a，操作2: 改动（或新增）数据b，改之后 b.a_id = a.id；
+	// 如果 rollback 操作1, 则必须同时 rollback 操作2，因为操作2 依赖于操作1
+	_, isPrimary := rc.Primary[log.DataTable]
+	if log.Op == 1 && isPrimary {
+		for pk, pv := range rc.Primary[log.DataTable] {
+			val := nd[pk]
+			for ft, fk := range pv {
+				rl := new(Log)
+				has, _ := BaseDB.NotIn("eid", eids).Where("id > ?", log.Id).
+					And("data_table = ?", ft).And("op != -1").
+					And("JSON_EXTRACT(data_new, '$."+fk+"') = ?", val).Get(rl)
+				if has {
+					ans = append(ans, strconv.Itoa(rl.Eid))
+				}
+			}
+		}
+	}
+
+	// 外键依赖
+	// 操作1: 改动（或删除）数据b，改之前的 b.a_id = a.id；操作2：删除数据a
+	// 如果 rollback 操作1, 则必须同时 rollback 操作2，否则 b.a_id 将无法映射主键
+	_, isForeign := rc.Foreign[log.DataTable]
+	if isForeign {
+		for fk, fv := range rc.Foreign[log.DataTable] {
+			val := od[fk]
+			for pt, pk := range fv {
+				rl := new(Log)
+				has, _ := BaseDB.NotIn("eid", eids).Where("id > ?", log.Id).
+					And("data_table = ?", pt).And("op = -1").
+					And("JSON_EXTRACT(data_old, '$."+pk+"') = ?", val).Get(rl)
+				if has {
+					ans = append(ans, strconv.Itoa(rl.Eid))
+				}
+			}
+		}
+	}
+	return ans
 }

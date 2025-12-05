@@ -7,7 +7,7 @@ import (
 	"xorm.io/xorm"
 )
 
-type MysqlConfig struct {
+type MysqlCfg struct {
 	Name    string   `json:"name"`
 	Type    string   `json:"type"`
 	URI     string   `json:"uri"`
@@ -18,7 +18,7 @@ type MysqlConfig struct {
 	Baks    []string `json:"baks"`
 }
 
-func NewMysqlEngine(c *MysqlConfig) (*xorm.Engine, error) {
+func NewMysqlEngine(c *MysqlCfg) (*xorm.Engine, error) {
 	engine, err := tryNewEngine(c.URI, c.IsMgr, c.Baks)
 	if err != nil {
 		errInfo := fmt.Sprintf("[MySQL] %s ping failed", c.Name)

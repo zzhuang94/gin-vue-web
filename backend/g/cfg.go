@@ -9,12 +9,13 @@ import (
 )
 
 type cfg struct {
-	Env   string                       `json:"env"`
-	Name  string                       `json:"name"`
-	Debug bool                         `json:"debug"`
-	Port  int                          `json:"port"`
-	Log   *libs.LogConf                `json:"log"`
-	DBs   map[string]*libs.MysqlConfig `json:"dbs"`
+	Env   string                    `json:"env"`
+	Name  string                    `json:"name"`
+	Debug bool                      `json:"debug"`
+	Port  int                       `json:"port"`
+	Log   *libs.LogConf             `json:"log"`
+	DBs   map[string]*libs.MysqlCfg `json:"dbs"`
+	Redis *libs.RedisCfg            `json:"redis"`
 }
 
 func initCfg() error {

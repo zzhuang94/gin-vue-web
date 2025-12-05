@@ -22,6 +22,11 @@
         }
     },
 
+    "redis": {
+        "addr": "gin-vue.web.domain:6379",
+        "passwd": "Hzz*Dev!"
+    },
+
     "log": {
         "path": "logs/log.log",
         "keep_days": 7

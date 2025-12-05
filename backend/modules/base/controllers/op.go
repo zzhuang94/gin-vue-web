@@ -80,8 +80,17 @@ func (r *Op) ActionConfirm(c *gin.Context) {
 		r.JsonSucc(c, "ok")
 		return
 	}
+	allids := append(ids, relys...)
+	cond := builder.In("e.id", allids)
+	query := r.BuildQuery(cond, true)
+	data := make([]map[string]string, 0)
+	query.Find(&data)
 	c.JSON(200, gin.H{
-		"ids": ids,
+		"code": 0,
+		"data": gin.H{
+			"allids": allids,
+			"data":   data,
+		},
 	})
 }
 
