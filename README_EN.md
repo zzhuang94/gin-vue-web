@@ -232,6 +232,71 @@ The framework includes a powerful **operation logging (op-log)** feature that au
 4. Operation events are stored in the `op_event` table in the `base` database
 5. Detailed change information is stored in the `op_log` table in the `base` database
 
+**Dependency Relationship Checking Mechanism:**
+
+The framework automatically checks data dependency relationships before rollback operations to ensure data consistency. This is a core design of the operation logging feature, preventing data inconsistency issues caused by rollbacks.
+
+**Why Dependency Checking is Needed:**
+
+Database changes must follow primary key-foreign key dependency relationships, otherwise data inconsistency will occur. For example: if `b.a_id = a.id` (table b's foreign key references table a's primary key), then data b must be deleted before deleting data a, otherwise data b will not be able to map to a valid primary key, causing data inconsistency.
+
+**Three Types of Dependency Relationships:**
+
+1. **Consecutive Changes to the Same Record**
+   - **Scenario**: The same record undergoes multiple consecutive changes, such as `a -> b -> c`
+   - **Rule**: If rolling back `a -> b`, operation `b -> c` must also be rolled back, because operation 2 depends on the result of operation 1
+   - **Example**: A user first changes an order status to "Paid", then changes it to "Shipped". When rolling back the "Paid" status, the "Shipped" status must also be rolled back
+
+2. **Primary Key Dependency (Newly Created Data is Referenced)**
+   - **Scenario**: Operation 1 creates data a, operation 2 modifies (or creates) data b, after which `b.a_id = a.id`
+   - **Rule**: If rolling back operation 1 (deleting newly created a), operation 2 must also be rolled back, because operation 2 depends on the primary key created by operation 1
+   - **Example**: First create category A (id=100), then create article B with `category_id=100`. When rolling back the creation of category A, the creation of article B must also be rolled back
+
+3. **Foreign Key Dependency (Deleting Referenced Data)**
+   - **Scenario**: Operation 1 modifies (or deletes) data b, before which `b.a_id = a.id`; operation 2 deletes data a
+   - **Rule**: If rolling back operation 1, operation 2 must also be rolled back, otherwise `b.a_id` will not be able to map to a valid primary key
+   - **Example**: First modify an order's customer ID to 200, then delete customer 200. When rolling back the order modification, the customer deletion must also be rolled back, otherwise the order's customer ID will point to a non-existent record
+
+**Configuration Method:**
+
+Configure primary key-foreign key relationships in `op.json` using the `primary` field:
+
+```json
+{
+    "table_a": {
+        "name": "Table A",
+        "db": "core",
+        "show": ["field1", "field2"],
+        "primary": {
+            "id": {
+                "table_b": "a_id",
+                "table_c": "a_id"
+            }
+        }
+    }
+}
+```
+
+Configuration Description:
+- `primary`: Defines which tables' foreign keys reference this table's primary key
+- `"id"`: Primary key field name
+- `"table_b": "a_id"`: Table table_b's foreign key field `a_id` references table table_a's primary key `id`
+
+**Checking Process:**
+
+1. User selects operation events to rollback
+2. Framework calls `CheckRely()` to recursively check all dependency relationships
+3. If dependencies are found, automatically collects all operation events that need to be rolled back together
+4. Frontend displays the complete rollback list, user confirms before unified rollback
+5. All rollback operations are executed in the same transaction to ensure atomicity
+
+**Design Advantages:**
+
+- **Automation**: No need to manually analyze dependency relationships, framework automatically detects
+- **Safety**: Prevents data inconsistency issues caused by rollbacks
+- **Completeness**: Recursive checking ensures all related operations are properly handled
+- **Transparency**: Clearly displays all operations that need to be rolled back, user can confirm before execution
+
 **Use Cases:**
 - **Data Auditing**: Track who changed what data and when
 - **Error Recovery**: Quickly roll back mistaken operations and restore data to previous state
@@ -1034,7 +1099,8 @@ If you need to enable operation logging, add table configuration in `backend/op.
         "show": ["field1", "field2", "field3"],
         "primary": {
             "id": {
-                "related_table": "foreign_key_field"
+                "related_table1": "foreign_key_field1",
+                "related_table2": "foreign_key_field2"
             }
         }
     }
@@ -1046,6 +1112,38 @@ Configuration Description:
 - `db`: Database name, must be `"core"` (operation logging only records tables in the core database)
 - `show`: List of fields to display in operation logs, used for diff comparison display
 - `primary`: Primary key relationships, defining which tables' foreign keys reference this table's primary key
+  - `"id"`: Primary key field name (usually `id`)
+  - `"related_table1": "foreign_key_field1"`: Indicates that `related_table1` table's `foreign_key_field1` field references this table's primary key `id`
+  - Multiple related tables can be configured, each on a separate line
+
+**Configuration Example:**
+
+Assume the following table structure:
+- `category` table (primary key: `id`)
+- `article` table (foreign key: `category_id` references `category.id`)
+- `tag` table (foreign key: `category_id` references `category.id`)
+
+When configuring the `category` table in `op.json`:
+
+```json
+{
+    "category": {
+        "name": "Category",
+        "db": "core",
+        "show": ["name", "status"],
+        "primary": {
+            "id": {
+                "article": "category_id",
+                "tag": "category_id"
+            }
+        }
+    }
+}
+```
+
+After this configuration, the framework will automatically check dependency relationships during rollback operations:
+- If rolling back a category creation operation, it will automatically check if any articles or tags reference that category
+- If rolling back a category deletion operation, it will automatically check if any article or tag modification operations depend on that category
 
 After configuration, the framework will automatically record all data changes (create, update, delete) for this table. You can view and rollback these operations in the operation log page.
 
