@@ -4,6 +4,7 @@
     "paths": {
       "@/*": ["src/*"],
       "@libs/*": ["src/libs/*"],
+      "@assets/*": ["src/assets/*"],
       "@styles/*": ["src/styles/*"],
       "@modules/*": ["src/modules/*"],
       "@templates/*": ["src/templates/*"],

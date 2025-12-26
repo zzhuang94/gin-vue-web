@@ -88,6 +88,15 @@
         </div>
       </Card>
 
+      <Card title="Image 图片样式" icon="image" color="primary">
+        <div style="margin-bottom: 10px">
+          <p><strong>功能：</strong>展示图片的各种样式</p>
+        </div>
+        <div style="margin-bottom: 15px">
+          <a-image :src="ImgTree" alt="Logo" style="width: 100px; height: 100px;" />
+        </div>
+      </Card>
+
       <!-- BinSwitch 组件 -->
       <Card title="BinSwitch 开关" icon="toggle-on" color="success">
         <div style="margin-bottom: 10px">
@@ -245,6 +254,7 @@ import TableV from '@components/table-v.vue'
 import CollapseTable from '@components/collapse-table.vue'
 import Lock from '@components/lock.vue'
 import Error from '@components/error.vue'
+import ImgTree from '@assets/tree.png'
 
 // 基础样式数据
 const colors = ['default', 'secondary', 'metal', 'dark', 'accent', 'primary', 'info', 'focus', 'brand', 'success', 'danger', 'warning']
