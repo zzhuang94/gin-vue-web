@@ -11,7 +11,7 @@
       <div v-if="displayedNew.length > 0 || filteredNew.length > 0" class="icon-section">
         <h3 class="section-title">
           <span class="badge new-badge">NEW</span>
-          Font Awesome 7 新图标 ({{ filteredNew.length }})
+          Font Awesome 7 新图标 ({{ filteredNew.length }}) 用法：<code>fas fa-${name}</code>
         </h3>
         <a-row :gutter="[12, 12]" align="top">
           <a-col v-for="(name, i) in displayedNew" :key="`new-${i}`" :xs="8" :sm="6" :md="4" :lg="3" :xl="2" :xxl="2">
@@ -27,7 +27,7 @@
       <div v-if="displayedBrands.length > 0 || filteredBrands.length > 0" class="icon-section" style="margin-top: 32px">
         <h3 class="section-title">
           <span class="badge brands-badge">BRANDS</span>
-          Font Awesome 7 Brands 品牌图标 ({{ filteredBrands.length }})
+          Font Awesome 7 Brands 品牌图标 ({{ filteredBrands.length }}) 用法：<code>fab fa-${name}</code>
         </h3>
         <a-row :gutter="[12, 12]" align="top">
           <a-col v-for="(name, i) in displayedBrands" :key="`brands-${i}`" :xs="8" :sm="6" :md="4" :lg="3" :xl="2" :xxl="2">
@@ -43,7 +43,7 @@
       <div v-if="displayedOld.length > 0 || filteredOld.length > 0" class="icon-section" style="margin-top: 32px">
         <h3 class="section-title">
           <span class="badge old-badge">OLD</span>
-          Font Awesome 4 旧图标 ({{ filteredOld.length }})
+          Font Awesome 4 旧图标 ({{ filteredOld.length }}) 用法：<code>fas fa-${name}</code>
         </h3>
         <a-row :gutter="[12, 12]" align="top">
           <a-col v-for="(name, i) in displayedOld" :key="`old-${i}`" :xs="8" :sm="6" :md="4" :lg="3" :xl="2" :xxl="2">
