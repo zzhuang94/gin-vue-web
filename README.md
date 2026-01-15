@@ -401,23 +401,57 @@ gin-vue-web 采用经典的前后端分离架构。理解这个架构是阅读�
 ```
 gin-vue-web/
 ├── backend/                 # 后端代码（Go）
-│   ├── g/                   # 核心框架代码
-│   │   ├── x.go            # CRUD 核心逻辑（X 结构体）
-│   │   ├── xb.go           # 批量操作扩展（XB 结构体）
+│   ├── api/                 # RESTful API 目录
+│   │   ├── frm/            # API 框架代码
+│   │   │   ├── common.go   # 通用响应函数
+│   │   │   └── middleware.go # API 中间件
+│   │   ├── modules/        # API 业务模块
+│   │   │   └── res/        # res 模块的 API
+│   │   │       ├── ip.go
+│   │   │       ├── service.go
+│   │   │       ├── policy.go
+│   │   │       └── vidc.go
+│   │   └── router.go       # API 路由配置
+│   │
+│   ├── web/                 # Web 界面目录
+│   │   ├── frm/            # Web 框架代码
+│   │   │   ├── x.go        # CRUD 核心逻辑（X 结构体）
+│   │   │   ├── xb.go       # 批量操作扩展（XB 结构体）
+│   │   │   ├── action.go   # 路由自动注册
+│   │   │   ├── web.go      # Web 基础功能
+│   │   │   ├── middleware.go # Web 中间件
+│   │   │   └── ...
+│   │   ├── modules/        # Web 业务模块
+│   │   │   ├── base/       # 基础模块（用户、角色等）
+│   │   │   │   ├── action.go
+│   │   │   │   ├── user.go
+│   │   │   │   └── ...
+│   │   │   └── res/        # 资源模块（示例）
+│   │   │       ├── ip.go
+│   │   │       ├── service.go
+│   │   │       └── ...
+│   │   └── router.go       # Web 路由配置
+│   │
+│   ├── models/              # 共享数据模型（api 和 web 共用）
+│   │   ├── base/           # base 模块的模型
+│   │   │   ├── user.go
+│   │   │   ├── role.go
+│   │   │   └── ...
+│   │   └── res/            # res 模块的模型
+│   │       ├── ip.go
+│   │       ├── service.go
+│   │       └── ...
+│   │
+│   ├── g/                   # 共享工具（api 和 web 共用）
+│   │   ├── cfg.go          # 配置管理
+│   │   ├── model.go        # 基础模型
 │   │   ├── rule.go         # 规则配置处理
-│   │   ├── action.go       # 路由自动注册
-│   │   ├── web.go          # Web 基础功能
-│   │   └── model.go        # 基础模型
-│   ├── modules/            # 业务模块
-│   │   ├── base/           # 基础模块（用户、角色等）
-│   │   │   ├── controllers/ # 控制器
-│   │   │   └── models/      # 数据模型
-│   │   └── res/            # 资源模块（示例）
-│   │       ├── controllers/
-│   │       └── models/
-│   ├── libs/               # 工具库
+│   │   └── op.go           # 操作日志
+│   │
+│   ├── libs/                # 工具库
 │   ├── main.go             # 入口文件
-│   └── rule.json           # 字段规则配置
+│   ├── rule.json           # 字段规则配置
+│   └── op.json             # 操作日志配置
 │
 ├── frontend/               # 前端代码（Vue 3）
 │   ├── src/
@@ -442,15 +476,46 @@ gin-vue-web/
 
 ### 3.2 后端代码结构
 
-#### 3.2.1 核心框架代码（`backend/g/`）
+后端采用**双架构设计**，将 RESTful API 和 Web 界面完全分离，同时共享数据模型和基础工具。
 
-这个目录包含了框架的所有核心功能。让我们逐个了解每个文件的作用：
+#### 3.2.1 API 目录（`backend/api/`）- RESTful API
 
-**`x.go` - CRUD 核心逻辑**
+API 目录提供标准的 RESTful API 接口，采用**函数式编程**方式，简单直接。
 
-这是整个框架最重要的文件。`X` 结构体封装了完整的 CRUD（增删改查）功能。当你创建一个 Controller 并继承 `X` 结构体时，你就自动获得了列表查询、数据获取、新增、编辑、删除等所有功能。
+**目录结构：**
+- `api/frm/`：API 框架代码
+  - `common.go`：通用响应函数（Success、Error、分页等）
+  - `middleware.go`：API 中间件（认证、日志等）
+- `api/modules/`：API 业务模块
+  - `res/`：res 模块的 API 处理函数
+    - `ip.go`：IP 相关 API（GetIpList、GetIpById）
+    - `service.go`：Service 相关 API
+    - `policy.go`：Policy 相关 API
+    - `vidc.go`：Vidc 相关 API
+- `api/router.go`：API 路由配置
 
-`X` 结构体包含了很多字段，每个字段都有特定的作用：
+**特点：**
+- ✅ 无状态，纯函数实现
+- ✅ 标准 RESTful 响应格式
+- ✅ 使用 HTTP 状态码（200、400、404、500）
+- ✅ 适合外部系统调用和移动端
+
+#### 3.2.2 Web 目录（`backend/web/`）- Web 界面
+
+Web 目录提供 Web 界面相关的控制器，采用**面向对象**方式，继承框架基类获得丰富功能。
+
+**目录结构：**
+- `web/frm/`：Web 框架代码
+  - `x.go`：CRUD 核心逻辑（X 结构体）
+  - `xb.go`：批量操作扩展（XB 结构体）
+  - `action.go`：路由自动注册
+  - `web.go`：Web 基础功能
+  - `middleware.go`：Web 中间件（Session、权限等）
+- `web/modules/`：Web 业务模块
+  - `base/`：基础模块（用户、角色等）
+  - `res/`：资源模块（示例）
+
+**X 结构体核心功能：**
 - `DB`：数据库连接，用于执行 SQL 查询
 - `Model`：数据模型，定义了要操作的数据表结构
 - `Rules`：字段规则，从 `rule.json` 加载，控制字段的显示、验证、搜索等行为
@@ -458,39 +523,52 @@ gin-vue-web/
 - `Option`：行操作按钮配置，比如每行的"编辑"、"删除"按钮
 - `AndWheres`：固定查询条件，比如只显示已发布的数据
 - `WrapData`：数据处理函数，可以在返回数据前进行自定义处理
-- `Dump`：开启后在列表页展示"导出"按钮，可将当前搜索结果导出为 Excel，便于离线分析
+- `Dump`：开启后在列表页展示"导出"按钮，可将当前搜索结果导出为 Excel
 
-**`xb.go` - 批量操作扩展**
+**XB 结构体：**
+`XB` 是 `X` 的扩展版本，专门用于支持批量操作。它会在工具栏自动添加"批量修改"和"批量删除"按钮。
 
-`XB` 是 `X` 的扩展版本，专门用于支持批量操作。如果你需要批量编辑或批量删除功能，使用 `XB` 而不是 `X`。它会在工具栏自动添加"批量修改"和"批量删除"按钮。
+**特点：**
+- ✅ 有状态，包含 DB、Model、Rules 等配置
+- ✅ 自动 CRUD、批量操作、页面渲染
+- ✅ 通过反射自动注册路由
+- ✅ 适合复杂的 Web 界面
 
-**`rule.go` - 规则配置处理**
+#### 3.2.3 共享资源
 
-这个文件负责加载和解析 `rule.json` 配置文件。`rule.json` 定义了每个表的字段规则，比如字段是否必填、是否可搜索、下拉选项是什么等等。框架会根据这些规则自动生成搜索表单、数据表格和编辑表单。
+**`models/` - 共享数据模型**
 
-**`action.go` - 路由自动注册**
+所有数据模型统一放在 `models/` 目录下，被 `api` 和 `web` 共同使用：
+- `models/base/`：base 模块的模型（user.go、role.go 等）
+- `models/res/`：res 模块的模型（ip.go、service.go 等）
 
-这是框架的"魔法"所在。通过 Go 的反射机制，框架会自动扫描所有 Controller 中以 `Action` 开头的方法，然后自动注册为路由。这意味着你不需要手动编写路由表，只需要定义方法，路由就会自动生成。
+**`g/` - 共享工具**
 
-**`web.go` - Web 基础功能**
+提供配置管理、规则处理、操作日志等共享功能：
+- `cfg.go`：配置管理
+- `rule.go`：规则配置处理（加载和解析 `rule.json`）
+- `model.go`：基础模型接口
+- `op.go`：操作日志功能
 
-提供页面渲染、JSON 响应、Session 管理等基础功能。这些是 Web 应用的基础能力，被 `X` 结构体继承使用。
+**`libs/` - 工具库**
 
-#### 3.2.2 业务模块代码（`backend/modules/`）
+提供数据库、日志、Redis、字符串等底层工具函数。
 
-业务代码按模块组织，每个模块代表一个业务领域。比如 `base` 模块包含用户、角色等基础功能，`res` 模块可能包含资源管理相关的功能。
+#### 3.2.4 两种架构的对比
 
-每个模块通常包含两个目录：
-- **`models/`**：数据模型，定义了数据库表的结构
-- **`controllers/`**：控制器，处理 HTTP 请求，调用模型进行数据操作
+| 特性 | API（函数式） | Web（面向对象） |
+|------|-------------|---------------|
+| **代码组织** | 包级别函数 | 结构体 + 方法 |
+| **状态管理** | 无状态 | 有状态（配置可复用） |
+| **功能丰富度** | 基础 CRUD | 自动 CRUD + 批量操作 + 页面渲染 |
+| **路由注册** | 手动注册 | 自动注册（反射） |
+| **适用场景** | RESTful API | Web 界面 |
 
-**一个典型的模块结构**
-
-以 Service 模块为例，它包含：
-- `models/service.go`：定义了 Service 数据模型，包含名称、业务类型、状态等字段
-- `controllers/service.go`：定义了 Service 控制器，继承 `g.XB`，自动获得所有 CRUD 功能
-
-这种结构清晰明了，模型负责数据结构，控制器负责业务逻辑。
+**设计优势：**
+- ✅ **职责分离**：API 和 Web 各司其职，互不干扰
+- ✅ **代码复用**：共享 models 和 g，避免重复代码
+- ✅ **灵活扩展**：可以根据需求选择不同的实现方式
+- ✅ **易于维护**：结构清晰，便于团队协作
 
 ### 3.3 前端代码结构
 
@@ -892,17 +970,29 @@ Gin 框架匹配到对应的路由，找到 `Service` Controller 的 `ActionInde
 
 根据解析出的信息，可以快速定位代码：
 
+**对于 Web 请求（`/web/...`）：**
+
 1. **查找 Controller 注册**
 
-在 `backend/modules/router.go` 中搜索 `RegController("res", "service"`，找到注册代码。
+在 `backend/web/router.go` 中搜索 `RegController("res", "service"`，找到注册代码。
 
 2. **查找 Controller 文件**
 
-根据 module 和 controller 名称，找到文件：`backend/modules/res/controllers/service.go`
+根据 module 和 controller 名称，找到文件：`backend/web/modules/res/service.go`
 
 3. **查找 Action 方法**
 
-如果 Controller 继承自 `g.X` 或 `g.XB`，`ActionFetch` 方法在 `backend/g/x.go` 中。如果是自定义方法，就在 Controller 文件中。
+如果 Controller 继承自 `web/frm.X` 或 `web/frm.XB`，`ActionFetch` 方法在 `backend/web/frm/x.go` 中。如果是自定义方法，就在 Controller 文件中。
+
+**对于 API 请求（`/api/...`）：**
+
+1. **查找路由注册**
+
+在 `backend/api/router.go` 中查找对应的路由配置。
+
+2. **查找处理函数**
+
+根据路由路径，找到对应的处理函数文件：`backend/api/modules/res/service.go`
 
 #### 5.1.4 步骤 4: 添加调试代码
 
@@ -1040,22 +1130,22 @@ Vue DevTools 是调试 Vue 应用的最佳工具，可以清楚地看到组件�
 
 #### 6.1.2 步骤 2: 创建后端 Controller
 
-在 `backend/modules/{module}/controllers/` 下创建控制器文件。
+在 `backend/web/modules/{module}/` 下创建控制器文件。
 
 例如，对于路由 `/example/help/index`，需要创建：
-- `backend/modules/example/controllers/help.go`
+- `backend/web/modules/example/help.go`
 
-Controller 需要继承 `g.Web`（不是 `g.X`，因为不需要 CRUD 功能）。
+Controller 需要继承 `web/frm.Web`（不是 `web/frm.X`，因为不需要 CRUD 功能）。
 
 定义一个 `ActionIndex` 方法，调用 `Render()` 渲染前端页面。
 
 #### 6.1.3 步骤 3: 注册路由
 
-在 `backend/modules/router.go` 中调用 `RegController()` 注册 Controller。
+在 `backend/web/router.go` 中调用 `RegController()` 注册 Controller。
 
 注册时需要指定三个参数：module、controller、实例。
 
-例如：`g.RegController("example", "help", controllers.NewHelp())`
+例如：`frm.RegController("example", "help", controllers.NewHelp())`
 
 然后调用 `BindActions()` 绑定路由。
 
@@ -1069,10 +1159,12 @@ Controller 需要继承 `g.Web`（不是 `g.X`，因为不需要 CRUD 功能）�
 
 #### 6.2.1 步骤 1: 定义数据模型
 
-创建 Model 文件，定义数据结构。Model 需要：
+在 `backend/models/{module}/` 下创建 Model 文件，定义数据结构。Model 需要：
 - 继承 `g.Model`（包含 id、created、updated 字段）
 - 定义业务字段
 - 实现 `ModelX` 接口的四个方法：`TableName()`、`New()`、`Save()`、`Delete()`
+
+例如：`backend/models/res/service.go`
 
 #### 6.2.2 步骤 2: 配置字段规则
 
@@ -1085,13 +1177,27 @@ Controller 需要继承 `g.Web`（不是 `g.X`，因为不需要 CRUD 功能）�
 
 #### 6.2.3 步骤 3: 创建 Controller
 
-创建 Controller 文件，继承 `g.X`（或 `g.XB` 如果需要批量操作）。框架会自动提供所有 CRUD 功能。
+**Web Controller（推荐用于 Web 界面）：**
+
+在 `backend/web/modules/{module}/` 下创建 Controller 文件，继承 `web/frm.X`（或 `web/frm.XB` 如果需要批量操作）。框架会自动提供所有 CRUD 功能。
+
+例如：`backend/web/modules/res/service.go`
 
 如果需要自定义，可以配置 `Tool`（工具栏按钮）和 `Option`（行操作按钮）。
 
+**API Handler（用于 RESTful API）：**
+
+在 `backend/api/modules/{module}/` 下创建处理函数文件，使用 `api/frm` 包的响应函数。
+
+例如：`backend/api/modules/res/service.go`
+
 #### 6.2.4 步骤 4: 注册路由和创建数据库表
 
-在 `router.go` 中注册 Controller，然后执行 SQL 创建数据库表。
+**Web 路由：** 在 `backend/web/router.go` 中注册 Controller，然后调用 `BindActions()` 绑定路由。
+
+**API 路由：** 在 `backend/api/router.go` 中注册路由。
+
+然后执行 SQL 创建数据库表。
 
 #### 6.2.5 步骤 5: 启用操作日志（可选）
 

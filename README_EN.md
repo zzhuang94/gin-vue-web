@@ -395,23 +395,57 @@ Simply put, the frontend (Vue 3) and backend (Go) are two completely independent
 ```
 gin-vue-web/
 ├── backend/                 # Backend code (Go)
-│   ├── g/                   # Core framework code
-│   │   ├── x.go            # CRUD core logic (X struct)
-│   │   ├── xb.go           # Batch operation extension (XB struct)
+│   ├── api/                 # RESTful API directory
+│   │   ├── frm/            # API framework code
+│   │   │   ├── common.go   # Common response functions
+│   │   │   └── middleware.go # API middleware
+│   │   ├── modules/        # API business modules
+│   │   │   └── res/        # res module APIs
+│   │   │       ├── ip.go
+│   │   │       ├── service.go
+│   │   │       ├── policy.go
+│   │   │       └── vidc.go
+│   │   └── router.go       # API route configuration
+│   │
+│   ├── web/                 # Web interface directory
+│   │   ├── frm/            # Web framework code
+│   │   │   ├── x.go        # CRUD core logic (X struct)
+│   │   │   ├── xb.go       # Batch operation extension (XB struct)
+│   │   │   ├── action.go   # Route auto-registration
+│   │   │   ├── web.go      # Web base functionality
+│   │   │   ├── middleware.go # Web middleware
+│   │   │   └── ...
+│   │   ├── modules/        # Web business modules
+│   │   │   ├── base/       # Base module (users, roles, etc.)
+│   │   │   │   ├── action.go
+│   │   │   │   ├── user.go
+│   │   │   │   └── ...
+│   │   │   └── res/        # Resource module (example)
+│   │   │       ├── ip.go
+│   │   │       ├── service.go
+│   │   │       └── ...
+│   │   └── router.go       # Web route configuration
+│   │
+│   ├── models/              # Shared data models (used by both api and web)
+│   │   ├── base/           # base module models
+│   │   │   ├── user.go
+│   │   │   ├── role.go
+│   │   │   └── ...
+│   │   └── res/            # res module models
+│   │       ├── ip.go
+│   │       ├── service.go
+│   │       └── ...
+│   │
+│   ├── g/                   # Shared utilities (used by both api and web)
+│   │   ├── cfg.go          # Configuration management
+│   │   ├── model.go        # Base model
 │   │   ├── rule.go         # Rule configuration processing
-│   │   ├── action.go       # Route auto-registration
-│   │   ├── web.go          # Web base functionality
-│   │   └── model.go        # Base model
-│   ├── modules/            # Business modules
-│   │   ├── base/           # Base module (users, roles, etc.)
-│   │   │   ├── controllers/ # Controllers
-│   │   │   └── models/      # Data models
-│   │   └── res/            # Resource module (example)
-│   │       ├── controllers/
-│   │       └── models/
-│   ├── libs/               # Utility libraries
+│   │   └── op.go           # Operation logging
+│   │
+│   ├── libs/                # Utility libraries
 │   ├── main.go             # Entry file
-│   └── rule.json           # Field rule configuration
+│   ├── rule.json           # Field rule configuration
+│   └── op.json             # Operation log configuration
 │
 ├── frontend/               # Frontend code (Vue 3)
 │   ├── src/
@@ -436,15 +470,46 @@ gin-vue-web/
 
 ### 3.2 Backend Code Structure
 
-#### 3.2.1 Core Framework Code (`backend/g/`)
+The backend adopts a **dual architecture design**, completely separating RESTful API and Web interface while sharing data models and base utilities.
 
-This directory contains all the core functionality of the framework. Let's understand the role of each file:
+#### 3.2.1 API Directory (`backend/api/`) - RESTful API
 
-**`x.go` - CRUD Core Logic**
+The API directory provides standard RESTful API interfaces, using a **functional programming** approach that is simple and direct.
 
-This is the most important file in the entire framework. The `X` struct encapsulates complete CRUD (Create, Read, Update, Delete) functionality. When you create a Controller and inherit the `X` struct, you automatically get all functions like list query, data retrieval, create, edit, delete, etc.
+**Directory Structure:**
+- `api/frm/`: API framework code
+  - `common.go`: Common response functions (Success, Error, pagination, etc.)
+  - `middleware.go`: API middleware (authentication, logging, etc.)
+- `api/modules/`: API business modules
+  - `res/`: res module API handlers
+    - `ip.go`: IP-related APIs (GetIpList, GetIpById)
+    - `service.go`: Service-related APIs
+    - `policy.go`: Policy-related APIs
+    - `vidc.go`: Vidc-related APIs
+- `api/router.go`: API route configuration
 
-The `X` struct contains many fields, each with a specific purpose:
+**Features:**
+- ✅ Stateless, pure function implementation
+- ✅ Standard RESTful response format
+- ✅ Uses HTTP status codes (200, 400, 404, 500)
+- ✅ Suitable for external system calls and mobile apps
+
+#### 3.2.2 Web Directory (`backend/web/`) - Web Interface
+
+The Web directory provides Web interface-related controllers, using an **object-oriented** approach that inherits framework base classes for rich functionality.
+
+**Directory Structure:**
+- `web/frm/`: Web framework code
+  - `x.go`: CRUD core logic (X struct)
+  - `xb.go`: Batch operation extension (XB struct)
+  - `action.go`: Route auto-registration
+  - `web.go`: Web base functionality
+  - `middleware.go`: Web middleware (Session, permissions, etc.)
+- `web/modules/`: Web business modules
+  - `base/`: Base module (users, roles, etc.)
+  - `res/`: Resource module (example)
+
+**X Struct Core Features:**
 - `DB`: Database connection, used to execute SQL queries
 - `Model`: Data model, defines the structure of the data table to be operated on
 - `Rules`: Field rules, loaded from `rule.json`, controls field display, validation, search, and other behaviors
@@ -452,39 +517,52 @@ The `X` struct contains many fields, each with a specific purpose:
 - `Option`: Row operation button configuration, such as "Edit" and "Delete" buttons for each row
 - `AndWheres`: Fixed query conditions, such as only showing published data
 - `WrapData`: Data processing function, can perform custom processing before returning data
-- `Dump`: When enabled, shows an "Export" button on the list page so users can export the current search result set to Excel for offline analysis
+- `Dump`: When enabled, shows an "Export" button on the list page so users can export the current search result set to Excel
 
-**`xb.go` - Batch Operation Extension**
+**XB Struct:**
+`XB` is an extended version of `X`, specifically designed to support batch operations. It will automatically add "Batch Modify" and "Batch Delete" buttons to the toolbar.
 
-`XB` is an extended version of `X`, specifically designed to support batch operations. If you need batch edit or batch delete functionality, use `XB` instead of `X`. It will automatically add "Batch Modify" and "Batch Delete" buttons to the toolbar.
+**Features:**
+- ✅ Stateful, contains DB, Model, Rules, and other configurations
+- ✅ Automatic CRUD, batch operations, page rendering
+- ✅ Automatic route registration via reflection
+- ✅ Suitable for complex Web interfaces
 
-**`rule.go` - Rule Configuration Processing**
+#### 3.2.3 Shared Resources
 
-This file is responsible for loading and parsing the `rule.json` configuration file. `rule.json` defines field rules for each table, such as whether a field is required, searchable, what dropdown options are available, etc. The framework automatically generates search forms, data tables, and edit forms based on these rules.
+**`models/` - Shared Data Models**
 
-**`action.go` - Route Auto-Registration**
+All data models are unified in the `models/` directory and shared by both `api` and `web`:
+- `models/base/`: base module models (user.go, role.go, etc.)
+- `models/res/`: res module models (ip.go, service.go, etc.)
 
-This is where the framework's "magic" happens. Through Go's reflection mechanism, the framework automatically scans all methods starting with `Action` in all Controllers, then automatically registers them as routes. This means you don't need to manually write route tables—just define methods, and routes will be automatically generated.
+**`g/` - Shared Utilities**
 
-**`web.go` - Web Base Functionality**
+Provides shared functionality such as configuration management, rule processing, operation logging:
+- `cfg.go`: Configuration management
+- `rule.go`: Rule configuration processing (loads and parses `rule.json`)
+- `model.go`: Base model interface
+- `op.go`: Operation logging functionality
 
-Provides base functionality such as page rendering, JSON responses, Session management, etc. These are the fundamental capabilities of web applications, inherited and used by the `X` struct.
+**`libs/` - Utility Libraries**
 
-#### 3.2.2 Business Module Code (`backend/modules/`)
+Provides underlying utility functions for database, logging, Redis, strings, etc.
 
-Business code is organized by modules, with each module representing a business domain. For example, the `base` module contains base functionality like users and roles, while the `res` module might contain resource management-related functionality.
+#### 3.2.4 Comparison of Two Architectures
 
-Each module typically contains two directories:
-- **`models/`**: Data models, define the structure of database tables
-- **`controllers/`**: Controllers, handle HTTP requests, call models for data operations
+| Feature | API (Functional) | Web (Object-Oriented) |
+|---------|-----------------|----------------------|
+| **Code Organization** | Package-level functions | Struct + methods |
+| **State Management** | Stateless | Stateful (reusable configuration) |
+| **Feature Richness** | Basic CRUD | Auto CRUD + batch operations + page rendering |
+| **Route Registration** | Manual registration | Auto registration (reflection) |
+| **Use Cases** | RESTful API | Web interface |
 
-**A Typical Module Structure**
-
-Taking the Service module as an example, it contains:
-- `models/service.go`: Defines the Service data model, containing fields like name, business type, status, etc.
-- `controllers/service.go`: Defines the Service controller, inherits `g.XB`, automatically gets all CRUD functionality
-
-This structure is clear and straightforward: models are responsible for data structure, controllers are responsible for business logic.
+**Design Advantages:**
+- ✅ **Separation of Concerns**: API and Web each have their own responsibilities
+- ✅ **Code Reuse**: Shared models and g, avoiding duplicate code
+- ✅ **Flexible Extension**: Can choose different implementation approaches based on needs
+- ✅ **Easy Maintenance**: Clear structure, convenient for team collaboration
 
 ### 3.3 Frontend Code Structure
 
@@ -886,17 +964,29 @@ For example, if you see `POST /web/res/service/fetch`, you can parse:
 
 Based on the parsed information, you can quickly locate the code:
 
+**For Web Requests (`/web/...`):**
+
 1. **Find Controller Registration**
 
-Search for `RegController("res", "service"` in `backend/modules/router.go` to find the registration code.
+Search for `RegController("res", "service"` in `backend/web/router.go` to find the registration code.
 
 2. **Find Controller File**
 
-Based on module and controller names, find the file: `backend/modules/res/controllers/service.go`
+Based on module and controller names, find the file: `backend/web/modules/res/service.go`
 
 3. **Find Action Method**
 
-If the Controller inherits from `g.X` or `g.XB`, the `ActionFetch` method is in `backend/g/x.go`. If it's a custom method, it's in the Controller file.
+If the Controller inherits from `web/frm.X` or `web/frm.XB`, the `ActionFetch` method is in `backend/web/frm/x.go`. If it's a custom method, it's in the Controller file.
+
+**For API Requests (`/api/...`):**
+
+1. **Find Route Registration**
+
+Find the corresponding route configuration in `backend/api/router.go`.
+
+2. **Find Handler Function**
+
+Based on the route path, find the corresponding handler function file: `backend/api/modules/res/service.go`
 
 #### 5.1.4 Step 4: Add Debug Code
 
@@ -1034,22 +1124,22 @@ The page content is just a regular Vue component and can contain any content.
 
 #### 6.1.2 Step 2: Create Backend Controller
 
-Create a controller file under `backend/modules/{module}/controllers/`.
+Create a controller file under `backend/web/modules/{module}/`.
 
 For example, for route `/example/help/index`, you need to create:
-- `backend/modules/example/controllers/help.go`
+- `backend/web/modules/example/help.go`
 
-The Controller needs to inherit `g.Web` (not `g.X`, because CRUD functionality is not needed).
+The Controller needs to inherit `web/frm.Web` (not `web/frm.X`, because CRUD functionality is not needed).
 
 Define an `ActionIndex` method that calls `Render()` to render the frontend page.
 
 #### 6.1.3 Step 3: Register Route
 
-Call `RegController()` in `backend/modules/router.go` to register the Controller.
+Call `RegController()` in `backend/web/router.go` to register the Controller.
 
 When registering, you need to specify three parameters: module, controller, and instance.
 
-For example: `g.RegController("example", "help", controllers.NewHelp())`
+For example: `frm.RegController("example", "help", controllers.NewHelp())`
 
 Then call `BindActions()` to bind routes.
 
@@ -1063,10 +1153,12 @@ This is the core functionality of the framework. You can complete a full CRUD fe
 
 #### 6.2.1 Step 1: Define Data Model
 
-Create a Model file and define the data structure. The Model needs to:
+Create a Model file under `backend/models/{module}/` and define the data structure. The Model needs to:
 - Inherit `g.Model` (includes id, created, updated fields)
 - Define business fields
 - Implement four methods of the `ModelX` interface: `TableName()`, `New()`, `Save()`, `Delete()`
+
+For example: `backend/models/res/service.go`
 
 #### 6.2.2 Step 2: Configure Field Rules
 
@@ -1079,13 +1171,27 @@ Add table configuration in `rule.json`. Configure for each field:
 
 #### 6.2.3 Step 3: Create Controller
 
-Create a Controller file that inherits `g.X` (or `g.XB` if batch operations are needed). The framework will automatically provide all CRUD functionality.
+**Web Controller (Recommended for Web Interface):**
+
+Create a Controller file under `backend/web/modules/{module}/` that inherits `web/frm.X` (or `web/frm.XB` if batch operations are needed). The framework will automatically provide all CRUD functionality.
+
+For example: `backend/web/modules/res/service.go`
 
 If customization is needed, you can configure `Tool` (toolbar buttons) and `Option` (row operation buttons).
 
+**API Handler (For RESTful API):**
+
+Create a handler function file under `backend/api/modules/{module}/` using response functions from the `api/frm` package.
+
+For example: `backend/api/modules/res/service.go`
+
 #### 6.2.4 Step 4: Register Route and Create Database Table
 
-Register the Controller in `router.go`, then execute SQL to create the database table.
+**Web Routes:** Register the Controller in `backend/web/router.go`, then call `BindActions()` to bind routes.
+
+**API Routes:** Register routes in `backend/api/router.go`.
+
+Then execute SQL to create the database table.
 
 #### 6.2.5 Step 5: Enable Operation Logging (Optional)
 
