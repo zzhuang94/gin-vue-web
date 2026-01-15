@@ -28,7 +28,7 @@
     },
 
     "log": {
-        "path": "logs/log.log",
+        "path": "../logs/log.log",
         "keep_days": 7
     }
 }

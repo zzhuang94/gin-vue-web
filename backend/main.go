@@ -3,7 +3,7 @@ package main
 import (
 	"backend/api"
 	"backend/g"
-	"backend/modules"
+	"backend/web"
 	"fmt"
 	"os"
 
@@ -18,7 +18,7 @@ func main() {
 
 	r := gin.Default()
 	wg := r.Group("/web")
-	modules.Route(wg)
+	web.Route(wg)
 
 	ag := r.Group("/api")
 	api.Route(ag)
