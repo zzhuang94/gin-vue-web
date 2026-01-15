@@ -6,6 +6,16 @@ import (
 	"flag"
 	"fmt"
 	"os"
+
+	"xorm.io/xorm"
+)
+
+var (
+	C      *cfg
+	Ops    map[string]*Op
+	Rules  map[string][]*Rule
+	BaseDB *xorm.Engine
+	CoreDB *xorm.Engine
 )
 
 type cfg struct {
@@ -16,6 +26,25 @@ type cfg struct {
 	Log   *libs.LogConf             `json:"log"`
 	DBs   map[string]*libs.MysqlCfg `json:"dbs"`
 	Redis *libs.RedisCfg            `json:"redis"`
+}
+
+func Init() error {
+	if err := initCfg(); err != nil {
+		return err
+	}
+	if err := initRules(); err != nil {
+		return err
+	}
+	if err := initOps(); err != nil {
+		return err
+	}
+
+	C.Log.InitLogrus()
+
+	if err := initDB(); err != nil {
+		return err
+	}
+	return nil
 }
 
 func initCfg() error {

@@ -8,10 +8,10 @@
         </div>
 
         <div v-if="l.path == openPath" class="submenu">
-          <div v-for="(s, si) in l.subs" :key="si" class="sub-item">
+          <div v-for="(s, si) in l.subs" :key="si" style="margin: 1rem 0; font-size: 0.9rem;">
             <router-link :to="s.path" class="link">
               <span class="sub-name" :class="s.active ? 'active' : ''">
-                <b style="margin-right: 0.5rem">·</b>{{ s.name }}
+                <b style="margin: 0 0.6rem 0 0.6rem">·</b>{{ s.name }}
               </span>
             </router-link>
           </div>
@@ -57,7 +57,8 @@ const toggle = (path) => {
 
 <style scoped>
 .l2-folder {
-  margin: 0.7rem 0;
+  margin-top: 0.5rem;
+  margin-bottom: 1.2rem;
   transition: all 0.3s;
   font-size: 1.2rem;
   font-weight: bold;
@@ -69,28 +70,16 @@ const toggle = (path) => {
   color: gray;
 }
 i {
-  font-size: 1.2rem;
-  width: 2.5rem;
+  font-size: 1.4rem;
+  width: 3rem;
 }
 .fa.pull-right {
-  margin-top: 0.3rem;
+  margin-top: 3px;
   font-size: 1.2rem;
-}
-.submenu {
-  overflow: hidden;
-}
-.sub-item {
-  margin: 0.7rem 0;
-}
-.sub-item:first-child {
-  margin-top: 0.1rem;
-}
-.sub-item:last-child {
-  margin-bottom: 0.1rem;
 }
 .sub-name {
   color: white;
-  margin-left: 1.5rem;
+  margin-left: 1.3rem;
   font-size: 1rem;
   font-weight: bold;
   text-decoration: none;
