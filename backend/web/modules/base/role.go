@@ -1,8 +1,8 @@
 package base
 
 import (
-	"backend/g"
 	"backend/models/base"
+	"backend/web/frm"
 	"fmt"
 	"strconv"
 	"strings"
@@ -12,11 +12,11 @@ import (
 )
 
 type Role struct {
-	*g.XB[*base.Role]
+	*frm.XB[*base.Role]
 }
 
 func NewRole() *Role {
-	r := &Role{XB: g.NewXB(&base.Role{})}
+	r := &Role{XB: frm.NewXB(&base.Role{})}
 	r.Option = append([][]any{{"特权管理", "folder-tree", "access"}}, r.Option...)
 	r.WrapData = func(data []map[string]string) { r.wrapData(data) }
 	return r

@@ -1,8 +1,8 @@
 package base
 
 import (
-	"backend/g"
 	"backend/models/base"
+	"backend/web/frm"
 	"bytes"
 	"encoding/base64"
 	"fmt"
@@ -16,12 +16,12 @@ import (
 )
 
 type User struct {
-	*g.X
+	*frm.X
 }
 
 func NewUser() *User {
-	u := &User{X: g.NewX(&base.User{})}
-	u.Tool = []*g.Tool{}
+	u := &User{X: frm.NewX(&base.User{})}
+	u.Tool = []*frm.Tool{}
 	u.Option = [][]any{}
 	return u
 }

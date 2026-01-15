@@ -69,12 +69,12 @@ func (Log) TableName() string {
 	return "op_log"
 }
 
-func recordUserLog(user, path string) {
+func RecordUserLog(user, path string) {
 	sql := "INSERT INTO user_log (username, path) VALUES (?, ?)"
 	BaseDB.Exec(sql, user, path)
 }
 
-func recordOp(c *gin.Context) {
+func RecordOp(c *gin.Context) {
 	log := c.GetBool("log_exists")
 	if !log {
 		return

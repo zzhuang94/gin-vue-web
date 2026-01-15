@@ -2,6 +2,7 @@ package base
 
 import (
 	"backend/g"
+	"backend/web/frm"
 	"strings"
 
 	"github.com/gin-gonic/gin"
@@ -11,11 +12,11 @@ import (
 )
 
 type Op struct {
-	*g.X
+	*frm.X
 }
 
 func NewOp() *Op {
-	r := &Op{X: g.NewX(&g.Event{})}
+	r := &Op{X: frm.NewX(&g.Event{})}
 	r.initRules()
 
 	r.BuildQuery = func(cond builder.Cond, withSelect bool) *xorm.Session {

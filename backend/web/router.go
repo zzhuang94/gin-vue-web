@@ -2,6 +2,7 @@ package web
 
 import (
 	"backend/g"
+	"backend/web/frm"
 	"backend/web/modules/base"
 	"backend/web/modules/res"
 
@@ -13,12 +14,12 @@ import (
 func Route(rg *gin.RouterGroup) {
 	initSession(rg)
 
-	rg.Use(g.WebAuth)
+	rg.Use(frm.Middleware)
 
 	routeBase()
 	routeRes()
 
-	g.BindActions(rg)
+	frm.BindActions(rg)
 }
 
 func initSession(rg *gin.RouterGroup) {
@@ -40,22 +41,22 @@ func initSession(rg *gin.RouterGroup) {
 }
 
 func routeBase() {
-	g.RegController("base", "helper", base.NewHelper())
-	g.RegController("base", "user", base.NewUser())
-	g.RegController("base", "user-log", base.NewUserLog())
-	g.RegController("base", "action", base.NewAction())
-	g.RegController("base", "navtree", base.NewNavtree())
-	g.RegController("base", "role", base.NewRole())
-	g.RegController("base", "role-user", base.NewRoleUser())
-	g.RegController("base", "trans", base.NewTrans())
-	g.RegController("base", "chart", base.NewChart())
-	g.RegController("base", "op", base.NewOp())
+	frm.RegController("base", "helper", base.NewHelper())
+	frm.RegController("base", "user", base.NewUser())
+	frm.RegController("base", "user-log", base.NewUserLog())
+	frm.RegController("base", "action", base.NewAction())
+	frm.RegController("base", "navtree", base.NewNavtree())
+	frm.RegController("base", "role", base.NewRole())
+	frm.RegController("base", "role-user", base.NewRoleUser())
+	frm.RegController("base", "trans", base.NewTrans())
+	frm.RegController("base", "chart", base.NewChart())
+	frm.RegController("base", "op", base.NewOp())
 }
 
 func routeRes() {
-	g.RegController("res", "vidc", res.NewVidc())
-	g.RegController("res", "ip", res.NewIp())
-	g.RegController("res", "vidc-ip", res.NewVidcIp())
-	g.RegController("res", "service", res.NewService())
-	g.RegController("res", "policy", res.NewPolicy())
+	frm.RegController("res", "vidc", res.NewVidc())
+	frm.RegController("res", "ip", res.NewIp())
+	frm.RegController("res", "vidc-ip", res.NewVidcIp())
+	frm.RegController("res", "service", res.NewService())
+	frm.RegController("res", "policy", res.NewPolicy())
 }

@@ -1,6 +1,7 @@
-package g
+package frm
 
 import (
+	"backend/g"
 	"fmt"
 	"io"
 	"strings"
@@ -8,11 +9,11 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-type XB[T ModelX] struct {
+type XB[T g.ModelX] struct {
 	*X
 }
 
-func NewXB[T ModelX](m T) *XB[T] {
+func NewXB[T g.ModelX](m T) *XB[T] {
 	x := NewX(m)
 	xb := &XB[T]{
 		X: x,

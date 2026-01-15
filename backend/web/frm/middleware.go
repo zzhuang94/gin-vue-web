@@ -1,15 +1,15 @@
-package g
+package frm
 
 import (
+	"backend/g"
 	"strings"
 
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
-	"github.com/sirupsen/logrus"
 )
 
-func WebAuth(c *gin.Context) {
+func Middleware(c *gin.Context) {
 	path := strings.TrimPrefix(c.Request.URL.Path, "/web")
 	c.Set("path", path)
 
@@ -41,16 +41,9 @@ func WebAuth(c *gin.Context) {
 	c.Set("user", user)
 	c.Set("op_uuid", uuid.New().String())
 
-	recordUserLog(user.Name, path)
+	g.RecordUserLog(user.Name, path)
 
 	c.Next()
 
-	recordOp(c)
-}
-
-func ApiAuth(c *gin.Context) {
-	path := strings.TrimPrefix(c.Request.URL.Path, "/api")
-	logrus.Infof("api middleware: %s", path)
-
-	c.Next()
+	g.RecordOp(c)
 }

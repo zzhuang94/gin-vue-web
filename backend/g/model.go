@@ -3,8 +3,15 @@ package g
 import (
 	"encoding/json"
 	"time"
+
+	"github.com/gin-gonic/gin"
+	"xorm.io/xorm"
 )
 
+type Sess struct {
+	*xorm.Session
+	Ctx *gin.Context
+}
 type ModelX interface {
 	New() ModelX
 	TableName() string

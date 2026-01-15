@@ -3,17 +3,18 @@ package base
 import (
 	"backend/g"
 	"backend/models/base"
+	"backend/web/frm"
 	"fmt"
 
 	"github.com/gin-gonic/gin"
 )
 
 type Navtree struct {
-	*g.X
+	*frm.X
 }
 
 func NewNavtree() *Navtree {
-	return &Navtree{X: g.NewX(&base.Navtree{})}
+	return &Navtree{X: frm.NewX(&base.Navtree{})}
 }
 
 func (n *Navtree) ActionIndex(c *gin.Context) {

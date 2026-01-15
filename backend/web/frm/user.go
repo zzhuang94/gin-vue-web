@@ -1,4 +1,6 @@
-package g
+package frm
+
+import "backend/g"
 
 type User struct {
 	Name     string
@@ -25,7 +27,7 @@ func getUser(username string) map[string]string {
 SELECT username, email, cn_name, fold, page_size,
 CASE WHEN avatar IS NOT NULL AND LENGTH(avatar) > 0 THEN '1' ELSE '0' END as has_avatar
 FROM user WHERE username = ?`
-	rows, _ := BaseDB.SQL(sql, username).QueryString()
+	rows, _ := g.BaseDB.SQL(sql, username).QueryString()
 	if len(rows) == 0 {
 		return map[string]string{}
 	}
@@ -38,7 +40,7 @@ SELECT r.id
 FROM role r
 JOIN role_user ru ON r.id = ru.role_id
 WHERE r.name = 'admin' AND ru.username = ?`
-	rows, _ := BaseDB.SQL(sql, username).QueryString()
+	rows, _ := g.BaseDB.SQL(sql, username).QueryString()
 	return len(rows) > 0
 }
 
@@ -49,7 +51,7 @@ FROM action a
 LEFT JOIN role_action ra ON a.id = ra.action_id
 LEFT JOIN role_user ru ON ru.role_id = ra.role_id
 WHERE a.green = 1 OR ru.username = ?`
-	rows, _ := BaseDB.SQL(sql, username).QueryString()
+	rows, _ := g.BaseDB.SQL(sql, username).QueryString()
 	ans := map[string]bool{}
 	for _, r := range rows {
 		ans[r["path"]] = true

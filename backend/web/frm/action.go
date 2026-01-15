@@ -1,6 +1,7 @@
-package g
+package frm
 
 import (
+	"backend/g"
 	"fmt"
 	"net/http"
 	"reflect"
@@ -43,7 +44,7 @@ func updateActions(paths []string) error {
 	}
 	olds := make(map[string]string)
 	sql := "SELECT id, path FROM action"
-	rows, _ := BaseDB.SQL(sql).QueryString()
+	rows, _ := g.BaseDB.SQL(sql).QueryString()
 	for _, r := range rows {
 		olds[r["path"]] = r["id"]
 		if _, ok := news[r["path"]]; !ok {
@@ -57,11 +58,11 @@ func updateActions(paths []string) error {
 	}
 	if len(adds) > 0 {
 		sql = "INSERT INTO action (path) VALUES " + strings.Join(adds, ",")
-		BaseDB.Exec(sql)
+		g.BaseDB.Exec(sql)
 	}
 	if len(dels) > 0 {
 		sql = fmt.Sprintf("DELETE FROM action WHERE id IN (%s)", strings.Join(dels, ","))
-		BaseDB.Exec(sql)
+		g.BaseDB.Exec(sql)
 	}
 	return nil
 }

@@ -3,6 +3,7 @@ package res
 import (
 	"backend/g"
 	"backend/models/res"
+	"backend/web/frm"
 	"math"
 	"math/rand"
 	"time"
@@ -11,11 +12,11 @@ import (
 )
 
 type Ip struct {
-	*g.XB[*res.Ip]
+	*frm.XB[*res.Ip]
 }
 
 func NewIp() *Ip {
-	r := &Ip{XB: g.NewXB(&res.Ip{})}
+	r := &Ip{XB: frm.NewXB(&res.Ip{})}
 	r.Option = append([][]any{{"流量统计", "chart-line", "flow"}}, r.Option...)
 	r.DB = g.CoreDB
 	r.Dump = true
@@ -78,7 +79,7 @@ func (r *Ip) mockFlowX() []string {
 		startTime.Hour(), startMinute, 0, 0, startTime.Location())
 
 	// 每5分钟一个点，7天共 7*24*12 = 2016个点
-	for i := 0; i < 7*24*12; i++ {
+	for i := range 7 * 24 * 12 {
 		t := startTime.Add(time.Duration(i*5) * time.Minute)
 		// 格式化为完整时间戳：2006-01-02 15:04:05
 		ans = append(ans, t.Format("2006-01-02 15:04:05"))

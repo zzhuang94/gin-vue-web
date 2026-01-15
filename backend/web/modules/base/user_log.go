@@ -1,17 +1,17 @@
 package base
 
 import (
-	"backend/g"
 	"backend/models/base"
+	"backend/web/frm"
 )
 
 type UserLog struct {
-	*g.X
+	*frm.X
 }
 
 func NewUserLog() *UserLog {
-	r := &UserLog{X: g.NewX(&base.UserLog{})}
-	r.Tool = []*g.Tool{}
+	r := &UserLog{X: frm.NewX(&base.UserLog{})}
+	r.Tool = []*frm.Tool{}
 	r.Option = [][]any{}
 	return r
 }

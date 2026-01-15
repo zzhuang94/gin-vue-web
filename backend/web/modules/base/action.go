@@ -1,18 +1,18 @@
 package base
 
 import (
-	"backend/g"
 	"backend/models/base"
+	"backend/web/frm"
 )
 
 type Action struct {
-	*g.XB[*base.Action]
+	*frm.XB[*base.Action]
 }
 
 func NewAction() *Action {
-	a := &Action{XB: g.NewXB(&base.Action{})}
+	a := &Action{XB: frm.NewXB(&base.Action{})}
 	a.BatchDelete = false
-	a.Tool = []*g.Tool{}
+	a.Tool = []*frm.Tool{}
 	a.Option = [][]any{{"编 辑", "edit", "edit", "modal", []string{"id"}}}
 	return a
 }

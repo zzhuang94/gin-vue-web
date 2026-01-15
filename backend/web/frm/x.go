@@ -1,6 +1,7 @@
-package g
+package frm
 
 import (
+	"backend/g"
 	"backend/libs"
 	"encoding/json"
 	"fmt"
@@ -35,8 +36,8 @@ type Option struct {
 type X struct {
 	*Web
 	DB          *xorm.Engine
-	Model       ModelX
-	Rules       []*Rule
+	Model       g.ModelX
+	Rules       []*g.Rule
 	NoID        bool
 	WrapTime    bool
 	HideFields  []string
@@ -51,16 +52,16 @@ type X struct {
 	BuildQuery  func(cond builder.Cond, sele bool) *xorm.Session
 }
 
-func NewX(m ModelX) *X {
+func NewX(m g.ModelX) *X {
 	tableName := m.TableName()
-	rules, ok := Rules[tableName]
+	rules, ok := g.Rules[tableName]
 	if !ok {
 		logrus.Warnf("rule not found for table: %s", tableName)
 	}
 
 	x := &X{
 		Web:      NewWeb(),
-		DB:       BaseDB,
+		DB:       g.BaseDB,
 		Model:    m,
 		Rules:    rules,
 		WrapTime: true,
@@ -81,18 +82,18 @@ func NewX(m ModelX) *X {
 	return x
 }
 
-func (x *X) GetRules() []*Rule {
-	ans := make([]*Rule, 0)
+func (x *X) GetRules() []*g.Rule {
+	ans := make([]*g.Rule, 0)
 	for _, r := range x.Rules {
 		ans = append(ans, r.SelfWrap())
 	}
 	return ans
 }
 
-func (x *X) getTableRules() []*Rule {
-	ans := make([]*Rule, 0)
+func (x *X) getTableRules() []*g.Rule {
+	ans := make([]*g.Rule, 0)
 	if !x.NoID {
-		ans = append(ans, &Rule{
+		ans = append(ans, &g.Rule{
 			Key:  "id",
 			Name: "ID",
 		})
@@ -103,11 +104,11 @@ func (x *X) getTableRules() []*Rule {
 		}
 	}
 	if x.WrapTime {
-		ans = append(ans, &Rule{
+		ans = append(ans, &g.Rule{
 			Key:  "created",
 			Name: "创建时间",
 		})
-		ans = append(ans, &Rule{
+		ans = append(ans, &g.Rule{
 			Key:  "updated",
 			Name: "更新时间",
 		})
@@ -115,7 +116,7 @@ func (x *X) getTableRules() []*Rule {
 	return ans
 }
 
-func (x *X) getRuleByKey(key string) *Rule {
+func (x *X) getRuleByKey(key string) *g.Rule {
 	for _, r := range x.Rules {
 		if r.Key == key {
 			return r
@@ -359,7 +360,7 @@ func (x *X) ActionSave(c *gin.Context) {
 	x.JsonSucc(c, "保存成功")
 }
 
-func (x *X) saveModel(m ModelX, payload []byte, sess *Sess) error {
+func (x *X) saveModel(m g.ModelX, payload []byte, sess *g.Sess) error {
 	payload, err := x.parseCheckPayload(payload)
 	if err != nil {
 		return err
@@ -409,7 +410,7 @@ func (x *X) parseCheckPayload(payload []byte) ([]byte, error) {
 	return json.Marshal(args)
 }
 
-func (x *X) checkValidation(v *Validation, name, val string) error {
+func (x *X) checkValidation(v *g.Validation, name, val string) error {
 	if v.IsInt {
 		valInt, err := strconv.Atoi(val)
 		if err != nil {
@@ -504,8 +505,8 @@ func (x *X) List(c *gin.Context, args map[string]string, title, width, order str
 	x.ModalPage(c, props, "components/list")
 }
 
-func (x *X) GetListRules(args map[string]string) []*Rule {
-	ans := make([]*Rule, 0)
+func (x *X) GetListRules(args map[string]string) []*g.Rule {
+	ans := make([]*g.Rule, 0)
 	for _, r := range x.Rules {
 		if _, ok := args[r.Key]; ok {
 			continue

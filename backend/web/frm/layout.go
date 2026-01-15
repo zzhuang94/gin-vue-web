@@ -1,6 +1,7 @@
-package g
+package frm
 
 import (
+	"backend/g"
 	"strings"
 
 	"github.com/gin-gonic/gin"
@@ -34,7 +35,7 @@ JOIN navtree tp ON t.parent_id = tp.id
 LEFT JOIN action a ON t.action_id = a.id
 WHERE t.status = 1 AND t.level > 0 AND t.level < 4
 ORDER BY t.level, tp.rank, t.rank, t.id`
-	rows, _ := BaseDB.SQL(sql).QueryString()
+	rows, _ := g.BaseDB.SQL(sql).QueryString()
 	for _, r := range rows {
 		id := r["id"]
 		pid := r["parent_id"]
@@ -105,8 +106,8 @@ ORDER BY t.level, tp.rank, t.rank, t.id`
 		"l2":    l2,
 		"title": title,
 		"fold":  user.User["fold"] == "1",
-		"env":   C.Env,
-		"name":  C.Name,
+		"env":   g.C.Env,
+		"name":  g.C.Name,
 		"user":  user.User,
 	}
 }
@@ -116,7 +117,7 @@ func getCurrNt(path string) map[string]string {
 SELECT nt.* FROM navtree nt 
 JOIN action a ON nt.action_id = a.id 
 WHERE a.path = ? AND nt.status = 1 AND nt.level > 2`
-	rows, err := BaseDB.SQL(sql, path).QueryString()
+	rows, err := g.BaseDB.SQL(sql, path).QueryString()
 	if err != nil {
 		logrus.Error(err)
 	}

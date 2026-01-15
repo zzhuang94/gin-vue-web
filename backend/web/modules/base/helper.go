@@ -1,17 +1,17 @@
 package base
 
 import (
-	"backend/g"
+	"backend/web/frm"
 
 	"github.com/gin-gonic/gin"
 )
 
 type Helper struct {
-	*g.Web
+	*frm.Web
 }
 
 func NewHelper() *Helper {
-	return &Helper{Web: g.NewWeb()}
+	return &Helper{Web: frm.NewWeb()}
 }
 
 func (h *Helper) ActionFaIcon(c *gin.Context) {

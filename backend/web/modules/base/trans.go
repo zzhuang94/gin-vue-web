@@ -2,6 +2,7 @@ package base
 
 import (
 	"backend/g"
+	"backend/web/frm"
 	"fmt"
 
 	"github.com/gin-gonic/gin"
@@ -9,11 +10,11 @@ import (
 )
 
 type Trans struct {
-	*g.Web
+	*frm.Web
 }
 
 func NewTrans() *Trans {
-	return &Trans{Web: g.NewWeb()}
+	return &Trans{Web: frm.NewWeb()}
 }
 
 func (t *Trans) ActionInit(c *gin.Context) {

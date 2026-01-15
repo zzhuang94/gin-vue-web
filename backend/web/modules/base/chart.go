@@ -1,17 +1,17 @@
 package base
 
 import (
-	"backend/g"
+	"backend/web/frm"
 
 	"github.com/gin-gonic/gin"
 )
 
 type Chart struct {
-	*g.Web
+	*frm.Web
 }
 
 func NewChart() *Chart {
-	return &Chart{Web: g.NewWeb()}
+	return &Chart{Web: frm.NewWeb()}
 }
 
 func (r *Chart) ActionIndex(c *gin.Context) {

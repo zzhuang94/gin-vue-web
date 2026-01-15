@@ -1,14 +1,14 @@
 package api
 
 import (
+	"backend/api/frm"
 	"backend/api/modules/res"
-	"backend/g"
 
 	"github.com/gin-gonic/gin"
 )
 
 func Route(rg *gin.RouterGroup) {
-	rg.Use(g.ApiAuth)
+	rg.Use(frm.Middleware)
 
 	// RESTful API for res module (查询接口)
 	resGroup := rg.Group("/res")

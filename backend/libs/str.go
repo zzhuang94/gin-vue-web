@@ -8,7 +8,7 @@ import (
 func SplitLines(str string) []string {
 	ans := make([]string, 0)
 	m := make(map[string]bool)
-	for _, line := range strings.Split(str, "\n") {
+	for line := range strings.SplitSeq(str, "\n") {
 		line = strings.TrimSpace(line)
 		if line == "" {
 			continue

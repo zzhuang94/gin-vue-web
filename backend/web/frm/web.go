@@ -1,6 +1,7 @@
-package g
+package frm
 
 import (
+	"backend/g"
 	"strconv"
 
 	"github.com/gin-gonic/gin"
@@ -114,13 +115,8 @@ func (w *Web) GetPageSize(c *gin.Context) int {
 	return ans
 }
 
-type Sess struct {
-	*xorm.Session
-	Ctx *gin.Context
-}
-
-func (w *Web) BeginSess(engine *xorm.Engine, c *gin.Context) *Sess {
+func (w *Web) BeginSess(engine *xorm.Engine, c *gin.Context) *g.Sess {
 	sess := engine.NewSession()
 	sess.Begin()
-	return &Sess{Session: sess, Ctx: c}
+	return &g.Sess{Session: sess, Ctx: c}
 }

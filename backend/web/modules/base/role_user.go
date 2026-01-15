@@ -1,14 +1,14 @@
 package base
 
 import (
-	"backend/g"
 	"backend/models/base"
+	"backend/web/frm"
 )
 
 type RoleUser struct {
-	*g.XB[*base.RoleUser]
+	*frm.XB[*base.RoleUser]
 }
 
 func NewRoleUser() *RoleUser {
-	return &RoleUser{XB: g.NewXB(&base.RoleUser{})}
+	return &RoleUser{XB: frm.NewXB(&base.RoleUser{})}
 }

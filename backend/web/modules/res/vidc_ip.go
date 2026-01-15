@@ -3,17 +3,18 @@ package res
 import (
 	"backend/g"
 	"backend/models/res"
+	"backend/web/frm"
 	"fmt"
 
 	"github.com/gin-gonic/gin"
 )
 
 type VidcIp struct {
-	*g.XB[*res.VidcIp]
+	*frm.XB[*res.VidcIp]
 }
 
 func NewVidcIp() *VidcIp {
-	r := &VidcIp{XB: g.NewXB(&res.VidcIp{})}
+	r := &VidcIp{XB: frm.NewXB(&res.VidcIp{})}
 	r.DB = g.CoreDB
 	return r
 }
