@@ -2,8 +2,8 @@ package web
 
 import (
 	"backend/g"
-	"backend/web/controllers/base"
-	"backend/web/controllers/res"
+	"backend/web/modules/base"
+	"backend/web/modules/res"
 
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-contrib/sessions/redis"

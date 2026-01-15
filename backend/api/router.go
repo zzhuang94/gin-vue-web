@@ -1,6 +1,7 @@
 package api
 
 import (
+	"backend/api/modules/res"
 	"backend/g"
 
 	"github.com/gin-gonic/gin"
@@ -8,29 +9,24 @@ import (
 
 func Route(rg *gin.RouterGroup) {
 	rg.Use(g.ApiAuth)
-	rg.GET("/test", Test)
 
 	// RESTful API for res module (查询接口)
 	resGroup := rg.Group("/res")
 	{
 		// Ip API
-		resGroup.GET("/ip", GetIpList)
-		resGroup.GET("/ip/:id", GetIpById)
+		resGroup.GET("/ip", res.GetIpList)
+		resGroup.GET("/ip/:id", res.GetIpById)
 
 		// Service API
-		resGroup.GET("/service", GetServiceList)
-		resGroup.GET("/service/:id", GetServiceById)
+		resGroup.GET("/service", res.GetServiceList)
+		resGroup.GET("/service/:id", res.GetServiceById)
 
 		// Policy API
-		resGroup.GET("/policy", GetPolicyList)
-		resGroup.GET("/policy/:id", GetPolicyById)
+		resGroup.GET("/policy", res.GetPolicyList)
+		resGroup.GET("/policy/:id", res.GetPolicyById)
 
 		// Vidc API
-		resGroup.GET("/vidc", GetVidcList)
-		resGroup.GET("/vidc/:id", GetVidcById)
-
-		// VidcIp API
-		resGroup.GET("/vidc-ip", GetVidcIpList)
-		resGroup.GET("/vidc-ip/:id", GetVidcIpById)
+		resGroup.GET("/vidc", res.GetVidcList)
+		resGroup.GET("/vidc/:id", res.GetVidcById)
 	}
 }
