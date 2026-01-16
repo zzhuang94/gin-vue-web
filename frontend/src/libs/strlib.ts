@@ -31,34 +31,15 @@ function formatJson(str: string): string {
 
 function formatFunc(func: string, val: any): string {
   switch (func) {
-    case 'formatLanapiReqVal':
-      return formatLanapiReqVal(val)
-    case 'formatDomainLocationConfs':
-      return formatDomainLocationConfs(val)
+    case 'formatXxx':
+      return formatXxx(val)
   }
   return ''
 }
 
 
-function formatLanapiReqVal(val: string): string {
-  if (isJson(val)) {
-    return `<span class="fa fa-search text-info click-swal"></span>`
-  }
-  val = val.replace(/,/g, ' ')
-  val = val.replace(/ADD:/g, buildBadge('info', 'ADD'))
-  val = val.replace(/DEL:/g, buildBadge('focus', 'DEL'))
-  val = val.replace(/\n/g, '<br>')
-  return val
-}
-
-function formatDomainLocationConfs(confs: any): string {
-  const ss = []
-  for (let c of confs) {
-    let badge = c.v_status == '1' ? 'success' : 'metal'
-    let icon = c.is_key == '1' ? 'key' : 'hdd-o'
-    ss.push(buildBadge(badge, c.value, icon))
-  }
-  return ss.join('&nbsp')
+function formatXxx(val: string): string {
+  return 'Xxx:' + val
 }
 
 function wrapBadge(c: string, val: string): string {
@@ -175,11 +156,12 @@ function prettyFlow(flow: any): string {
 
 export default {
   lineExplode,
-  formatJson,
   formatFunc,
   wrapBadge,
   buildBadge,
   formatDomain,
+  isJson,
+  formatJson,
   isDomain,
   isIP,
   isIPv4,
