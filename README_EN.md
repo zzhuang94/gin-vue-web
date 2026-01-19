@@ -105,7 +105,8 @@ A **minimal MVC web framework** built with **Gin + Vue 3 + Ant Design Vue + Vite
   - [1.2 Intelligent Route Auto-Registration](#12-intelligent-route-auto-registration)
   - [1.3 Universal CRUD Framework](#13-universal-crud-framework)
   - [1.4 Rule-Driven Development](#14-rule-driven-development)
-  - [1.5 Built-in Enterprise-Grade Features](#15-built-in-enterprise-grade-features)
+  - [1.5 Operation Logging](#15-operation-logging)
+  - [1.6 Built-in Enterprise-Grade Features](#16-built-in-enterprise-grade-features)
 - [II. Quick Start](#ii-quick-start)
   - [2.1 Environment Setup](#21-environment-setup)
   - [2.2 Development Mode](#22-development-mode)
@@ -121,6 +122,7 @@ A **minimal MVC web framework** built with **Gin + Vue 3 + Ant Design Vue + Vite
   - [4.3 Rule Configuration - The Power of Configuration-Driven Development](#43-rule-configuration---the-power-of-configuration-driven-development)
   - [4.4 Route Auto-Registration - The Magic of Zero Configuration](#44-route-auto-registration---the-magic-of-zero-configuration)
   - [4.5 Data Flow Process - Understanding the Whole System](#45-data-flow-process---understanding-the-whole-system)
+  - [4.6 Operation Logging Feature - Data Auditing and Rollback Mechanism](#46-operation-logging-feature---data-auditing-and-rollback-mechanism)
 - [V. Debugging Methods](#v-debugging-methods)
   - [5.1 Locating Backend Code from Browser Requests](#51-locating-backend-code-from-browser-requests)
   - [5.2 Locating Vue Components from Page Elements](#52-locating-vue-components-from-page-elements)
@@ -196,7 +198,27 @@ Through the `rule.json` configuration file, field rules are defined using a **de
 - **Business focus**: Focus on business logic, not technical details
 - **Rapid iteration**: Modify configuration to adjust functionality
 
-### 1.5 Built-in Enterprise-Grade Features
+### 1.5 Operation Logging
+
+The framework includes a powerful **operation logging (op-log)** feature that automatically records all data changes and provides complete audit and rollback capabilities.
+
+**Core Features:**
+- **Auto-logging**: Automatically records data changes for all configured tables in the core database based on `op.json` configuration
+- **Event Aggregation**: Multiple data changes in the same request are automatically aggregated into a single operation event
+- **Detailed Records**: Records operation type (create/update/delete), data table, data ID, and data before/after changes
+- **Diff Comparison**: Intelligently calculates and displays field-level change differences, supports field translation and formatted display
+- **One-click Rollback**: Supports rolling back data to the state before changes, automatically handles dependency checking
+- **Audit Trail**: Records complete audit information including operating user, operation path, operation time, etc.
+
+**Use Cases:**
+- **Data Auditing**: Track who changed what data and when
+- **Error Recovery**: Quickly roll back mistaken operations and restore data to previous state
+- **Compliance Requirements**: Meet enterprise-level data change auditing and compliance requirements
+- **Problem Troubleshooting**: Quickly locate problem causes through operation history
+
+> 💡 **Detailed Information**: For detailed information about how operation logging works, dependency relationship checking mechanism, configuration methods, etc., please refer to [4.6 Operation Logging Feature - Data Auditing and Rollback Mechanism](#46-operation-logging-feature---data-auditing-and-rollback-mechanism).
+
+### 1.6 Built-in Enterprise-Grade Features
 
 The framework includes **out-of-the-box** enterprise-grade base feature modules, covering 90% of common admin system requirements, allowing you to start building business features from day one.
 
@@ -212,96 +234,6 @@ The framework includes **out-of-the-box** enterprise-grade base feature modules,
 | **Component Library** | Ant Design Vue | 60+ high-quality components, ready to use |
 | **Chart Library** | ECharts | 20+ chart types, supports data visualization |
 | **Icon Library** | Font Awesome | 1000+ icons, meets various scenario needs |
-
-**Operation Logging Feature Details:**
-
-The framework includes a powerful **operation logging (op-log)** feature that automatically records all data changes and provides complete audit and rollback capabilities.
-
-**Core Features:**
-- **Auto-logging**: Automatically records data changes for all configured tables in the core database based on `op.json` configuration
-- **Event Aggregation**: Multiple data changes in the same request are automatically aggregated into a single operation event
-- **Detailed Records**: Records operation type (create/update/delete), data table, data ID, and data before/after changes
-- **Diff Comparison**: Intelligently calculates and displays field-level change differences, supports field translation and formatted display
-- **One-click Rollback**: Supports rolling back data to the state before changes, automatically handles dependency checking
-- **Audit Trail**: Records complete audit information including operating user, operation path, operation time, etc.
-
-**How It Works:**
-1. Configure tables to be logged in `op.json` (core database only)
-2. Framework automatically detects and records changes when data is saved/deleted
-3. Multiple changes in the same request are linked via UUID and aggregated into one operation event
-4. Operation events are stored in the `op_event` table in the `base` database
-5. Detailed change information is stored in the `op_log` table in the `base` database
-
-**Dependency Relationship Checking Mechanism:**
-
-The framework automatically checks data dependency relationships before rollback operations to ensure data consistency. This is a core design of the operation logging feature, preventing data inconsistency issues caused by rollbacks.
-
-**Why Dependency Checking is Needed:**
-
-Database changes must follow primary key-foreign key dependency relationships, otherwise data inconsistency will occur. For example: if `b.a_id = a.id` (table b's foreign key references table a's primary key), then data b must be deleted before deleting data a, otherwise data b will not be able to map to a valid primary key, causing data inconsistency.
-
-**Three Types of Dependency Relationships:**
-
-1. **Consecutive Changes to the Same Record**
-   - **Scenario**: The same record undergoes multiple consecutive changes, such as `a -> b -> c`
-   - **Rule**: If rolling back `a -> b`, operation `b -> c` must also be rolled back, because operation 2 depends on the result of operation 1
-   - **Example**: A user first changes an order status to "Paid", then changes it to "Shipped". When rolling back the "Paid" status, the "Shipped" status must also be rolled back
-
-2. **Primary Key Dependency (Newly Created Data is Referenced)**
-   - **Scenario**: Operation 1 creates data a, operation 2 modifies (or creates) data b, after which `b.a_id = a.id`
-   - **Rule**: If rolling back operation 1 (deleting newly created a), operation 2 must also be rolled back, because operation 2 depends on the primary key created by operation 1
-   - **Example**: First create category A (id=100), then create article B with `category_id=100`. When rolling back the creation of category A, the creation of article B must also be rolled back
-
-3. **Foreign Key Dependency (Deleting Referenced Data)**
-   - **Scenario**: Operation 1 modifies (or deletes) data b, before which `b.a_id = a.id`; operation 2 deletes data a
-   - **Rule**: If rolling back operation 1, operation 2 must also be rolled back, otherwise `b.a_id` will not be able to map to a valid primary key
-   - **Example**: First modify an order's customer ID to 200, then delete customer 200. When rolling back the order modification, the customer deletion must also be rolled back, otherwise the order's customer ID will point to a non-existent record
-
-**Configuration Method:**
-
-Configure primary key-foreign key relationships in `op.json` using the `primary` field:
-
-```json
-{
-    "table_a": {
-        "name": "Table A",
-        "db": "core",
-        "show": ["field1", "field2"],
-        "primary": {
-            "id": {
-                "table_b": "a_id",
-                "table_c": "a_id"
-            }
-        }
-    }
-}
-```
-
-Configuration Description:
-- `primary`: Defines which tables' foreign keys reference this table's primary key
-- `"id"`: Primary key field name
-- `"table_b": "a_id"`: Table table_b's foreign key field `a_id` references table table_a's primary key `id`
-
-**Checking Process:**
-
-1. User selects operation events to rollback
-2. Framework calls `CheckRely()` to recursively check all dependency relationships
-3. If dependencies are found, automatically collects all operation events that need to be rolled back together
-4. Frontend displays the complete rollback list, user confirms before unified rollback
-5. All rollback operations are executed in the same transaction to ensure atomicity
-
-**Design Advantages:**
-
-- **Automation**: No need to manually analyze dependency relationships, framework automatically detects
-- **Safety**: Prevents data inconsistency issues caused by rollbacks
-- **Completeness**: Recursive checking ensures all related operations are properly handled
-- **Transparency**: Clearly displays all operations that need to be rolled back, user can confirm before execution
-
-**Use Cases:**
-- **Data Auditing**: Track who changed what data and when
-- **Error Recovery**: Quickly roll back mistaken operations and restore data to previous state
-- **Compliance Requirements**: Meet enterprise-level data change auditing and compliance requirements
-- **Problem Troubleshooting**: Quickly locate problem causes through operation history
 
 **Extension Capabilities:**
 - **Plugin mechanism**: Supports custom plugin extensions
@@ -938,6 +870,99 @@ When a user fills out a form and clicks save:
    - Delimiter fields: Process multi-line text, remove delimiters
 9. Calls model's `Save` method to save to database (using transactions)
 10. Returns success or failure information
+
+### 4.6 Operation Logging Feature - Data Auditing and Rollback Mechanism
+
+The framework includes a powerful **operation logging (op-log)** feature that automatically records all data changes and provides complete audit and rollback capabilities.
+
+#### 4.6.1 Core Features
+
+- **Auto-logging**: Automatically records data changes for all configured tables in the core database based on `op.json` configuration
+- **Event Aggregation**: Multiple data changes in the same request are automatically aggregated into a single operation event
+- **Detailed Records**: Records operation type (create/update/delete), data table, data ID, and data before/after changes
+- **Diff Comparison**: Intelligently calculates and displays field-level change differences, supports field translation and formatted display
+- **One-click Rollback**: Supports rolling back data to the state before changes, automatically handles dependency checking
+- **Audit Trail**: Records complete audit information including operating user, operation path, operation time, etc.
+
+#### 4.6.2 How It Works
+
+1. Configure tables to be logged in `op.json` (core database only)
+2. Framework automatically detects and records changes when data is saved/deleted
+3. Multiple changes in the same request are linked via UUID and aggregated into one operation event
+4. Operation events are stored in the `op_event` table in the `base` database
+5. Detailed change information is stored in the `op_log` table in the `base` database
+
+#### 4.6.3 Dependency Relationship Checking Mechanism
+
+The framework automatically checks data dependency relationships before rollback operations to ensure data consistency. This is a core design of the operation logging feature, preventing data inconsistency issues caused by rollbacks.
+
+**Why Dependency Checking is Needed:**
+
+Database changes must follow primary key-foreign key dependency relationships, otherwise data inconsistency will occur. For example: if `b.a_id = a.id` (table b's foreign key references table a's primary key), then data b must be deleted before deleting data a, otherwise data b will not be able to map to a valid primary key, causing data inconsistency.
+
+**Three Types of Dependency Relationships:**
+
+1. **Consecutive Changes to the Same Record**
+   - **Scenario**: The same record undergoes multiple consecutive changes, such as `a -> b -> c`
+   - **Rule**: If rolling back `a -> b`, operation `b -> c` must also be rolled back, because operation 2 depends on the result of operation 1
+   - **Example**: A user first changes an order status to "Paid", then changes it to "Shipped". When rolling back the "Paid" status, the "Shipped" status must also be rolled back
+
+2. **Primary Key Dependency (Newly Created Data is Referenced)**
+   - **Scenario**: Operation 1 creates data a, operation 2 modifies (or creates) data b, after which `b.a_id = a.id`
+   - **Rule**: If rolling back operation 1 (deleting newly created a), operation 2 must also be rolled back, because operation 2 depends on the primary key created by operation 1
+   - **Example**: First create category A (id=100), then create article B with `category_id=100`. When rolling back the creation of category A, the creation of article B must also be rolled back
+
+3. **Foreign Key Dependency (Deleting Referenced Data)**
+   - **Scenario**: Operation 1 modifies (or deletes) data b, before which `b.a_id = a.id`; operation 2 deletes data a
+   - **Rule**: If rolling back operation 1, operation 2 must also be rolled back, otherwise `b.a_id` will not be able to map to a valid primary key
+   - **Example**: First modify an order's customer ID to 200, then delete customer 200. When rolling back the order modification, the customer deletion must also be rolled back, otherwise the order's customer ID will point to a non-existent record
+
+#### 4.6.4 Configuration Method
+
+Configure primary key-foreign key relationships in `op.json` using the `primary` field:
+
+```json
+{
+    "table_a": {
+        "name": "Table A",
+        "db": "core",
+        "show": ["field1", "field2"],
+        "primary": {
+            "id": {
+                "table_b": "a_id",
+                "table_c": "a_id"
+            }
+        }
+    }
+}
+```
+
+Configuration Description:
+- `primary`: Defines which tables' foreign keys reference this table's primary key
+- `"id"`: Primary key field name
+- `"table_b": "a_id"`: Table table_b's foreign key field `a_id` references table table_a's primary key `id`
+
+#### 4.6.5 Checking Process
+
+1. User selects operation events to rollback
+2. Framework calls `CheckRely()` to recursively check all dependency relationships
+3. If dependencies are found, automatically collects all operation events that need to be rolled back together
+4. Frontend displays the complete rollback list, user confirms before unified rollback
+5. All rollback operations are executed in the same transaction to ensure atomicity
+
+#### 4.6.6 Design Advantages
+
+- **Automation**: No need to manually analyze dependency relationships, framework automatically detects
+- **Safety**: Prevents data inconsistency issues caused by rollbacks
+- **Completeness**: Recursive checking ensures all related operations are properly handled
+- **Transparency**: Clearly displays all operations that need to be rolled back, user can confirm before execution
+
+#### 4.6.7 Use Cases
+
+- **Data Auditing**: Track who changed what data and when
+- **Error Recovery**: Quickly roll back mistaken operations and restore data to previous state
+- **Compliance Requirements**: Meet enterprise-level data change auditing and compliance requirements
+- **Problem Troubleshooting**: Quickly locate problem causes through operation history
 
 ---
 
