@@ -1,7 +1,6 @@
 package g
 
 import (
-	"backend/libs"
 	"encoding/json"
 	"fmt"
 	"os"
@@ -9,6 +8,7 @@ import (
 	"strings"
 
 	"github.com/gin-gonic/gin"
+	"github.com/zzhuang94/go-kit/slice"
 )
 
 type Op struct {
@@ -262,7 +262,7 @@ func (rc *relyChecker) checkRely(eids []string) []string {
 			ans = append(ans, reids...)
 		}
 	}
-	return libs.UniqSlice(ans)
+	return slice.Unique(ans)
 }
 
 // 数据库的改动一定要遵循主键-外键依赖关系，否则会导致数据不一致

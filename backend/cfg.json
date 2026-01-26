@@ -6,17 +6,12 @@
 
     "dbs": {
         "base": {
-            "name": "hzz_base",
-            "type": "mysql",
-            "uri": "root:Hzz123!@tcp(gin-vue.web.domain:3306)/hzz_base?charset=utf8&parseTime=true&loc=Local",
-            "show_sql": true,
+            "dsn": "root:Hzz123!@tcp(gin-vue.web.domain:3306)/hzz_base?charset=utf8&parseTime=true&loc=Local",
             "max_open": 300,
             "max_idle": 50
         },
         "core": {
-            "name": "hzz_core",
-            "type": "mysql",
-            "uri": "root:Hzz123!@tcp(gin-vue.web.domain:3306)/hzz_core?charset=utf8&parseTime=true&loc=Local",
+            "dsn": "root:Hzz123!@tcp(gin-vue.web.domain:3306)/hzz_core?charset=utf8&parseTime=true&loc=Local",
             "max_open": 300,
             "max_idle": 50
         }

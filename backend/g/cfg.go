@@ -1,12 +1,13 @@
 package g
 
 import (
-	"backend/libs"
 	"encoding/json"
 	"flag"
 	"fmt"
 	"os"
 
+	"github.com/zzhuang94/go-kit/db"
+	"github.com/zzhuang94/go-kit/lib"
 	"xorm.io/xorm"
 )
 
@@ -19,13 +20,13 @@ var (
 )
 
 type cfg struct {
-	Env   string                    `json:"env"`
-	Name  string                    `json:"name"`
-	Debug bool                      `json:"debug"`
-	Port  int                       `json:"port"`
-	Log   *libs.LogConf             `json:"log"`
-	DBs   map[string]*libs.MysqlCfg `json:"dbs"`
-	Redis *libs.RedisCfg            `json:"redis"`
+	Env   string                  `json:"env"`
+	Name  string                  `json:"name"`
+	Debug bool                    `json:"debug"`
+	Port  int                     `json:"port"`
+	Log   *lib.LogCfg             `json:"log"`
+	DBs   map[string]*db.MysqlCfg `json:"dbs"`
+	Redis *db.RedisCfg            `json:"redis"`
 }
 
 func Init() error {
@@ -67,10 +68,10 @@ func initCfg() error {
 
 func initDB() error {
 	var err error
-	if BaseDB, err = libs.NewMysqlEngine(C.DBs["base"]); err != nil {
+	if BaseDB, err = C.DBs["base"].ConnXorm(); err != nil {
 		return err
 	}
-	if CoreDB, err = libs.NewMysqlEngine(C.DBs["core"]); err != nil {
+	if CoreDB, err = C.DBs["core"].ConnXorm(); err != nil {
 		return err
 	}
 	return nil

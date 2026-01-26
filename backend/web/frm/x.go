@@ -2,7 +2,6 @@ package frm
 
 import (
 	"backend/g"
-	"backend/libs"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -12,6 +11,7 @@ import (
 	"github.com/asaskevich/govalidator"
 	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
+	"github.com/zzhuang94/go-kit/str"
 	"xorm.io/builder"
 	"xorm.io/xorm"
 )
@@ -385,7 +385,7 @@ func (x *X) parseCheckPayload(payload []byte) ([]byte, error) {
 			return nil, fmt.Errorf("参数[%s]不能为空", r.Name)
 		}
 		if r.Textarea && r.SplitSep != "" {
-			lines := libs.SplitLines(args[r.Key])
+			lines := str.SplitLines(args[r.Key])
 			for _, line := range lines {
 				if strings.Contains(line, r.SplitSep) {
 					return nil, fmt.Errorf("参数[%s]不能包含分隔符[%s]", r.Name, r.SplitSep)
@@ -394,7 +394,7 @@ func (x *X) parseCheckPayload(payload []byte) ([]byte, error) {
 			args[r.Key] = strings.Join(lines, r.SplitSep)
 		}
 		if r.Textarea && r.Json {
-			v, err := libs.ParseAndFormatJson(args[r.Key])
+			v, err := str.ParseAndFormatJson(args[r.Key])
 			if err != nil {
 				return nil, fmt.Errorf("参数[%s]不是合法JSON: %v", r.Name, err)
 			}
