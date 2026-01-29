@@ -10,12 +10,17 @@
   <a-result v-else status="500" :title="msg" />
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { ref } from 'vue';
+
+interface Props {
+  width?: string
+  isModal?: boolean
+  msg?: string
+}
+
 const open = ref(true)
-const props = defineProps({
-  width: { type: String, default: '50%' },
-  isModal: Boolean,
-  msg: String,
+withDefaults(defineProps<Props>(), {
+  width: '50%'
 })
 </script>

@@ -9,7 +9,7 @@
 
     <a-form :model="formData" :label-col="{span: 4}" :wrapper-col="{span: 19}">
 
-      <a-form-item v-if="data.id" style="display: none">
+      <a-form-item v-if="data?.id" style="display: none">
         <a-input v-model:value="formData.id" type="hidden" />
       </a-form-item>
 
@@ -29,7 +29,7 @@
             show-search allow-clear
             :filterOption="lib.filterByLabel"
             :placeholder="`请选择${v.name}`"
-            :disabled="! enabledKeys[v.key] || (data.id || check) && v.readonly"
+            :disabled="! enabledKeys[v.key] || (data?.id || check) && v.readonly"
             :mode="v.split_sep ? 'multiple' : 'undefined'"
             >
             <a-select-option v-for="lv in v.limit" :key="lv.key || lv" :value="(lv.key !== undefined ? lv.key : lv)" :label="lv.label || lv">
@@ -41,7 +41,7 @@
             v-else-if="v.trans && v.trans.ajax"
             v-model:value="formData[v.key]"
             :placeholder="`请选择${v.name}`"
-            :disabled="! enabledKeys[v.key] || (data.id || check) && v.readonly"
+            :disabled="! enabledKeys[v.key] || (data?.id || check) && v.readonly"
             :translate="v.trans"
             />
 
@@ -50,8 +50,8 @@
             v-show="! check || ! v.readonly"
             v-model:value="formData[v.key]"
             :placeholder="`请输入${v.name}，支持换行`"
-            :readonly="(data.id || check) && v.readonly"
-            :disabled="! enabledKeys[v.key] || (data.id || check) && v.readonly"
+            :readonly="(data?.id || check) && v.readonly"
+            :disabled="! enabledKeys[v.key] || (data?.id || check) && v.readonly"
             :auto-size="{minRows: 2}"
             />
 
@@ -60,8 +60,8 @@
             v-show="! check || ! v.readonly"
             v-model:value="formData[v.key]"
             :placeholder="`请输入${v.name}`"
-            :readonly="(data.id || check) && v.readonly"
-            :disabled="! enabledKeys[v.key] || (data.id || check) && v.readonly"
+            :readonly="(data?.id || check) && v.readonly"
+            :disabled="! enabledKeys[v.key] || (data?.id || check) && v.readonly"
             />
 
         </a-form-item>
@@ -73,29 +73,55 @@
   </a-modal>
 </template>
 
-<script setup>
-import { ref, reactive, toRaw, toRefs, watch } from 'vue'
+<script setup lang="ts">
+import { ref, reactive, toRefs, watch } from 'vue'
 import { isArray } from 'lodash'
 import lib from '@libs/lib.ts'
 import strlib from '@libs/strlib.ts'
 import AjaxSelect from '@components/ajax-select.vue'
 import Tooltip from '@components/tooltip.vue'
 
-const props = defineProps({
-  width: { type: String, default: '50%' },
-  title: String,
-  subtitle: { type: String, default: '' },
-  data: Object,
-  rules: { type: Array, default: () => [] },
-  check: { type: Boolean, default: false },
-  action: String,
+interface Rule {
+  key: string
+  name: string
+  readonly?: boolean
+  required?: boolean
+  limit?: any[]
+  limit_list?: any[]
+  trans?: any
+  textarea?: boolean
+  split_sep?: string
+  json?: boolean
+  default?: any
+  describe?: string
+  [key: string]: any
+}
+
+interface Props {
+  width?: string
+  title?: string
+  subtitle?: string
+  data?: Record<string, any>
+  rules?: Rule[]
+  check?: boolean
+  action?: string
+}
+
+const props = withDefaults(defineProps<Props>(), {
+  width: '50%',
+  subtitle: '',
+  rules: () => [],
+  check: false
 })
 const { data, rules } = toRefs(props)
-const emit = defineEmits(['submit', 'reload'])
+const emit = defineEmits<{
+  'submit': []
+  'reload': []
+}>()
 const open = ref(true)
 const submitting = ref(false)
 
-const enabledKeys = reactive(initEnableKeys())
+const enabledKeys = reactive<Record<string, boolean>>(initEnableKeys())
 
 watch(
   enabledKeys,
@@ -109,11 +135,11 @@ watch(
   { deep: true }
 )
 
-const formData = reactive(initFormData())
+const formData = reactive<Record<string, any>>(initFormData())
 
 const submit = async () => {
   submitting.value = true
-  const ok = await lib.ajax(props.action, buildSubmitData())
+  const ok = await lib.ajax(props.action ?? '', buildSubmitData())
   if (ok) {
       open.value = false
       emit('submit')
@@ -121,24 +147,24 @@ const submit = async () => {
   submitting.value = false
 }
 
-function initEnableKeys() {
-  const ans = {}
+function initEnableKeys(): Record<string, boolean> {
+  const ans: Record<string, boolean> = {}
   for (const item of rules.value) {
     ans[item.key] = ! props.check
   }
   return ans
 }
 
-function initFormData() {
-  const ans = {}
+function initFormData(): Record<string, any> {
+  const ans: Record<string, any> = {}
   for (const r of rules.value) {
-    if (data.value[r.key] !== undefined) {
+    if (data.value && data.value[r.key] !== undefined) {
       if (r.split_sep && r.textarea) {
-        ans[r.key] = data.value[r.key].split(r.split_sep).join('\n')
+        ans[r.key] = String(data.value[r.key]).split(r.split_sep).join('\n')
       } else if (r.textarea && r.json) {
         ans[r.key] = strlib.formatJson(data.value[r.key])
       } else if (r.split_sep && r.limit) {
-        ans[r.key] = data.value[r.key].split(r.split_sep)
+        ans[r.key] = String(data.value[r.key]).split(r.split_sep)
       } else {
         ans[r.key] = data.value[r.key]
       }
@@ -153,8 +179,8 @@ function initFormData() {
   return ans
 }
 
-function buildSubmitData() {
-  const payload = {}
+function buildSubmitData(): Record<string, any> {
+  const payload: Record<string, any> = {}
   if (formData.id !== undefined) payload.id = String(formData.id)
   for (const r of rules.value) {
     const val = formData[r.key]

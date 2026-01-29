@@ -11,21 +11,27 @@
   </tr>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { ref, onMounted, watch } from 'vue'
 
 import lib from '@libs/lib.ts'
 import Td from '@components/td.vue'
 import LogDiffs from './log-diffs.vue'
 
-const props = defineProps({
-  id: { type: String, default: '' },
-  detail: { type: Boolean, default: false },
-  op_rule: { type: Object, default: null },
+interface Props {
+  id?: string
+  detail?: boolean
+  op_rule?: any
+}
+
+const props = withDefaults(defineProps<Props>(), {
+  id: '',
+  detail: false,
+  op_rule: null
 })
 const name = ref('')
-const log = ref({})
-const diffs = ref([])
+const log = ref<Record<string, any>>({})
+const diffs = ref<any[]>([])
 const time = ref('')
 
 const fetchLog = async () => {

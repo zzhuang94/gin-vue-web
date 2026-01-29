@@ -16,24 +16,36 @@
   </div>
 </template>
 
-<script setup>
-import { h, ref, inject, computed, watch } from 'vue';
+<script setup lang="ts">
+import { h, computed, watch } from 'vue';
 import zhCN from 'ant-design-vue/es/locale/zh_CN';
 import lib from '@libs/lib.ts';
 
 const locale = zhCN;
-const props = defineProps(['loading', 'curr', 'size', 'total']);
-const emit = defineEmits(['update:curr', 'update:size', 'page-change'])
 
-const showTotal = (total) => {
+interface Props {
+  loading?: boolean
+  curr?: number
+  size?: number
+  total?: number
+}
+
+const props = defineProps<Props>()
+const emit = defineEmits<{
+  'update:curr': [value: number]
+  'update:size': [value: number]
+  'page-change': []
+}>()
+
+const showTotal = (total: number) => {
   return h('span', ['共', h('strong', {style: 'font-size: 1.1rem; padding: 0 8px;'}, total), '条']);
 }
 
-const curr = computed({get: () => props.curr, set: (value) => emit('update:curr', value)})
-const size = computed({get: () => props.size, set: (value) => emit('update:size', value)})
+const curr = computed({get: () => props.curr ?? 1, set: (value: number) => emit('update:curr', value)})
+const size = computed({get: () => props.size ?? 10, set: (value: number) => emit('update:size', value)})
 watch(() => [curr.value, size.value], () => emit('page-change'))
 
-watch(() => size.value, (newSize) => {
+watch(() => size.value, (newSize: number) => {
   lib.curl(`/base/user/set?key=page_size&val=${newSize}`)
 })
 

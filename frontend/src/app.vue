@@ -9,19 +9,20 @@
   </component>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { ref, watch, computed, defineAsyncComponent, onMounted } from 'vue'
+import type { Component } from 'vue'
 import { useRoute } from 'vue-router'
 import { isEmpty } from 'lodash'
 import lib from '@libs/lib'
 
 const uri = ref(window.location.pathname + window.location.search)
 const page = ref('')
-const data = ref({})
-const layout = ref({})
+const data = ref<Record<string, any>>({})
+const layout = ref<Record<string, any>>({})
 
 const loading = ref(true)
-const pc = ref(null)
+const pc = ref<Component | null>(null)
 const LayoutShell = defineAsyncComponent(() => import('./templates/layout.vue'))
 const hasLayout = computed(() => !isEmpty(layout.value))
 
@@ -46,7 +47,7 @@ const loadResources = async () => {
 }
 
 const route = useRoute()
-watch(() => route.fullPath, (newUri) => {
+watch(() => route.fullPath, (newUri: string) => {
   const newPath = newUri.split('?')[0]
   const oldPath = uri.value.split('?')[0]
   if (newUri == '/' || newPath === oldPath && newPath !== '/') {

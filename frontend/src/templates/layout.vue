@@ -13,8 +13,8 @@
         <i @click="toggleFold" :class="'fa fa-' + (fold ? 'indent' : 'dedent')" style="cursor: pointer; font-size: 1.5rem; width: 2.3rem; margin-right: 0.2rem"></i>
         <span v-if="!fold" class="sider-title">{{ name }}</span>
       </div>
-      <SiderFold v-if="fold" :l2="l2" :env="env" />
-      <SiderOpen v-else :l2="l2" :env="env" />
+      <SiderFold v-if="fold" :l2="(l2 ?? []) as any[]" :env="env ?? ''" />
+      <SiderOpen v-else :l2="(l2 ?? []) as any[]" :env="env ?? ''" />
     </div>
     <div class="main-content">
       <Header class="header" :l1="l1" :env="env" :user="user" />
@@ -31,7 +31,7 @@
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { ref, computed, watch } from 'vue'
 import lib from '@libs/lib.ts'
 import Header from './header.vue'
@@ -40,17 +40,33 @@ import Footer from './footer.vue'
 import SiderFold from './sider-fold.vue'
 import SiderOpen from './sider-open.vue'
 
-const props = defineProps(['name', 'env', 'fold', 'l1', 'l2', 'title', 'user'])
-const fold = ref(props.fold)
+interface TitleItem {
+  name: string
+  path: string
+}
+
+interface Props {
+  name?: string
+  env?: string
+  fold?: boolean
+  l1?: any[]
+  l2?: any[]
+  title?: TitleItem[]
+  user?: any
+}
+
+const props = defineProps<Props>()
+const fold = ref(props.fold ?? false)
 
 watch(() => props.fold, (newVal) => {
-  fold.value = newVal
+  fold.value = newVal ?? false
 })
 
 const headTitle = computed(() => {
-  let ans = props.name
-  if (props.title && props.title.length > 0) {
-    ans += ' - ' + props.title[props.title.length - 1].name
+  let ans = props.name ?? ''
+  const lastTitle = props.title && props.title.length > 0 ? props.title[props.title.length - 1] : undefined
+  if (lastTitle) {
+    ans += ' - ' + lastTitle.name
   }
   return ans
 })

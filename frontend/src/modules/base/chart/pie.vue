@@ -2,8 +2,8 @@
   <Chart :option="option" height="300px" margin="5px 0 0 0" />
 </template>
 
-<script setup>
-const option = {
+<script setup lang="ts">
+const option: Record<string, any> = {
   tooltip: {
     trigger: 'item'
   },

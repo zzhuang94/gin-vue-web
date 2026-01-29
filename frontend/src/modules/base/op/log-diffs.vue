@@ -24,7 +24,19 @@
   </table>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import Td from '@components/td.vue'
-const props = defineProps(['name', 'diffs'])
+
+interface Diff {
+  rule: any
+  old: any
+  new: any
+}
+
+interface Props {
+  name?: string
+  diffs?: Diff[]
+}
+
+defineProps<Props>()
 </script>

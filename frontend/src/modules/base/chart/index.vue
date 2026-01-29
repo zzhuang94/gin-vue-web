@@ -21,7 +21,7 @@
   </a-row>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import Card from '@components/card.vue'
 import Line from './line.vue'
 import Pie from './pie.vue'

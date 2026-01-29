@@ -58,17 +58,17 @@
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { ref, computed, onMounted, watch, onBeforeUnmount } from 'vue'
 import iconsJson from './fa-icon.json'
 
 const q = ref('')
-const oldIcons = ref([])
-const newIcons = ref([])
-const brandsIcons = ref([])
-const displayedNew = ref([])
-const displayedOld = ref([])
-const displayedBrands = ref([])
+const oldIcons = ref<string[]>([])
+const newIcons = ref<string[]>([])
+const brandsIcons = ref<string[]>([])
+const displayedNew = ref<string[]>([])
+const displayedOld = ref<string[]>([])
+const displayedBrands = ref<string[]>([])
 
 const filteredNew = computed(() => {
   const keyword = q.value.trim().toLowerCase()

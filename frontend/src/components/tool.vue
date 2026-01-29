@@ -1,7 +1,11 @@
 <template>
 </template>
 
-<script setup>
+<script setup lang="ts">
+interface Props {
+  btns?: any[]
+  locks?: any[]
+}
 
-defineProps(['btns', 'locks'])
+defineProps<Props>()
 </script>

@@ -10,24 +10,16 @@
   </span>
 </template>
 
-<script setup>
-const props = defineProps({
-  placement: {
-    type: String,
-    default: 'right', // 默认位置
-  },
-  color: {
-    type: String,
-    default: undefined, // 默认不指定颜色
-  },
-  icon: {
-    type: Boolean,
-    default: true
-  },
-  msg: {
-    type: String,
-    required: true,
-    default: '',
-  },
+<script setup lang="ts">
+interface Props {
+  placement?: string
+  color?: string
+  icon?: boolean
+  msg: string
+}
+
+withDefaults(defineProps<Props>(), {
+  placement: 'right',
+  icon: true
 })
 </script>

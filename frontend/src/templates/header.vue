@@ -24,7 +24,7 @@
       <a-popover placement="bottomRight" trigger="click">
         <template #title>
           <span style="font-size: 1.2rem"><i class="fa fa-user" style="width: 2rem"></i>
-            {{ user.cn_name || user.username }}
+            {{ user?.cn_name || user?.username }}
           </span>
         </template>
         <template #content>
@@ -35,20 +35,38 @@
         </template>
         <img v-if="avatarUrl" :src="avatarUrl" style="width:40px;height:40px;cursor:pointer;border-radius:50%;object-fit:cover;" />
         <div v-else style="width:40px;height:40px;cursor:pointer;border-radius:50%;background:#1890ff;display:flex;align-items:center;justify-content:center;color:white;font-weight:bold;font-size:16px;">
-          {{ (user.cn_name || user.username || 'A').charAt(0).toUpperCase() }}
+          {{ (user?.cn_name || user?.username || 'A').charAt(0).toUpperCase() }}
         </div>
       </a-popover>
     </a-space>
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import lib from '@libs/lib.ts'
 import Tooltip from '@components/tooltip.vue'
 
-const props = defineProps(['l1', 'env', 'user'])
+interface L1Item {
+  path?: string
+  name: string
+  icon: string
+  active?: boolean
+}
+
+interface User {
+  cn_name?: string
+  username: string
+}
+
+interface Props {
+  l1?: L1Item[]
+  env?: string
+  user?: User
+}
+
+defineProps<Props>()
 const router = useRouter()
 
 const ip = ref('')

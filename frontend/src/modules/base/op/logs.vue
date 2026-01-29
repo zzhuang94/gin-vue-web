@@ -20,20 +20,32 @@
   </a-modal>
 </template>
 
-<script setup>
-import { ref, computed } from 'vue'
-import lib from '@libs/lib.ts'
+<script setup lang="ts">
+import { computed } from 'vue'
 import Log from './log.vue'
 
-const props = defineProps(['open', 'lids', 'log_rules'])
-const emit = defineEmits(['update:open'])
+interface Rule {
+  key: string
+  [key: string]: any
+}
+
+interface Props {
+  open?: boolean
+  lids?: string
+  log_rules?: Rule[]
+}
+
+const props = defineProps<Props>()
+const emit = defineEmits<{
+  'update:open': [value: boolean]
+}>()
 
 const lids = computed(() => {
-  return props.lids.split(',')
+  return (props.lids ?? '').split(',')
 })
 
 const op_rule = computed(() => {
-  return props.log_rules.find(r => r.key === 'op')
+  return props.log_rules?.find(r => r.key === 'op')
 })
 
 const cancel = () => {

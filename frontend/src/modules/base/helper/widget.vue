@@ -141,7 +141,7 @@
         </div>
         <Input label="名称" type="input" v-model="inputValue1" placeholder="请输入名称" />
         <br />
-        <Input label="描述" type="textarea" v-model="inputValue2" :min-rows="3" />
+        <Input label="描述" type="textarea" v-model="inputValue2" :min-rows="'3'" />
         <br />
         <Input label="类型" type="select" v-model="inputValue3" :options="selectOptions" />
       </Card>
@@ -230,30 +230,18 @@
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { ref, provide } from 'vue'
 import Card from '@components/card.vue'
-import Button from '@components/button.vue'
 import BinSwitch from '@components/bin-switch.vue'
 import BinCheck from '@components/bin-check.vue'
-import BadgeSelect from '@components/badge-select.vue'
 import BtnSelect from '@components/btn-select.vue'
 import Input from '@components/input.vue'
-import AjaxSelect from '@components/ajax-select.vue'
 import TimeRange from '@components/time-range.vue'
 import Searcher from '@components/searcher.vue'
-import Table from '@components/table.vue'
-import List from '@components/list.vue'
-import Edit from '@components/edit.vue'
-import Tree from '@components/tree.vue'
-import Pager from '@components/pager.vue'
-import Chart from '@components/chart.vue'
 import Tooltip from '@components/tooltip.vue'
-import Td from '@components/td.vue'
 import TableV from '@components/table-v.vue'
-import CollapseTable from '@components/collapse-table.vue'
 import Lock from '@components/lock.vue'
-import Error from '@components/error.vue'
 import ImgTree from '@assets/tree.png'
 
 // 基础样式数据
@@ -265,11 +253,6 @@ const sizes = ['2xs', 'xs', 'sm', 'md', 'lg', 'xl', '2xl']
 const switchValue1 = ref('1')
 const switchValue2 = ref('no')
 const checkValue1 = ref('0')
-const badgeValue = ref('1')
-const badgeOptions = {
-  '1': { label: '启用', badge: 'success' },
-  '0': { label: '禁用', badge: 'danger' }
-}
 const btnSelectItems = [
   { key: '1', label: '启用' },
   { key: '0', label: '禁用' }
@@ -281,10 +264,9 @@ const selectOptions = [
   { value: '1', label: '选项1' },
   { value: '2', label: '选项2' }
 ]
-const ajaxValue = ref('')
 const timeStart = ref('')
 const timeEnd = ref('')
-const searcherArg = ref({})
+const searcherArg = ref<Record<string, any>>({})
 const searcherRules = [
   { key: 'name', name: '名称', search: true },
   { key: 'status', name: '状态', search: true, limit: [
@@ -292,28 +274,6 @@ const searcherRules = [
     { key: '0', label: '禁用' }
   ]}
 ]
-const tableRules = [
-  { key: 'id', name: 'ID' },
-  { key: 'name', name: '名称' },
-  { key: 'status', name: '状态' }
-]
-const tableData = [
-  { id: 1, name: '测试1', status: '启用' },
-  { id: 2, name: '测试2', status: '禁用' }
-]
-const tableOptions = []
-const treeData = {
-  '1': { name: '节点1', parent_id: '', icon: 'folder' },
-  '2': { name: '节点2', parent_id: '1', icon: 'file' },
-  '3': { name: '节点3', parent_id: '1', icon: 'file' }
-}
-const treeOps = [
-  { title: '编辑', icon: 'edit', op: 'edit' },
-  { title: '删除', icon: 'trash', op: 'delete' }
-]
-const pagerCurr = ref(1)
-const pagerSize = ref(10)
-const pagerTotal = ref(100)
 const tableVRules = [
   { key: 'name', name: '名称' },
   { key: 'status', name: '状态' }
@@ -324,10 +284,10 @@ const tableVData = {
   status: '启用'
 }
 const lockValue = ref(false)
-const lockUsers = ref([])
+const lockUsers = ref<string[]>([])
 
 // 为 Button 组件提供 toolClick 函数
-const toolClick = (props) => {
+const toolClick = (props: any) => {
   console.log('Button clicked:', props)
   if (props.url) {
     window.open(props.url, '_blank')
@@ -336,13 +296,13 @@ const toolClick = (props) => {
 provide('toolClick', toolClick)
 
 // 事件处理
-const handleBtnSelect = (value) => {
+const handleBtnSelect = (value: string) => {
   console.log('BtnSelect changed:', value)
 }
-const handleTimeRange = (timeStrings) => {
+const handleTimeRange = (timeStrings: string[]) => {
   if (timeStrings && timeStrings.length === 2) {
-    timeStart.value = timeStrings[0]
-    timeEnd.value = timeStrings[1]
+    timeStart.value = timeStrings[0] ?? ''
+    timeEnd.value = timeStrings[1] ?? ''
   }
 }
 const handleSearcher = () => {

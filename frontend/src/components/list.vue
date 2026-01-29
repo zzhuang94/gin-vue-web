@@ -1,12 +1,12 @@
 <template>
-  <a-modal :width="width" :maskClosable="false" @ok="submit" v-model:open="open" @cancel="emit('submit')">
+  <a-modal :width="width" :maskClosable="false" @ok="submit" v-model:open="open" @cancel="handleCancel">
     <template #title>
       <span v-html="title"></span>
       <span v-if="subtitle" v-html="subtitle" style="font-size: 0.9rem; color: gray; margin-left: 10px"></span>
     </template>
 
     <template #footer>
-      <a-button v-if="action.sort" type="primary" @click="saveSort" :loading="sortLoading">保存排序</a-button>
+      <a-button v-if="action?.sort" type="primary" @click="saveSort" :loading="sortLoading">保存排序</a-button>
     </template>
 
     <hr />
@@ -29,13 +29,13 @@
                 v-if="rule.trans && rule.trans.ajax"
                 v-model:value="element[rule.key]"
                 :placeholder="`请选择${rule.name}`"
-                :disabled="!action.edit || rule.readonly"
+                :disabled="!action?.edit || rule.readonly"
                 :translate="rule.trans"
                 :style="{ width: '100%' }"
               />
 
               <span
-                v-else-if="activeRow !== element.id || !action.edit || rule.is_readonly"
+                v-else-if="activeRow !== element.id || !action?.edit || rule.is_readonly"
                 v-html="lib.displayDK(rule, element[rule.key], true)"
               ></span>
 
@@ -66,15 +66,15 @@
 
             <td class="table-op-col">
               <a-space :size="5">
-                <button v-if="action.edit" class="btn btn-sm btn-outline-success" @click="autoCurl('save?id=' + element.id, element)" title="保存">
+                <button v-if="action?.edit" class="btn btn-sm btn-outline-success" @click="autoCurl('save?id=' + element.id, element)" title="保存">
                   <i class="fa fa-save"></i>
                 </button>
 
-                <button v-if="action.del" class="btn btn-sm btn-outline-danger" @click="autoCurl('delete?id=' + element.id)" title="删除">
+                <button v-if="action?.del" class="btn btn-sm btn-outline-danger" @click="autoCurl('delete?id=' + element.id)" title="删除">
                   <i class="fa fa-trash"></i>
                 </button>
 
-                <button v-if="action.sort" class="btn btn-sm btn-outline-warning drag-handle" title="拖拽排序">
+                <button v-if="action?.sort" class="btn btn-sm btn-outline-warning drag-handle" title="拖拽排序">
                   <i class="fa fa-unsorted"></i>
                 </button>
               </a-space>
@@ -83,7 +83,7 @@
         </template>
       </draggable>
 
-      <tr v-if="action.add" style="background-color: rgb(171 248 196)">
+      <tr v-if="action?.add" style="background-color: rgb(171 248 196)">
         <td v-for="rule in rules" :key="rule.key" :style="rule.width ? { width: rule.width } : {}">
           <BadgeSelect
             v-if="rule.limit && lib.isLimitBadge(rule.limit) && !rule.split_sep"
@@ -117,38 +117,88 @@
       </tr>
     </table>
 
-    <hr v-if="action.sort" />
+    <hr v-if="action?.sort" />
   </a-modal>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { ref, reactive, watch } from 'vue'
 import draggable from 'vuedraggable'
 import lib from '@libs/lib.ts'
 import AjaxSelect from '@components/ajax-select.vue'
 import BadgeSelect from '@components/badge-select.vue'
 
-const emit = defineEmits(['submit', 'reload'])
-const props = defineProps(['width', 'title', 'subtitle', 'args', 'data', 'rules', 'action'])
+interface Rule {
+  key: string
+  name: string
+  readonly?: boolean
+  is_readonly?: boolean
+  limit?: any[]
+  limit_map?: Record<string | number, any>
+  trans?: any
+  textarea?: boolean
+  split_sep?: string
+  default?: any
+  width?: string
+  [key: string]: any
+}
+
+interface Action {
+  prefix: string
+  edit?: boolean
+  del?: boolean
+  sort?: boolean
+  add?: boolean
+}
+
+interface Props {
+  width?: string
+  title?: string
+  subtitle?: string
+  args?: Record<string, any>
+  data?: Record<string, any>[]
+  rules?: Rule[]
+  action?: Action
+}
+
+const props = withDefaults(defineProps<Props>(), {
+  data: () => [],
+  rules: () => [],
+  args: () => ({})
+})
+
+const emit = defineEmits<{
+  'submit': []
+  'reload': []
+}>()
 
 const open = ref(true)
-const localRows = ref([...props.data])
+const localRows = ref<Record<string, any>[]>([...props.data])
 const sortLoading = ref(false)
-const activeRow = ref(-1)
+const activeRow = ref<number | string>(-1)
 
-let newRow = reactive(initNewRow())
+const handleCancel = () => {
+  emit('submit')
+}
+
+const submit = () => {
+  // Modal ok handler - can be empty or emit submit
+  emit('submit')
+}
+
+let newRow = reactive<Record<string, any>>(initNewRow())
 
 watch(
   () => props.data,
   (newData) => {
-    localRows.value = [...newData]
+    localRows.value = [...(newData ?? [])]
   },
   { deep: true }
 )
 
-function initNewRow() {
-  const result = {}
-  for (const rule of props.rules) {
+function initNewRow(): Record<string, any> {
+  const result: Record<string, any> = {}
+  for (const rule of props.rules ?? []) {
     result[rule.key] = rule.default || ''
   }
   return result
@@ -156,18 +206,18 @@ function initNewRow() {
 
 const saveSort = async () => {
   sortLoading.value = true
-  const ids = localRows.value.map((item) => item.id)
+  const ids = localRows.value.map((item: any) => item.id)
   await autoCurl('sort', { ids })
   sortLoading.value = false
 }
 
-const autoCurl = async (action, params) => {
-  const url = props.action.prefix + action
-  const ok = await lib.ajax(url, params)
+const autoCurl = async (action: string, params?: Record<string, any>) => {
+  const url = (props.action?.prefix ?? '') + action
+  const ok = await lib.ajax(url, params ?? {})
 
   if (ok) {
     emit('reload')
-    newRow = reactive(initNewRow())
+    Object.assign(newRow, initNewRow())
   }
 }
 </script>

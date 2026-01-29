@@ -3,17 +3,26 @@
   <Chart :option :url :width :height :margin :china :loading />
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { ref, defineAsyncComponent } from 'vue'
 
-const props = defineProps({
-  option: { type: Object, default: null },
-  url: { type: String, default: '' },
-  width: { type: String, default: '100%' },
-  height: { type: String, default: '100%' },
-  margin: { type: String, default: '0' },
-  china: { type: Boolean, default: false },
-  loading: { type: Boolean, default: false },
+interface Props {
+  option?: Record<string, any>
+  url?: string
+  width?: string
+  height?: string
+  margin?: string
+  china?: boolean
+  loading?: boolean
+}
+
+withDefaults(defineProps<Props>(), {
+  url: '',
+  width: '100%',
+  height: '100%',
+  margin: '0',
+  china: false,
+  loading: false
 })
 
 const init = ref(false)

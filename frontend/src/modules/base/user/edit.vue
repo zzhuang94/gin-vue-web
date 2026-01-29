@@ -84,15 +84,31 @@
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { ref, reactive, onMounted } from 'vue'
 import lib from '@libs/lib.ts'
 import swal from '@libs/swal.ts'
 import Tooltip from '@components/tooltip.vue'
 
-const props = defineProps(['user', 'rules'])
+interface Rule {
+  key: string
+  name: string
+  required?: boolean
+  describe?: string
+  limit?: any[]
+  split_sep?: string
+  readonly?: boolean
+  [key: string]: any
+}
+
+interface Props {
+  user?: Record<string, any>
+  rules?: Rule[]
+}
+
+const props = defineProps<Props>()
 const submitting = ref(false)
-const fd = reactive(props.user)
+const fd = reactive<Record<string, any>>(props.user ?? {})
 
 const currentAvatar = ref('')
 const previewImage = ref('')
@@ -103,7 +119,7 @@ const loadCurrentAvatar = async () => {
   currentAvatar.value = await lib.loadAvatar()
 }
 
-const beforeUpload = async (file) => {
+const beforeUpload = async (file: File) => {
   if (!file.type.startsWith('image/')) {
     swal.error('错误', '只能上传图片文件')
     return false
@@ -122,7 +138,7 @@ const beforeUpload = async (file) => {
     }
 
     const img = new Image()
-    await new Promise((resolve, reject) => {
+    await new Promise<void>((resolve, reject) => {
       img.onload = () => resolve()
       img.onerror = reject
       img.src = imageData
@@ -145,9 +161,11 @@ const beforeUpload = async (file) => {
 
     const base64 = canvas.toDataURL('image/jpeg', 0.9)
     previewImage.value = base64
-    croppedBase64.value = base64.split(',')[1]
-  } catch (error) {
-    swal.error('错误', '处理图片失败：' + (error?.message || '未知错误'))
+    const parts = base64.split(',')
+    croppedBase64.value = parts.length > 1 ? (parts[1] ?? '') : ''
+  } catch (error: unknown) {
+    const err = error as { message?: string }
+    swal.error('错误', '处理图片失败：' + (err?.message || '未知错误'))
   }
 
   return false
@@ -162,7 +180,7 @@ const confirmUpload = async () => {
   if (!croppedBase64.value) return
 
   uploading.value = true
-  const ok = await lib.ajax('upload-avatar', { image: croppedBase64.value })
+  const ok = await lib.ajax('upload-avatar', { image: croppedBase64.value ?? '' })
   if (ok) {
     await loadCurrentAvatar()
     cancelPreview()
@@ -173,7 +191,7 @@ const confirmUpload = async () => {
 
 const handleSave = async () => {
   submitting.value = true
-  await lib.ajax(`save?id=${props.user.id}`, fd)
+  await lib.ajax(`save?id=${props.user?.id ?? ''}`, fd)
   submitting.value = false
 }
 

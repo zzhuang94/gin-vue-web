@@ -14,7 +14,7 @@
       <a-alert v-show="rollbacking" type="warning" message="由于操作之间的存在依赖关系，您必须同时回滚下面的全部操作"></a-alert>
     </div>
     <div class="portlet-body">
-      <Searcher v-show="! rollbacking" v-model:arg="arg" :rules @search="fetchData" @clear="fetchData(true)" />
+      <Searcher v-show="! rollbacking" v-model:arg="arg" :rules="props.rules ?? []" @search="fetchData" @clear="fetchData(true)" />
 
       <a-spin :spinning="loading">
         <table class="table table-hover">
@@ -30,7 +30,7 @@
             </tr>
           </thead>
           <tbody>
-            <tr v-for="d, i in data" :key="d.id">
+            <tr v-for="d in data" :key="d.id">
               <td><input v-show="! rollbacking" type="checkbox" v-model="ids" :value="d.id" /></td>
               <td>{{ d.id }}</td>
               <td>{{ d.user }}</td>
@@ -54,10 +54,10 @@
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { onMounted, ref, shallowRef, watch } from 'vue'
+import type { Component } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import axios from 'axios'
 
 import lib from '@libs/lib.ts'
 import swal from '@libs/swal.ts'
@@ -67,28 +67,43 @@ import Pager from '@components/pager.vue'
 import Log from './log.vue'
 import Logs from './logs.vue'
 
-const props = defineProps(['rules', 'log_rules', 'arg', 'page_size'])
+interface DataRow {
+  id: string | number
+  user: string
+  path: string
+  lids: string
+  created: string
+}
+
+interface Props {
+  rules?: any[]
+  log_rules?: any[]
+  arg?: Record<string, any>
+  page_size?: number
+}
+
+const props = defineProps<Props>()
 const route = useRoute()
 const router = useRouter()
-const modalCurr = shallowRef(null)
-const modalProps = ref({})
+const modalCurr = shallowRef<Component | null>(null)
+const modalProps = ref<Record<string, any>>({})
 const loading = ref(true)
 const rollbacking = ref(false)
-const data = ref([])
-const arg = ref(props.arg)
-const page = ref({ curr: 1, size: props.page_size })
+const data = ref<DataRow[]>([])
+const arg = ref<Record<string, any>>(props.arg ?? {})
+const page = ref<{ curr: number; size: number; total?: number }>({ curr: 1, size: props.page_size ?? 10 })
 const logsOpen = ref(false)
 const lids = ref('')
 
-const ids = ref([])
-const confirmIds = ref([])
+const ids = ref<(string | number)[]>([])
+const confirmIds = ref<(string | number)[]>([])
 const allSelected = ref(false)
 const toggleAll = () => {
   ids.value = allSelected.value ? data.value.map(r => r.id) : []
 }
 watch(ids, (newVal) => { allSelected.value = newVal.length > 0 && newVal.length === data.value.length })
 
-const fetchData = async (page1) => {
+const fetchData = async (page1?: boolean) => {
   loading.value = true
   if (page1) {
     page.value.curr = 1
@@ -115,7 +130,7 @@ const updateUrl = () => {
   })
 }
 
-const logs = (ids) => {
+const logs = (ids: string) => {
   console.log(ids, "IDS")
   logsOpen.value = true
   lids.value = ids
@@ -138,9 +153,9 @@ const tryRollback = async () => {
   }
 }
 
-const rollback = async (ids) => {
+const rollback = async (ids: (string | number)[]) => {
   loading.value = true
-  const cf = await swal.confirm("确认操作？")
+  const cf = await swal.confirm("确认操作？", "")
   if (! cf) {
     loading.value = false
     return

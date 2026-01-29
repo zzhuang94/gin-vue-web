@@ -2,8 +2,8 @@
   <Chart china :option="option" margin="5px 0 0 0" height="400px" />
 </template>
 
-<script setup>
-const data = {
+<script setup lang="ts">
+const data: Record<string, any> = {
   "上海": {
     "all_count": 4068,
     "city": {
@@ -3153,7 +3153,7 @@ const mc = {
 
 
 
-const option = {
+const option: Record<string, any> = {
   title: {
     text: mc.name,
     subtextStyle: {
@@ -3186,8 +3186,8 @@ const option = {
   ]
 }
 
-function calcData() {
-  const ans = []
+function calcData(): any[] {
+  const ans: any[] = []
   for (let prov in data) {
     let d = data[prov]
     ans.push({ name: prov, value: d.val, originData: d })
@@ -3195,7 +3195,7 @@ function calcData() {
   return ans
 }
 
-function mapTooltipFormatter(p)
+function mapTooltipFormatter(p: any): string
 {
     let valStr = p.value;
     if (mc.name == '可用性') {

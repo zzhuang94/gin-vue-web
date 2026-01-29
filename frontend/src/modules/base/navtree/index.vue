@@ -8,13 +8,18 @@
 </template>
 
 
-<script setup>
+<script setup lang="ts">
 import { ref, shallowRef } from 'vue';
+import type { Component } from 'vue';
 import lib from '@libs/lib.ts'
 import Tree from '@components/tree.vue'
 
-const props = defineProps(['data'])
-const data = ref(props.data)
+interface Props {
+  data?: Record<string, any>
+}
+
+const props = defineProps<Props>()
+const data = ref<Record<string, any>>(props.data ?? {})
 const ops = [
   {
     title: '编辑节点',
@@ -38,8 +43,8 @@ const ops = [
   },
 ]
 
-const modalCurr = shallowRef(null)
-const modalProps = ref({})
+const modalCurr = shallowRef<Component | null>(null)
+const modalProps = ref<Record<string, any>>({})
 
 const loadData = async () => {
   const ans = await lib.curl('fetch')
@@ -48,12 +53,11 @@ const loadData = async () => {
   }
 }
 
-const leftClick = async (id) => {
+const leftClick = async (id: string) => {
   lib.loadModal('edit?id=' + id, modalCurr, modalProps)
 }
 
-const rightClick = async (id, op) => {
-  const d = data.value['id']
+const rightClick = async (id: string, op: string) => {
   if (op == 'add') {
     lib.loadModal('add?id=' + id, modalCurr, modalProps)
   } else if (op == 'edit') {

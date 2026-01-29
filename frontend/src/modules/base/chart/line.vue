@@ -2,18 +2,19 @@
   <Chart :option="option" height="300px" />
 </template>
 
-<script setup>
+<script setup lang="ts">
 let base = +new Date(1988, 9, 3);
 let oneDay = 24 * 3600 * 1000;
-let data = [[base, Math.random() * 300]];
+let data: [number, number][] = [[base, Math.random() * 300]];
 for (let i = 1; i < 20000; i++) {
   let now = new Date((base += oneDay));
-  data.push([+now, Math.round((Math.random() - 0.5) * 20 + data[i - 1][1])]);
+  const prevValue = data[i - 1]?.[1] ?? 0
+  data.push([+now, Math.round((Math.random() - 0.5) * 20 + prevValue)]);
 }
-const option = {
+const option: Record<string, any> = {
   tooltip: {
     trigger: 'axis',
-    position: function (pt) {
+    position: function (pt: number[]) {
       return [pt[0], '10%'];
     }
   },

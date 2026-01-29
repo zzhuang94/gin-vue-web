@@ -18,43 +18,66 @@
   </a-select>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { ref, watch, onMounted } from 'vue'
 import lib from '@libs/lib.ts'
 
-const emit = defineEmits(['update:value', 'change'])
-const props = defineProps({
-  value: { type: String, default: '' },
-  placeholder: { type: String, default: '请选择' },
-  disabled: { type: Boolean, default: false },
-  class: { type: String, default: '' },
-  style: { type: Object },
-  translate: { type: Object },
-  url: { type: String, default: '' },
+interface Option {
+  value: string | number
+  label: string
+}
+
+interface Translate {
+  ajax?: boolean
+  custom?: boolean
+  [key: string]: any
+}
+
+interface Props {
+  value?: string
+  placeholder?: string
+  disabled?: boolean
+  class?: string
+  style?: Record<string, any>
+  translate?: Translate
+  url?: string
+}
+
+const props = withDefaults(defineProps<Props>(), {
+  value: '',
+  placeholder: '请选择',
+  disabled: false,
+  class: '',
+  url: ''
 })
 
-const val = ref(props.value)
-const options = ref([])
+const emit = defineEmits<{
+  'update:value': [value: string]
+  'change': [value: string]
+}>()
+
+const val = ref<string>(props.value ?? '')
+const options = ref<Option[]>([])
 const loading = ref(false)
 const lastFetchId = ref(0)
 
-watch(() => props.value, (newVal) => { val.value = newVal })
+watch(() => props.value, (newVal) => { val.value = newVal ?? '' })
 watch(val, (newVal) => {
   emit('update:value', newVal)
   emit('change', newVal)
 })
 
-const handleSearch = (value) => {
+const handleSearch = (value: string) => {
   fetchData(value)
 }
 
-const handleDropdownVisibleChange = (open) => {
+const handleDropdownVisibleChange = (open: boolean) => {
   if (open && !options.value.length) {
     fetchData('')
   }
 }
 
-const fetchData = async (term) => {
+const fetchData = async (term: string) => {
   loading.value = true
   lastFetchId.value += 1
   const fetchId = lastFetchId.value
@@ -72,22 +95,22 @@ const fetchData = async (term) => {
   }
 }
 
-async function initOptions() {
+async function initOptions(): Promise<Option[]> {
   if (! props.value) {
     return []
   }
-  const ans = []
+  const ans: Option[] = []
   const r = await lib.curl('/base/trans/init?val=' + props.value, props.translate)
   if (r.code == 1) {
     ans.push({ value: r.data.key, label: r.data.val })
-  } else if (props.translate.custom) {
+  } else if (props.translate?.custom) {
     ans.push({ value: props.value, label: props.value })
   }
   return ans
 }
 
-async function loadData(term) {
-  let r = {}
+async function loadData(term: string): Promise<any[]> {
+  let r: any = {}
   if (props.url != '') {
     r = await lib.curl(props.url, { term })
   } else {
@@ -99,10 +122,10 @@ async function loadData(term) {
   return []
 }
 
-async function buildOptions(term) {
+async function buildOptions(term: string): Promise<Option[]> {
   const data = await loadData(term)
-  let ans = data.map(d => ({ value: d.key, label: d.val }))
-  if (! (props.translate?.custom ?? 0) || term == '' || ans.length > 0 && ans[0].label == term) {
+  let ans = data.map((d: any) => ({ value: d.key, label: d.val }))
+  if (! (props.translate?.custom ?? 0) || term == '' || ans.length > 0 && ans[0]?.label == term) {
     return ans
   }
   ans.unshift({ value: term, label: term })

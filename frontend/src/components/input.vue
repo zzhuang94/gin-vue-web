@@ -40,30 +40,52 @@
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { ref, watch } from 'vue'
 import lib from '@libs/lib.ts'
 
-const emit = defineEmits(['update:value', 'change'])
-const props = defineProps({
-  label: { type: String, default: '' },
-  type: { type: String, default: 'input', validator: (value) => ['input', 'textarea', 'select'].includes(value) },
-  value: { type: [String, Array], default: '' },
-  placeholder: { type: String, default: '请输入内容' },
-  labelWidth: { type: String, default: '100px' },
-  minRows: { type: String, default: '1' },
-  options: { type: Array, default: () => [] },
-  multiple: { type: Boolean, default: false },
-  disabled: { type: Boolean, default: false },
+interface Option {
+  label: string
+  value: string | number
+}
+
+interface Props {
+  label?: string
+  type?: 'input' | 'textarea' | 'select' | 'checkbox'
+  value?: string | string[]
+  placeholder?: string
+  labelWidth?: string
+  minRows?: string
+  options?: Option[]
+  multiple?: boolean
+  disabled?: boolean
+}
+
+const props = withDefaults(defineProps<Props>(), {
+  label: '',
+  type: 'input',
+  value: '',
+  placeholder: '请输入内容',
+  labelWidth: '100px',
+  minRows: '1',
+  options: () => [],
+  multiple: false,
+  disabled: false
 })
-const val = ref(props.value)
+
+const emit = defineEmits<{
+  'update:value': [value: string | string[]]
+  'change': [value: string | string[]]
+}>()
+
+const val = ref<string | string[]>(props.value ?? '')
 
 const searchText = ref('')
-const handleSearch = (value) => {
+const handleSearch = (value: string) => {
   searchText.value = value
 }
 
-watch(() => props.value, (newVal) => { val.value = newVal })
+watch(() => props.value, (newVal) => { val.value = newVal ?? '' })
 watch(val, (newVal) => {
   emit('update:value', newVal)
   emit('change', newVal)

@@ -8,9 +8,15 @@
   </a-modal>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { ref } from 'vue'
 import Chart from '@components/chart.vue'
-defineProps(['ip', 'option'])
+
+interface Props {
+  ip?: string
+  option?: Record<string, any>
+}
+
+defineProps<Props>()
 const open = ref(true)
 </script>

@@ -10,8 +10,17 @@
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import lib from '@libs/lib.ts'
 
-defineProps(['title'])
+interface TitleItem {
+  name: string
+  path: string
+}
+
+interface Props {
+  title?: TitleItem[]
+}
+
+defineProps<Props>()
 </script>

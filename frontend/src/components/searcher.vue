@@ -16,17 +16,17 @@
       <a-col :span="2" class="label">{{ v.name }}：</a-col>
       <a-col :span="22">
 
-        <a-select v-if="v.limit && v.limit.length"
-          v-model:value="formData[v.key]"
-          show-search
-          allow-clear
-          :search-value="searchText"
-          @search="handleSearch"
-          :filterOption="lib.filterByLabel"
-          :placeholder="`请选择${v.name}`"
-          :mode="v.search == 3 ? 'multiple' : 'undefined'"
-          class="search-input"
-          >
+          <a-select v-if="v.limit && v.limit.length"
+            v-model:value="formData[v.key]"
+            show-search
+            allow-clear
+            :search-value="searchText"
+            @search="handleSearch"
+            :filterOption="lib.filterByLabel"
+            :placeholder="`请选择${v.name}`"
+            :mode="(typeof v.search === 'number' && v.search === 3) ? 'multiple' : undefined"
+            class="search-input"
+            >
           <a-select-option v-for="lv in v.limit" :key="lv.key" :value="lv.key" :label="lv.label">
             {{ lv.label }}
           </a-select-option>
@@ -66,23 +66,40 @@
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { watch, computed, onMounted, reactive, ref } from 'vue'
 import lib from '@libs/lib.ts'
 import AjaxSelect from '@components/ajax-select.vue';
-import { isEmpty } from 'lodash';
 
-const props = defineProps(['rules', 'arg', 'bind'])
-const emit = defineEmits(['update:arg', 'search', 'clear'])
+interface Rule {
+  key: string
+  name: string
+  search?: boolean
+  limit?: any[]
+  trans?: any
+  [key: string]: any
+}
+
+interface Props {
+  rules: Rule[]
+  arg: Record<string, any>
+  bind?: any
+}
+
+const props = defineProps<Props>()
+const emit = defineEmits<{
+  'update:arg': [arg: Record<string, any>]
+  'search': []
+  'clear': []
+}>()
 
 const searchText = ref('')
-const handleSearch = (value) => {
+const handleSearch = (value: string) => {
   searchText.value = value
 }
 
-
-const visibleKeys = ref(new Set())
-const formData = reactive(props.arg)
+const visibleKeys = ref<Set<string>>(new Set())
+const formData = reactive<Record<string, any>>(props.arg)
 
 const rules = computed(() => {
   return props.rules.filter(i => i.search)
@@ -92,17 +109,17 @@ const initVisibleKeys = () => {
   visibleKeys.value.clear()
   // 先找出有值的字段
   for (const item of rules.value) {
-    if (props.arg[item.key] !== undefined) {
+    if (props.arg && props.arg[item.key] !== undefined) {
       visibleKeys.value.add(item.key)
     }
   }
   // 如果没有有值的字段，默认显示第一个
-  if (visibleKeys.value.size === 0 && rules.value.length > 0) {
+  if (visibleKeys.value.size === 0 && rules.value.length > 0 && rules.value[0]) {
     visibleKeys.value.add(rules.value[0].key)
   }
 }
 
-const toggle = (key) => {
+const toggle = (key: string) => {
   if (visibleKeys.value.has(key)) {
     visibleKeys.value.delete(key)
     delete formData[key]

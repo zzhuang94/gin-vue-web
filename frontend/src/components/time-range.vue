@@ -8,36 +8,36 @@
   />
 </template>
 
-<script setup>
-import { ref, watch } from 'vue'
-import dayjs from 'dayjs'
+<script setup lang="ts">
+import { ref } from 'vue'
+import dayjs, { Dayjs } from 'dayjs'
 
-const emit = defineEmits(['change'])
-const props = defineProps({
-  start: {
-    type: String,
-    default: '',
-  },
-  end: {
-    type: String,
-    default: '',
-  },
-  format: {
-    type: String,
-    default: 'YYYY-MM-DD HH:mm:00',
-  },
+interface Props {
+  start?: string
+  end?: string
+  format?: string
+}
+
+const props = withDefaults(defineProps<Props>(), {
+  start: '',
+  end: '',
+  format: 'YYYY-MM-DD HH:mm:00'
 })
 
-const timeRange = ref(initTimeRange())
+const emit = defineEmits<{
+  'change': [timeStrings: string[]]
+}>()
 
-const handleChange = (times, timeStrings) => {
+const timeRange = ref<(Dayjs | null)[]>(initTimeRange())
+
+const handleChange = (times: (Dayjs | null)[] | null, timeStrings: string[]) => {
   if (times && times.length === 2) {
     emit('change', timeStrings)
   }
 }
 
-function initTimeRange() {
-  const ans = []
+function initTimeRange(): (Dayjs | null)[] {
+  const ans: (Dayjs | null)[] = []
   if (dayjs(props.start, props.format, true).isValid()) {
     ans.push(dayjs(props.start, props.format, true))
   } else {

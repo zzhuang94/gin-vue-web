@@ -17,14 +17,14 @@
       </div>
 
       <div class="portlet-body">
-        <Searcher v-model:arg="arg" :rules @search="fetchData" @clear="fetchData(true)" />
+        <Searcher v-model:arg="arg" :rules="props.rules ?? []" @search="fetchData" @clear="fetchData(true)" />
 
         <Table ref="tableRef"
-           :loading :rules :data :option
+           :loading :rules="props.rules ?? []" :data :option
            :batch-select="batch" :id="tableId"
            v-model:sort-key="sort.key" v-model:sort-order="sort.order"
            @sort-change="fetchData(true)"
-           @op-click="toolClick"
+           @op-click="handleOpClick"
            />
 
         <Pager :loading :total="page.total" v-model:curr="page.curr" v-model:size="page.size" @page-change="fetchData" />
@@ -33,8 +33,9 @@
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { computed, onMounted, provide, ref, shallowRef, nextTick } from 'vue'
+import type { Component } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { isEmpty } from 'lodash'
 
@@ -48,20 +49,39 @@ import Searcher from '@components/searcher.vue'
 import Table from '@components/table.vue'
 import Pager from '@components/pager.vue'
 
-const props = defineProps(['headerHint', 'rules', 'lock', 'tool', 'option', 'arg', 'page_size', 'sort', 'batch', 'dump'])
+interface ToolObj {
+  type: string
+  url?: string
+  [key: string]: any
+}
+
+interface Props {
+  headerHint?: string
+  rules?: any[]
+  lock?: any[]
+  tool?: ToolObj[]
+  option?: any[]
+  arg?: Record<string, any>
+  page_size?: number
+  sort?: Record<string, any>
+  batch?: boolean
+  dump?: boolean
+}
+
+const props = defineProps<Props>()
 
 const route = useRoute()
 const router = useRouter()
 
 const loading = ref(true)
-const data = ref([])
-const arg = ref(props.arg)
-const sort = ref(props.sort)
-const page = ref({ curr: 1, size: props.page_size })
+const data = ref<any[]>([])
+const arg = ref<Record<string, any>>(props.arg ?? {})
+const sort = ref<Record<string, any>>(props.sort ?? {})
+const page = ref<{ curr: number; size: number; total?: number }>({ curr: 1, size: props.page_size ?? 10 })
 
 const tableId = 'index-table-id'
 const dumping = ref(false)
-const tableRef = ref(null)
+const tableRef = ref<InstanceType<typeof Table> | null>(null)
 
 const headerHintComponent = computed(() => {
   if (props.headerHint) {
@@ -70,26 +90,31 @@ const headerHintComponent = computed(() => {
   return null
 })
 
-const modalCurr = shallowRef(null)
-const modalProps = ref({})
+const modalCurr = shallowRef<Component | null>(null)
+const modalProps = ref<Record<string, any>>({})
 const modalUrl = ref('')
 const reloadModal = () => {
   lib.reloadModal(modalUrl.value, modalProps)
 }
 
-const toolClick = async (obj) => {
+const handleOpClick = async (op: any) => {
+  const obj = op as ToolObj
+  await toolClick(obj)
+}
+
+const toolClick = async (obj: ToolObj) => {
   if (obj.type == 'modal') {
-    modalUrl.value = obj.url
+    modalUrl.value = obj.url ?? ''
     lib.loadModal(modalUrl.value, modalCurr, modalProps)
   } else if (obj.type == 'link') {
-    lib.redirect(obj.url)
+    lib.redirect(obj.url ?? '')
   } else if (obj.type == 'async') {
-    const ok = await lib.confirmCurl(obj.url)
+    const ok = await lib.confirmCurl(obj.url ?? '')
     if (ok) {
       fetchData()
     }
   } else if (obj.type.startsWith('batch-')) {
-    const ids = tableRef.value.getSelectedIds()
+    const ids = tableRef.value?.getSelectedIds() ?? []
     if (ids.length == 0) {
       swal.warn("注意！", "请至少选择一条数据");
       return
@@ -98,7 +123,7 @@ const toolClick = async (obj) => {
       const url = 'batch-edit?count=' + ids.length + '&ids=' + ids.join(',')
       lib.loadModal(url, modalCurr, modalProps)
     } else if (obj.type == 'batch-modal') {
-      const url = obj.url + '?count=' + ids.length + '&ids=' + ids.join(',')
+      const url = (obj.url ?? '') + '?count=' + ids.length + '&ids=' + ids.join(',')
       lib.loadModal(url, modalCurr, modalProps)
     } else if (obj.type == 'batch-delete') {
       const url = 'batch-delete?ids=' + ids.join(',')
@@ -110,7 +135,7 @@ const toolClick = async (obj) => {
   }
 }
 
-const fetchData = async (page1) => {
+const fetchData = async (page1?: boolean) => {
   loading.value = true
   if (page1) {
     page.value.curr = 1

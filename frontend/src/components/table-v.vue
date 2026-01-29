@@ -9,11 +9,22 @@
   </table>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import Td from '@components/td.vue'
-const props = defineProps({
-  id: { type: String, default: '' },
-  rules: Array,
-  data: Object,
+
+interface Rule {
+  name: string
+  key: string
+  [key: string]: any
+}
+
+interface Props {
+  id?: string
+  rules: Rule[]
+  data: Record<string, any>
+}
+
+withDefaults(defineProps<Props>(), {
+  id: ''
 })
 </script>

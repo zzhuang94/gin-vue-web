@@ -15,11 +15,26 @@
   </a-dropdown>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { computed } from 'vue'
 
-const props = defineProps(['value', 'limit', 'limit_map'])
-const emit = defineEmits(['change', 'update:value']);
+interface LimitItem {
+  key?: string | number
+  label?: string
+  badge?: string
+}
+
+interface Props {
+  value?: string | number
+  limit?: LimitItem[]
+  limit_map?: Record<string | number, LimitItem>
+}
+
+const props = defineProps<Props>()
+const emit = defineEmits<{
+  'change': []
+  'update:value': [value: string | number]
+}>();
 
 const currentItem = computed(() => {
   if (!props.value || !props.limit_map) {
@@ -28,7 +43,7 @@ const currentItem = computed(() => {
   return props.limit_map[props.value] || null
 })
 
-const handleMenuClick = ({ key }) => {
+const handleMenuClick = ({ key }: { key: string | number }) => {
   emit('update:value', key)
   emit('change')
 }

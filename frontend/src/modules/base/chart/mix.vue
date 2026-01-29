@@ -2,8 +2,8 @@
   <Chart :option="option" height="400px" margin="5px 0 0 0" />
 </template>
 
-<script setup>
-const option = {
+<script setup lang="ts">
+const option: Record<string, any> = {
   tooltip: {
     trigger: 'axis',
     axisPointer: {
@@ -53,7 +53,7 @@ const option = {
       name: 'Evaporation',
       type: 'bar',
       tooltip: {
-        valueFormatter: function (value) {
+        valueFormatter: function (value: number) {
           return value + ' ml';
         }
       },
@@ -65,7 +65,7 @@ const option = {
       name: 'Precipitation',
       type: 'bar',
       tooltip: {
-        valueFormatter: function (value) {
+        valueFormatter: function (value: number) {
           return value + ' ml';
         }
       },
@@ -78,7 +78,7 @@ const option = {
       type: 'line',
       yAxisIndex: 1,
       tooltip: {
-        valueFormatter: function (value) {
+        valueFormatter: function (value: number) {
           return value + ' °C';
         }
       },

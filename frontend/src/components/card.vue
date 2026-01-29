@@ -18,18 +18,17 @@
   </div>
 </template>
 
-<script setup>
-defineProps({
-  title: { type: String, default: '卡片' },
-  icon: { type: String, default: 'table' },
-  color: {
-    type: String,
-    default: 'info',
-    validator: (value) => [
-      'default', 'brand', 'metal', 'accent', 'primary',
-      'success', 'info', 'warning', 'danger', 'focus'
-    ].includes(value)
-  }
+<script setup lang="ts">
+interface Props {
+  title?: string
+  icon?: string
+  color?: 'default' | 'brand' | 'metal' | 'accent' | 'primary' | 'success' | 'info' | 'warning' | 'danger' | 'focus'
+}
+
+withDefaults(defineProps<Props>(), {
+  title: '卡片',
+  icon: 'table',
+  color: 'info'
 })
 </script>
 

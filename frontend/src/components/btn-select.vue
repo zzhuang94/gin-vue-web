@@ -13,61 +13,61 @@
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { ref, watch } from 'vue'
 
-const emit = defineEmits(['update'])
-const props = defineProps({
-  name: {
-    type: String,
-    required: true
-  },
-  items: {
-    type: Array,
-    required: true,
-    validator: (value) => value.length > 0
-  },
-  default: {
-    type: String,
-    default: ''
-  },
-  required: {
-    type: Boolean,
-    default: false
-  }
+interface Item {
+  key: string | number
+  label: string
+}
+
+interface Props {
+  name: string
+  items: Item[]
+  default?: string
+  required?: boolean
+}
+
+const props = withDefaults(defineProps<Props>(), {
+  default: '',
+  required: false
 })
 
-const selected = ref(initSelected())
+const emit = defineEmits<{
+  'update': [value: string]
+}>()
+
+const selected = ref<string>(initSelected())
 
 watch(() => props.default, (newVal) => { selected.value = newVal })
 watch(selected, (newVal) => { emit('update', newVal) })
 
-const isSelected = (key) => {
+const isSelected = (key: string | number) => {
   return selected.value === key
 }
 
-const handleClick = (key) => {
+const handleClick = (key: string | number) => {
   if (props.required) {
     if (! isSelected(key)) {
-      selected.value = key
+      selected.value = String(key)
     }
   } else {
-    selected.value = isSelected(key) ? '' : key
+    selected.value = isSelected(key) ? '' : String(key)
   }
 }
 
-function initSelected() {
+function initSelected(): string {
   if (props.default != '') {
     return props.default
   }
-  if (props.required) {
-    return props.items[0].key
+  if (props.required && props.items.length > 0 && props.items[0]) {
+    return String(props.items[0].key)
   }
   return ''
 }
 
 defineExpose({
   getSelected: () => selected.value,
-  setSelected: (key) => { selected.value = key }
+  setSelected: (key: string | number) => { selected.value = String(key) }
 })
 </script>

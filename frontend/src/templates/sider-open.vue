@@ -21,11 +21,30 @@
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { ref, watch } from 'vue'
 import { isEmpty } from 'lodash'
 
-const props = defineProps(['l2', 'env'])
+interface SubItem {
+  path: string
+  name: string
+  active?: boolean
+}
+
+interface L2Item {
+  name: string
+  icon: string
+  path: string
+  active?: boolean
+  subs?: SubItem[]
+}
+
+interface Props {
+  l2?: L2Item[]
+  env?: string
+}
+
+const props = defineProps<Props>()
 const openPath = ref('')
 
 function updateOpenPath() {
@@ -50,7 +69,7 @@ watch(() => props.l2, () => {
   updateOpenPath()
 }, { deep: true })
 
-const toggle = (path) => {
+const toggle = (path: string) => {
   openPath.value = openPath.value === path ? '' : path
 }
 </script>

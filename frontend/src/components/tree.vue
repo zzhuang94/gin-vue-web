@@ -13,14 +13,14 @@
       v-model:checkedKeys="ckeys"
       v-model:expandedKeys="expandedKeys"
     >
-      <template #title="{ key, title, remark, icon, color, children, expanded, size, hover }">
+      <template #title="{ key, title, remark, icon, color, children, expanded, size, hover }: { key: string; title: string; remark?: string; icon?: string; color?: string; children?: TreeDataNode[]; expanded?: boolean; size?: number; hover?: string }">
         <component :is="hover ? Tooltip : 'span'" v-bind="hover ? { msg: hover, icon: false, placement: 'right' } : {}">
           <a-dropdown :trigger="['contextmenu']">
             <span
-              @click="(e) => handleTitleClick(e, key, children)"
-              @dblclick="(e) => handleDoubleClick(e, key, children)"
+              @click="(e) => handleTitleClick(e, key, children ?? [])"
+              @dblclick="(e) => handleDoubleClick(e, key, children ?? [])"
               >
-              <span style="width: 1rem; margin-right: 0.5rem" :class="calcIconClass(icon, color, children, expanded, size)"></span>
+              <span style="width: 1rem; margin-right: 0.5rem" :class="calcIconClass(icon, color, children ?? [], expanded, size)"></span>
               <span :style="{ fontSize: size + 'rem', fontWeight: isEmpty(children) ? 'normal' : 'bold' }">
                 <template v-if="searchValue">
                   <span v-html="highlightText(title, searchValue)"></span>
@@ -45,26 +45,74 @@
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { ref, computed, watch } from 'vue'
 import { isEmpty } from 'lodash'
 import Tooltip from '@components/tooltip.vue'
 
-const emit = defineEmits(['left-click', 'right-click', 'update:checkedKeys', 'double-click'])
+interface TreeNode {
+  name: string
+  icon?: string
+  color?: string
+  expanded?: boolean
+  checked?: boolean
+  parent_id?: string
+  rank?: number
+  hover?: string
+  remark?: string
+  size?: number
+  [key: string]: any
+}
 
-const props = defineProps({
-  data: Array,
-  ops: Array,
-  checkable: Boolean,
-  checkStrictly: Boolean,
-  checkedKeys: { type: Array, default: [] },
-  search: { type: Boolean, default: false },
+interface TreeDataNode {
+  key: string
+  title: string
+  icon?: string
+  color?: string
+  expanded?: boolean
+  checked?: boolean
+  children: TreeDataNode[]
+  rank?: number
+  hover?: string
+  remark?: string
+  size?: number
+  [key: string]: any
+}
+
+interface Op {
+  op: string
+  icon: string
+  title: string
+}
+
+interface Props {
+  data: Record<string, TreeNode>
+  ops?: Op[]
+  checkable?: boolean
+  checkStrictly?: boolean
+  checkedKeys?: string[]
+  search?: boolean
+}
+
+const props = withDefaults(defineProps<Props>(), {
+  ops: () => [],
+  checkable: false,
+  checkStrictly: false,
+  checkedKeys: () => [],
+  search: false
 })
 
+const emit = defineEmits<{
+  'left-click': [key: string]
+  'right-click': [key: string, op: string]
+  'update:checkedKeys': [keys: string[]]
+  'double-click': [key: string, children: TreeDataNode[]]
+}>()
+
 const searchValue = ref('')
-const expandedKeys = ref(initKeys('expanded'))
-const ckeys = ref([...props.checkedKeys])
-const matchedKeys = ref(new Set()) // 存储匹配的节点key
+const expandedKeys = ref<string[]>(initKeys('expanded'))
+const ckeys = ref<string[]>([...props.checkedKeys])
+const matchedKeys = ref<Set<string>>(new Set()) // 存储匹配的节点key
 
 watch(ckeys, (newVal) => { emit('update:checkedKeys', newVal) })
 watch(() => props.checkedKeys, (newVal) => { ckeys.value = newVal || [] })
@@ -80,8 +128,8 @@ const filteredTreeData = computed(() => {
 })
 
 // 纯过滤函数
-function filterTree(nodes, keyword) {
-  const result = []
+function filterTree(nodes: TreeDataNode[], keyword: string): TreeDataNode[] {
+  const result: TreeDataNode[] = []
 
   nodes.forEach(node => {
     const newNode = { ...node }
@@ -103,7 +151,7 @@ function filterTree(nodes, keyword) {
 }
 
 // 高亮匹配文本
-function highlightText(text, keyword) {
+function highlightText(text: string, keyword: string): string {
   if (!keyword) return text
   const regex = new RegExp(keyword, 'gi')
   return text.replace(regex, match => `<span style="color: #f50; font-weight: bold">${match}</span>`)
@@ -114,13 +162,13 @@ function onSearch() {
   if (searchValue.value) {
     const keyword = searchValue.value.toLowerCase()
     matchedKeys.value = new Set() // 重置匹配节点
-    const nodesToExpand = new Set()
+    const nodesToExpand = new Set<string>()
 
     // 先执行过滤，收集匹配的节点
     filterTree(treeData.value, keyword)
 
     // 然后查找需要展开的父节点
-    const findParents = (nodes, targetKeys, parentKeys = []) => {
+    const findParents = (nodes: TreeDataNode[], targetKeys: Set<string>, parentKeys: string[] = []) => {
       nodes.forEach(node => {
         if (targetKeys.has(node.key)) {
           // 添加所有父节点到展开集合
@@ -143,18 +191,19 @@ function onSearch() {
 }
 
 // 双击事件处理
-const handleDoubleClick = (e, key, children) => {
+const handleDoubleClick = (e: Event, key: string, children: TreeDataNode[]) => {
   e.stopPropagation()
   emit('double-click', key, children)
 }
 
 // 以下是原有函数保持不变
-function buildTree() {
-  const tree = []
-  const nodes = {}
+function buildTree(): TreeDataNode[] {
+  const tree: TreeDataNode[] = []
+  const nodes: Record<string, TreeDataNode> = {}
 
   Object.keys(props.data).forEach(id => {
     const node = props.data[id]
+    if (!node) return
     nodes[id] = {
       key: id,
       title: node.name,
@@ -182,7 +231,9 @@ function buildTree() {
 
   Object.keys(nodes).forEach(id => {
     const node = nodes[id]
-    const parent = nodes[props.data[id].parent_id]
+    if (!node) return
+    const parentId = props.data[id]?.parent_id
+    const parent = parentId ? nodes[parentId] : undefined
     if (parent) {
       parent.children.push(node)
     } else {
@@ -190,36 +241,39 @@ function buildTree() {
     }
   })
 
-  const sortTree = (nodes) => {
-    if (!nodes || !nodes.length) {
-      return
-    }
-    nodes.sort((a, b) => {
-      if (a.hasOwnProperty('rank') && b.hasOwnProperty('rank')) {
-        return a.rank < b.rank ? -1 : 1
-      }
-      if (a.children.length == 0 && b.children.length != 0) return 1
-      if (a.children.length != 0 && b.children.length == 0) return -1
-      return a.title.localeCompare(b.title)
-    })
-    nodes.forEach(node => sortTree(node.children))
+const sortTree = (nodes: TreeDataNode[]) => {
+  if (!nodes || !nodes.length) {
+    return
   }
+  nodes.sort((a, b) => {
+    if (!a || !b) return 0
+    if (a.hasOwnProperty('rank') && b.hasOwnProperty('rank')) {
+      return (a.rank ?? 0) < (b.rank ?? 0) ? -1 : 1
+    }
+    if (a.children.length == 0 && b.children.length != 0) return 1
+    if (a.children.length != 0 && b.children.length == 0) return -1
+    return a.title.localeCompare(b.title)
+  })
+  nodes.forEach(node => {
+    if (node) sortTree(node.children)
+  })
+}
 
   sortTree(tree)
   return tree
 }
 
-function initKeys(type) {
-  const ans = []
+function initKeys(type: string): string[] {
+  const ans: string[] = []
   for (let id in props.data) {
-    if (props.data[id][type]) {
+    if (props.data[id] && props.data[id][type]) {
       ans.push(id)
     }
   }
   return ans
 }
 
-const calcIconClass = (icon, color, children, expanded) => {
+const calcIconClass = (icon: string | undefined, color: string | undefined, children: TreeDataNode[], expanded: boolean | undefined, _size?: number): string => {
   let ans = 'fa fa-'
   if (icon) {
     ans += icon
@@ -237,7 +291,7 @@ const calcIconClass = (icon, color, children, expanded) => {
   return ans
 }
 
-const handleTitleClick = (e, key, children) => {
+const handleTitleClick = (e: Event, key: string, children: TreeDataNode[]) => {
   e.stopPropagation()
 
   if (isEmpty(children)) {

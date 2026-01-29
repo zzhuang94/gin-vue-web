@@ -37,7 +37,7 @@
                     </template>
                   </a-dropdown>
                 </td>
-                <td v-else-if="d.option.length == 1" class="table-op-col">
+                <td v-else-if="d.option.length == 1 && d.option[0]" class="table-op-col">
                   <button class="btn btn-sm btn-info" @click="runOp(d.option[0], d)">
                     <i :class="`fa fa-${d.option[0].icon}`"></i>
                     {{ d.option[0].title }}
@@ -54,33 +54,69 @@
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { ref, computed, watch, toRaw } from 'vue'
 import { isEmpty } from 'lodash'
 import oplib from '@libs/oplib.ts'
 import Td from '@components/td.vue'
 
-const emit = defineEmits(['update:sort-key', 'update:sort-order', 'sort-change', 'op-click'])
-const props = defineProps({
-  id: { type: String, default: '' },
-  rules: Array,
-  data: Array,
-  option: { type: Array, default: [] },
-  loading: Boolean,
-  sortKey: String,
-  sortOrder: String,
-  noSort: { type: Boolean, default: false },
-  small: { type: Boolean, default: false },
-  batchSelect: {
-    type: Boolean,
-    default: false,
-  },
-  width: { type: String, default: '' },
-  height: { type: String, default: '' },
-  margin: { type: String, default: '0' },
+interface Rule {
+  key: string
+  name: string
+  auto_hide?: string
+  width?: string
+  no_sort?: boolean
+  [key: string]: any
+}
+
+interface Option {
+  icon: string
+  title: string
+  [key: string]: any
+}
+
+interface DataRow {
+  id: string | number
+  option: Option[]
+  [key: string]: any
+}
+
+interface Props {
+  id?: string
+  rules: Rule[]
+  data: DataRow[]
+  option?: Option[]
+  loading?: boolean
+  sortKey?: string
+  sortOrder?: 'ASC' | 'DESC'
+  noSort?: boolean
+  small?: boolean
+  batchSelect?: boolean
+  width?: string
+  height?: string
+  margin?: string
+}
+
+const props = withDefaults(defineProps<Props>(), {
+  id: '',
+  option: () => [],
+  loading: false,
+  noSort: false,
+  small: false,
+  batchSelect: false,
+  width: '',
+  height: '',
+  margin: '0'
 })
 
-const selectedRows = ref([])
+const emit = defineEmits<{
+  'update:sort-key': [value: string]
+  'update:sort-order': [value: 'ASC' | 'DESC']
+  'sort-change': []
+  'op-click': [op: Option]
+}>()
+
+const selectedRows = ref<(string | number)[]>([])
 const allSelected = ref(false)
 
 const toggleAll = () => {
@@ -102,7 +138,7 @@ watch(selectedRows, (newVal) => {
   allSelected.value = newVal.length === props.data.length
 })
 
-const calcClass = (r) => {
+const calcClass = (r: Rule): string => {
   if (isEmpty(r.auto_hide)) {
     return ''
   }
@@ -115,17 +151,23 @@ const getSelectedIds = () => {
 
 defineExpose({ getSelectedIds })
 
-const sortKey = computed({get: () => props.sortKey, set: (value) => emit('update:sort-key', value)})
-const sortOrder = computed({get: () => props.sortOrder, set: (value) => emit('update:sort-order', value)})
+const sortKey = computed({
+  get: () => props.sortKey ?? '',
+  set: (value: string) => emit('update:sort-key', value)
+})
+const sortOrder = computed({
+  get: () => props.sortOrder ?? 'ASC',
+  set: (value: 'ASC' | 'DESC') => emit('update:sort-order', value)
+})
 
-const sortIcon = (k) => {
+const sortIcon = (k: string): string => {
   if (k == sortKey.value) {
     return sortOrder.value == 'ASC' ? 'fas fa-caret-up' : 'fas fa-caret-down'
   }
   return 'fas fa-unsorted fa-xs'
 }
 
-const sortChange = (k, v) => {
+const sortChange = (k: string, v: Rule) => {
   if (props.noSort || v.no_sort) {
     return
   }
@@ -137,8 +179,8 @@ const sortChange = (k, v) => {
   emit('sort-change')
 }
 
-const processedData = () => {
-  const ans = []
+const processedData = (): DataRow[] => {
+  const ans: DataRow[] = []
   for (const d of props.data) {
     d.option = oplib.filterOption(props.option, d)
     ans.push(d)
@@ -146,7 +188,7 @@ const processedData = () => {
   return ans
 }
 
-const runOp = (op, d) => {
+const runOp = (op: Option, d: DataRow) => {
   emit('op-click', oplib.calcOp(op, d))
 }
 </script>

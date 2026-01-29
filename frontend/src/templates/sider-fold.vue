@@ -22,9 +22,29 @@
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { isEmpty } from 'lodash'
-defineProps(['l2', 'env'])
+
+interface SubItem {
+  path: string
+  name: string
+  active?: boolean
+}
+
+interface L2Item {
+  name: string
+  icon: string
+  path: string
+  active?: boolean
+  subs?: SubItem[]
+}
+
+interface Props {
+  l2?: L2Item[]
+  env?: string
+}
+
+defineProps<Props>()
 </script>
 
 <style scoped>

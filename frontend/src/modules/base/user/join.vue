@@ -32,17 +32,21 @@
   </div>
 </template>
 
-<script setup>
-import { ref, reactive } from 'vue'
+<script setup lang="ts">
+import { ref } from 'vue'
 import lib from '@libs/lib.ts'
 import swal from '@libs/swal.ts'
 
-const props = defineProps(['path'])
+interface Props {
+  path?: string
+}
+
+const props = defineProps<Props>()
 const submitting = ref(false)
 const username = ref('')
 const password = ref('')
 
-const handle = async (action) => {
+const handle = async (action: 'sign-up' | 'log-in') => {
   if (!username.value || !password.value) {
     swal.error('错误', '请输入用户名和密码')
     return
@@ -56,7 +60,7 @@ const handle = async (action) => {
   submitting.value = false
 
   if (ok) {
-    window.location.href = props.path
+    window.location.href = props.path ?? '/'
   }
 }
 </script>

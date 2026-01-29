@@ -10,13 +10,23 @@
     </span>
   </div>
 </template>
-<script setup>
-import { reactive, ref, watch } from 'vue'
+<script setup lang="ts">
+import { ref, watch } from 'vue'
 import lib from '@libs/lib.ts'
 
-const props = defineProps(['user', 'type', 'title', 'locked', 'lockers'])
-const checked = ref(props.locked)
-const users = ref([...props.lockers])
+interface Props {
+  user?: string
+  type?: string
+  title?: string
+  locked?: boolean
+  lockers?: string[]
+}
+
+const props = withDefaults(defineProps<Props>(), {
+  lockers: () => []
+})
+const checked = ref(props.locked ?? false)
+const users = ref([...(props.lockers ?? [])])
 
 // 监听所有 props 变化，更新 checked 和 users
 watch(
@@ -29,16 +39,16 @@ watch(
 )
 
 const switchLock = async () => {
-  const ok = await lib.ajax('/base/lock/lock', { name: props.type })
+  const ok = await lib.ajax('/base/lock/lock', { name: props.type ?? '' })
   if (! ok) {
     checked.value = !checked.value
     return
   }
-  if (checked.value) {
+  if (checked.value && props.user) {
     if (! users.value.includes(props.user)) {
       users.value.push(props.user)
     }
-  } else {
+  } else if (props.user) {
     const index = users.value.indexOf(props.user)
     if (index > -1) {
       users.value.splice(index, 1)

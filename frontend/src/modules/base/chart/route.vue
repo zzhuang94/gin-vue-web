@@ -2,8 +2,15 @@
   <Chart china :option="option" margin="5px 0 0 0" height="400px" />
 </template>
 
-<script setup>
-const coords = [
+<script setup lang="ts">
+interface Coord {
+  name: string
+  latitude: number
+  longitude: number
+  capital?: string
+}
+
+const coords: Coord[] = [
   { "name": "北京", "latitude": 39.9042, "longitude": 116.4074 },
   { "name": "天津", "latitude": 39.3434, "longitude": 117.3616 },
   { "name": "上海", "latitude": 31.2304, "longitude": 121.4737 },
@@ -40,44 +47,50 @@ const coords = [
   { "name": "澳门", "capital": "澳门", "latitude": 22.1987, "longitude": 113.5439 }
 ]
 
-function calcSrc() {
-  const ans = []
+function calcSrc(): any[] {
+  const ans: any[] = []
   for (let i = 0; i < 10; i++) {
     const c = coords[i]
-    ans.push({ name: c.name, value: [c.longitude, c.latitude] })
+    if (c) {
+      ans.push({ name: c.name, value: [c.longitude, c.latitude] })
+    }
   }
   return ans
 }
 
-function calcTar() {
-  const ans = []
+function calcTar(): any[] {
+  const ans: any[] = []
   for (let i = 20; i < 30; i++) {
     const c = coords[i]
-    ans.push({ name: c.name, value: [c.longitude, c.latitude] })
+    if (c) {
+      ans.push({ name: c.name, value: [c.longitude, c.latitude] })
+    }
   }
   return ans
 }
 
-function calcLine() {
-  const ans = []
+function calcLine(): any[] {
+  const ans: any[] = []
   for (let i = 0; i < 10; i++) {
     const src = coords[i]
     const tar = coords[i + 20]
-    ans.push({
-      name: src.name + ' -> ' + tar.name,
-      lineStyle: {normal: {curveness: 0.3, color: randColor()}},
-      coords: [ [ src.longitude, src.latitude ], [ tar.longitude, tar.latitude ] ],
-    })
+    if (src && tar) {
+      ans.push({
+        name: src.name + ' -> ' + tar.name,
+        lineStyle: {normal: {curveness: 0.3, color: randColor()}},
+        coords: [ [ src.longitude, src.latitude ], [ tar.longitude, tar.latitude ] ],
+      })
+    }
   }
   return ans
 }
 
-function randColor() {
+function randColor(): string {
  const rc = Math.floor(Math.random() * 0xffffff);
   return `#${rc.toString(16).padStart(6, '0')}`;
 }
 
-const option = {
+const option: Record<string, any> = {
   title: {text: '路线图', left: 'center', top: '10px'},
   tooltip: {trigger: 'item'},
   grid: { top: 10, left: 10, right: 10 },

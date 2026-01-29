@@ -2,8 +2,8 @@
   <Chart :option="option" height="300px" />
 </template>
 
-<script setup>
-const option = {
+<script setup lang="ts">
+const option: Record<string, any> = {
   legend: {},
   tooltip: {},
   dataset: {
