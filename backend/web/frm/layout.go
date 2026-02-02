@@ -29,7 +29,7 @@ func (w *Web) GetLayout(c *gin.Context) map[string]any {
 	sql := `
 SELECT DISTINCT
 	t.id, t.level, t.parent_id, t.key_path, t.name, t.icon,
-	t.action_id, a.path
+	t.action_id, a.path, tp.rank, t.rank
 FROM navtree t
 JOIN navtree tp ON t.parent_id = tp.id
 LEFT JOIN action a ON t.action_id = a.id
