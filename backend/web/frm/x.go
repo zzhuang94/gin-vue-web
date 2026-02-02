@@ -25,12 +25,12 @@ type Tool struct {
 }
 
 type Option struct {
-	Title string         `json:"title"`
-	Icon  string         `json:"icon"`
-	URL   string         `json:"url"`
-	Type  string         `json:"type"`
-	Args  []string       `json:"args"`
-	Cond  map[string]any `json:"cond,omitempty"`
+	Title string   `json:"title"`
+	Icon  string   `json:"icon"`
+	URL   string   `json:"url"`
+	Type  string   `json:"type"`
+	Args  []string `json:"args"`
+	Cond  []any    `json:"cond,omitempty"`
 }
 
 type X struct {
@@ -40,7 +40,6 @@ type X struct {
 	Rules       []*g.Rule
 	NoID        bool
 	WrapTime    bool
-	HideFields  []string
 	AndWheres   []map[string]any
 	HeaderHint  string
 	BatchEdit   bool
@@ -162,7 +161,7 @@ func (x *X) wrapOption(r []any) *Option {
 		opt.Args = []string{"id"}
 	}
 	if len(r) > 5 {
-		opt.Cond = r[5].(map[string]any)
+		opt.Cond = r[5].([]any)
 	}
 	return opt
 }

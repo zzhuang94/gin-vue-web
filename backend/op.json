@@ -39,5 +39,10 @@
         "name": "服务策略",
         "db": "core",
         "show": ["name", "service_id", "vidc_id"]
+    },
+    "ticket": {
+        "name": "生产需求",
+        "db": "prod",
+        "show": ["title", "sku", "material", "color", "quantity_expected", "lead_time", "image", "remark"]
     }
 }

@@ -495,5 +495,164 @@
             "textarea": true,
             "split_sep": ","
         }
+    ],
+
+    "ticket": [
+        {
+            "key": "title",
+            "name": "标题",
+            "search": 2,
+            "required": true
+        },
+        {
+            "key": "sku",
+            "name": "型号",
+            "search": 2,
+            "limit_list": [
+                "型号A", "型号B", "型号C", "型号D", "型号E", "型号F", "型号G", "型号H", "型号I", "型号J"
+            ],
+            "required": true
+        },
+        {
+            "key": "material",
+            "name": "材质",
+            "search": 2,
+            "limit_list": [
+                "材质A", "材质B", "材质C", "材质D", "材质E", "材质F", "材质G", "材质H", "材质I", "材质J"
+            ],
+            "required": true
+        },
+        {
+            "key": "color",
+            "name": "颜色",
+            "search": 2,
+            "limit_list": [
+                "颜色A", "颜色B", "颜色C", "颜色D", "颜色E", "颜色F", "颜色G", "颜色H", "颜色I", "颜色J"
+            ],
+            "required": true
+        },
+        {
+            "key": "lead_time",
+            "name": "交付时间",
+            "search": 2,
+            "required": true
+        },
+
+        {
+            "key": "image",
+            "name": "图片",
+            "hide": true
+        },
+        {
+            "key": "apply_user",
+            "name": "申请人",
+            "search": 2,
+            "hide": true,
+            "readonly": true
+        },
+        {
+            "key": "apply_time",
+            "name": "申请时间",
+            "search": 2,
+            "hide": true,
+            "readonly": true
+        },
+
+        {
+            "key": "plan_user",
+            "name": "编排人",
+            "search": 2,
+            "hide": true,
+            "readonly": true
+        },
+        {
+            "key": "plan_time",
+            "name": "编排时间",
+            "search": 2,
+            "hide": true,
+            "readonly": true
+        },
+
+        {
+            "key": "prepare_user",
+            "name": "准备人",
+            "search": 2,
+            "hide": true,
+            "readonly": true
+        },
+        {
+            "key": "prepare_time",
+            "name": "准备时间",
+            "search": 2,
+            "hide": true,
+            "readonly": true
+        },
+        {
+            "key": "run_user",
+            "name": "生产人",
+            "search": 2,
+            "hide": true,
+            "readonly": true
+        },
+        {
+            "key": "run_time",
+            "name": "生产时间",
+            "search": 2,
+            "hide": true,
+            "readonly": true
+        },
+        {
+            "key": "quantity_expected",
+            "name": "期望数量",
+            "search": 2,
+            "validation": { "is_int": true, "int_range": true, "int_min": 0, "int_max": 10000 },
+            "required": true
+        },
+        {
+            "key": "quantity_actual",
+            "name": "已生产数量",
+            "search": 2,
+            "default": "0",
+            "validation": { "is_int": true, "int_range": true, "int_min": 0, "int_max": 10000 },
+            "required": true
+        },
+        {
+            "key": "machine_plan",
+            "name": "机器编排",
+            "search": 2,
+            "required": true,
+            "textarea": true,
+            "hide": true
+        },
+        {
+            "key": "machine_list",
+            "name": "机器列表",
+            "search": 2,
+            "required": true,
+            "textarea": true,
+            "hide": true
+        },
+        {
+            "key": "status",
+            "name": "状态",
+            "search": 1,
+            "default": "INIT",
+            "required": true,
+            "limit": [
+                { "key": "INIT", "label": "初始", "badge": "primary" },
+                { "key": "PLANNED", "label": "已编排", "badge": "success" },
+                { "key": "PREPARED", "label": "已准备", "badge": "info" },
+                { "key": "RUNNING", "label": "生产中", "badge": "warning" },
+                { "key": "FINISHED", "label": "已完成", "badge": "success" },
+                { "key": "FAILED", "label": "已失败", "badge": "danger" },
+                { "key": "CANCELLED", "label": "已取消", "badge": "metal" }
+            ]
+        },
+        {
+            "key": "remark",
+            "name": "备注",
+            "search": 2,
+            "textarea": true
+        }
     ]
 }

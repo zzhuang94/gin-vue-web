@@ -4,6 +4,7 @@ import (
 	"backend/g"
 	"backend/web/frm"
 	"backend/web/modules/base"
+	"backend/web/modules/prod"
 	"backend/web/modules/res"
 
 	"github.com/gin-contrib/sessions"
@@ -18,6 +19,7 @@ func Route(rg *gin.RouterGroup) {
 
 	routeBase()
 	routeRes()
+	routeProd()
 
 	frm.BindActions(rg)
 }
@@ -59,4 +61,8 @@ func routeRes() {
 	frm.RegController("res", "vidc-ip", res.NewVidcIp())
 	frm.RegController("res", "service", res.NewService())
 	frm.RegController("res", "policy", res.NewPolicy())
+}
+
+func routeProd() {
+	frm.RegController("prod", "ticket", prod.NewTicket())
 }

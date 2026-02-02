@@ -9,7 +9,6 @@ lerna-debug.log*
 
 
 node_modules
-dist
 dist-ssr
 *.local
 
@@ -25,7 +24,6 @@ dist-ssr
 *.sw?
 
 backend/backend.exe
-backend/backend
 backend/go.sum
 
 frontend/components.d.ts
