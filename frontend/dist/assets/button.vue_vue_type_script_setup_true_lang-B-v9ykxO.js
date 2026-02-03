@@ -1,1 +1,0 @@
-import{d as c,bg as l,a as s,o as i,n as e,b as r,Z as m,t as u}from"./index-B79ij98t.js";const C=c({__name:"button",props:{title:{},icon:{},url:{},type:{},color:{}},setup(t){const n=t,o=l("toolClick"),a=()=>{o&&o(n)};return(b,f)=>(i(),s("button",{class:e(["btn",`btn-${t.color}`]),onClick:a},[r("i",{class:e(`fa fa-${t.icon}`)},null,2),m(" "+u(t.title),1)],2))}});export{C as _};
