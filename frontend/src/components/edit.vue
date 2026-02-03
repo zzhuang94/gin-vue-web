@@ -55,6 +55,24 @@
             :auto-size="{minRows: 2}"
             />
 
+          <a-date-picker
+            v-else-if="v.date"
+            v-model:value="formData[v.key]"
+            :placeholder="`请选择${v.name}`"
+            :readonly="(data?.id || check) && v.readonly"
+            :disabled="! enabledKeys[v.key] || (data?.id || check) && v.readonly"
+            style="width: 100%;"
+            />
+
+          <a-date-time-picker
+            v-else-if="v.datetime"
+            v-model:value="formData[v.key]"
+            :placeholder="`请选择${v.name}`"
+            :readonly="(data?.id || check) && v.readonly"
+            :disabled="! enabledKeys[v.key] || (data?.id || check) && v.readonly"
+            style="width: 100%;"
+            />
+
           <a-input
             v-else
             v-show="! check || ! v.readonly"
@@ -76,6 +94,7 @@
 <script setup lang="ts">
 import { ref, reactive, toRefs, watch } from 'vue'
 import { isArray } from 'lodash'
+import dayjs from 'dayjs'
 import lib from '@libs/lib.ts'
 import strlib from '@libs/strlib.ts'
 import AjaxSelect from '@components/ajax-select.vue'
@@ -90,6 +109,8 @@ interface Rule {
   limit_list?: any[]
   trans?: any
   textarea?: boolean
+  date?: boolean
+  datetime?: boolean
   split_sep?: string
   json?: boolean
   default?: any
@@ -164,7 +185,17 @@ function initFormData(): Record<string, any> {
       } else if (r.textarea && r.json) {
         ans[r.key] = strlib.formatJson(data.value[r.key])
       } else if (r.split_sep && r.limit) {
-        ans[r.key] = String(data.value[r.key]).split(r.split_sep)
+        if (data.value[r.key] === '') {
+          ans[r.key] = []
+        } else {
+          ans[r.key] = String(data.value[r.key]).split(r.split_sep)
+        }
+      } else if (r.date && data.value[r.key]) {
+        const d = dayjs(data.value[r.key])
+        ans[r.key] = d.isValid() ? d : data.value[r.key]
+      } else if (r.datetime && data.value[r.key]) {
+        const d = dayjs(data.value[r.key])
+        ans[r.key] = d.isValid() ? d : data.value[r.key]
       } else {
         ans[r.key] = data.value[r.key]
       }
@@ -191,6 +222,10 @@ function buildSubmitData(): Record<string, any> {
       } else {
         payload[r.key] = val.map((x) => String(x))
       }
+    } else if (r.date && val) {
+      payload[r.key] = dayjs(val).isValid() ? dayjs(val).format('YYYY-MM-DD') : String(val)
+    } else if (r.datetime && val) {
+      payload[r.key] = dayjs(val).isValid() ? dayjs(val).format('YYYY-MM-DD HH:mm:ss') : String(val)
     } else {
       payload[r.key] = String(val)
     }

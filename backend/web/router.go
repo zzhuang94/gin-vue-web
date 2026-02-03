@@ -35,7 +35,7 @@ func initSession(rg *gin.RouterGroup) {
 
 	store.Options(sessions.Options{
 		Path:     "/",
-		MaxAge:   24 * 60 * 60,
+		MaxAge:   7 * 24 * 60 * 60,
 		HttpOnly: true,
 		Secure:   false,
 	})
@@ -65,4 +65,7 @@ func routeRes() {
 
 func routeProd() {
 	frm.RegController("prod", "ticket", prod.NewTicket())
+	frm.RegController("prod", "material", prod.NewMaterial())
+	frm.RegController("prod", "color", prod.NewColor())
+	frm.RegController("prod", "machine", prod.NewMachine())
 }

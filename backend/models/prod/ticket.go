@@ -2,28 +2,28 @@ package prod
 
 import (
 	"backend/g"
+	"fmt"
 	"time"
 )
 
 const (
-	StatusInit      = "INIT"      // 初始
-	StatusPlanned   = "PLANNED"   // 已编排
-	StatusPrepared  = "PREPARED"  // 已准备
-	StatusRunning   = "RUNNING"   // 生产中
-	StatusFinished  = "FINISHED"  // 已完成
-	StatusFailed    = "FAILED"    // 已失败
-	StatusCancelled = "CANCELLED" // 已取消
+	StatusInit     = "INIT"     // 初始
+	StatusPlanned  = "PLANNED"  // 已编排
+	StatusPrepared = "PREPARED" // 已准备
+	StatusRunning  = "RUNNING"  // 生产中
+	StatusFinished = "FINISHED" // 已完成
+	StatusStopped  = "STOPPED"  // 已停止
 )
 
 type Ticket struct {
 	g.Model `xorm:"extends"`
 
 	Title            string `xorm:"title" json:"title"`                                // 标题
-	Sku              string `xorm:"sku" json:"sku"`                                    // 产品型号
 	Material         string `xorm:"material" json:"material"`                          // 材质
 	Color            string `xorm:"color" json:"color"`                                // 颜色
 	QuantityExpected int    `xorm:"quantity_expected" json:"quantity_expected,string"` // 期望数量
 	QuantityActual   int    `xorm:"quantity_actual" json:"quantity_actual,string"`     // 交付数量
+	Progress         string `xorm:"progress" json:"progress"`                          // 生产进度
 	LeadTime         string `xorm:"lead_time" json:"lead_time"`                        // 交付时间
 	Image            string `xorm:"image" json:"image"`                                // 图片
 	MachinePlan      string `xorm:"machine_plan" json:"machine_plan"`                  // 机器编排
@@ -63,6 +63,7 @@ func (t *Ticket) Save(sess *g.Sess) error {
 		t.PrepareTime = time.Now().Format("2006-01-02 15:04:05")
 		t.Status = StatusPrepared
 	}
+	t.Progress = fmt.Sprintf("%d/%d", t.QuantityActual, t.QuantityExpected)
 	return t.SaveBean(sess, t)
 }
 

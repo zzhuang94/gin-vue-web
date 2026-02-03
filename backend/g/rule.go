@@ -17,6 +17,8 @@ type Rule struct {
 	Required   bool              `json:"required,omitempty"`   // 是否必填
 	Describe   string            `json:"describe,omitempty"`   // 字段描述，一般在form表单时提示
 	Textarea   bool              `json:"textarea,omitempty"`   // 是否多行文本
+	Date       bool              `json:"date,omitempty"`       // 是否日期
+	Datetime   bool              `json:"datetime,omitempty"`   // 是否日期时间
 	Json       bool              `json:"json,omitempty"`       // 是否JSON
 	Bold       bool              `json:"bold,omitempty"`       // 是否加粗展示
 	SplitSep   string            `json:"split_sep,omitempty"`  // 分割符
@@ -88,6 +90,8 @@ func (r *Rule) SelfWrap() *Rule {
 		Required:   r.Required,
 		Describe:   r.Describe,
 		Textarea:   r.Textarea,
+		Date:       r.Date,
+		Datetime:   r.Datetime,
 		Json:       r.Json,
 		Bold:       r.Bold,
 		SplitSep:   r.SplitSep,

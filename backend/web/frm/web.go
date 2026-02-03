@@ -2,9 +2,11 @@ package frm
 
 import (
 	"backend/g"
+	"slices"
 	"strconv"
 
 	"github.com/gin-gonic/gin"
+	"github.com/sirupsen/logrus"
 	"xorm.io/xorm"
 )
 
@@ -119,4 +121,36 @@ func (w *Web) BeginSess(engine *xorm.Engine, c *gin.Context) *g.Sess {
 	sess := engine.NewSession()
 	sess.Begin()
 	return &g.Sess{Session: sess, Ctx: c}
+}
+
+func (w *Web) RulesFilter(rules []*g.Rule, keys []string) []*g.Rule {
+	ans := make([]*g.Rule, 0)
+	for _, r := range rules {
+		if slices.Contains(keys, r.Key) {
+			ans = append(ans, r)
+		}
+	}
+	return ans
+}
+
+func (w *Web) RulesUnset(rules []*g.Rule, keys []string) []*g.Rule {
+	ans := make([]*g.Rule, 0)
+	for _, r := range rules {
+		if !slices.Contains(keys, r.Key) {
+			ans = append(ans, r)
+		}
+	}
+	return ans
+}
+
+func (w *Web) RulesReadonly(rules []*g.Rule, keys []string) []*g.Rule {
+	ans := make([]*g.Rule, 0)
+	for _, r := range rules {
+		if slices.Contains(keys, r.Key) {
+			r.Readonly = true
+			logrus.Infof("readonly rule: %s", r.Key)
+		}
+		ans = append(ans, r)
+	}
+	return ans
 }

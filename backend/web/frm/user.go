@@ -3,23 +3,47 @@ package frm
 import "backend/g"
 
 type User struct {
-	Name     string
-	User     map[string]string
-	IsAdmin  bool
-	AccPaths map[string]bool
+	Name          string
+	User          map[string]string
+	IsAdmin       bool
+	IsDba         bool
+	IsSales       bool
+	IsManager     bool
+	IsWorker      bool
+	IsStorekeeper bool
+	AccPaths      map[string]bool
 }
 
 func buildUser(username string) *User {
 	user := &User{
 		Name:     username,
 		User:     getUser(username),
-		IsAdmin:  isAdmin(username),
 		AccPaths: map[string]bool{},
 	}
+	user.loadRoles()
 	if !user.IsAdmin {
 		user.AccPaths = getAccPaths(username)
 	}
 	return user
+}
+
+func (user *User) loadRoles() {
+	sql := `
+SELECT r.name
+FROM role r
+JOIN role_user ru ON r.id = ru.role_id
+WHERE ru.username = ? AND ru.status = 1`
+	rows, _ := g.BaseDB.SQL(sql, user.Name).QueryString()
+	roles := map[string]bool{}
+	for _, r := range rows {
+		roles[r["name"]] = true
+	}
+	user.IsAdmin = roles["admin"]
+	user.IsDba = roles["dba"]
+	user.IsSales = roles["销售"]
+	user.IsManager = roles["生产管理"]
+	user.IsWorker = roles["操作员"]
+	user.IsStorekeeper = roles["仓库管理员"]
 }
 
 func getUser(username string) map[string]string {
@@ -32,16 +56,6 @@ FROM user WHERE username = ?`
 		return map[string]string{}
 	}
 	return rows[0]
-}
-
-func isAdmin(username string) bool {
-	sql := `
-SELECT r.id
-FROM role r
-JOIN role_user ru ON r.id = ru.role_id
-WHERE r.name = 'admin' AND ru.username = ?`
-	rows, _ := g.BaseDB.SQL(sql, username).QueryString()
-	return len(rows) > 0
 }
 
 func getAccPaths(username string) map[string]bool {

@@ -497,6 +497,49 @@
         }
     ],
 
+    "material": [
+        {
+            "key": "name",
+            "name": "名称",
+            "search": 2,
+            "required": true
+        },
+        {
+            "key": "remark",
+            "name": "备注",
+            "search": 2,
+            "textarea": true
+        }
+    ],
+    "color": [
+        {
+            "key": "name",
+            "name": "名称",
+            "search": 2,
+            "required": true
+        },
+        {
+            "key": "remark",
+            "name": "备注",
+            "search": 2,
+            "textarea": true
+        }
+    ],
+    "machine": [
+        {
+            "key": "name",
+            "name": "名称",
+            "search": 2,
+            "required": true
+        },
+        {
+            "key": "remark",
+            "name": "备注",
+            "search": 2,
+            "textarea": true
+        }
+    ],
+
     "ticket": [
         {
             "key": "title",
@@ -505,42 +548,29 @@
             "required": true
         },
         {
-            "key": "sku",
-            "name": "型号",
-            "search": 2,
-            "limit_list": [
-                "型号A", "型号B", "型号C", "型号D", "型号E", "型号F", "型号G", "型号H", "型号I", "型号J"
-            ],
-            "required": true
-        },
-        {
             "key": "material",
             "name": "材质",
             "search": 2,
-            "limit_list": [
-                "材质A", "材质B", "材质C", "材质D", "材质E", "材质F", "材质G", "材质H", "材质I", "材质J"
-            ],
+            "trans": { "db": "core", "table": "material", "key": "name", "val": "name" },
             "required": true
         },
         {
             "key": "color",
             "name": "颜色",
             "search": 2,
-            "limit_list": [
-                "颜色A", "颜色B", "颜色C", "颜色D", "颜色E", "颜色F", "颜色G", "颜色H", "颜色I", "颜色J"
-            ],
+            "trans": { "db": "core", "table": "color", "key": "name", "val": "name" },
             "required": true
         },
         {
             "key": "lead_time",
             "name": "交付时间",
             "search": 2,
+            "date": true,
             "required": true
         },
-
         {
             "key": "image",
-            "name": "图片",
+            "name": "图片描述",
             "hide": true
         },
         {
@@ -606,7 +636,8 @@
             "name": "期望数量",
             "search": 2,
             "validation": { "is_int": true, "int_range": true, "int_min": 0, "int_max": 10000 },
-            "required": true
+            "required": true,
+            "hide": true
         },
         {
             "key": "quantity_actual",
@@ -614,23 +645,29 @@
             "search": 2,
             "default": "0",
             "validation": { "is_int": true, "int_range": true, "int_min": 0, "int_max": 10000 },
-            "required": true
+            "required": true,
+            "hide": true
+        },
+        {
+            "key": "progress",
+            "name": "生产进度",
+            "search": 2,
+            "readonly": true
         },
         {
             "key": "machine_plan",
             "name": "机器编排",
             "search": 2,
             "required": true,
-            "textarea": true,
-            "hide": true
+            "textarea": true
         },
         {
             "key": "machine_list",
             "name": "机器列表",
             "search": 2,
             "required": true,
-            "textarea": true,
-            "hide": true
+            "split_sep": ",",
+            "trans": { "db": "core", "table": "machine", "key": "name", "val": "name" }
         },
         {
             "key": "status",
@@ -640,12 +677,11 @@
             "required": true,
             "limit": [
                 { "key": "INIT", "label": "初始", "badge": "primary" },
-                { "key": "PLANNED", "label": "已编排", "badge": "success" },
+                { "key": "PLANNED", "label": "已编排", "badge": "focus" },
                 { "key": "PREPARED", "label": "已准备", "badge": "info" },
                 { "key": "RUNNING", "label": "生产中", "badge": "warning" },
                 { "key": "FINISHED", "label": "已完成", "badge": "success" },
-                { "key": "FAILED", "label": "已失败", "badge": "danger" },
-                { "key": "CANCELLED", "label": "已取消", "badge": "metal" }
+                { "key": "STOPPED", "label": "已停止", "badge": "metal" }
             ]
         },
         {

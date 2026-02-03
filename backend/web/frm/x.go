@@ -30,7 +30,7 @@ type Option struct {
 	URL   string   `json:"url"`
 	Type  string   `json:"type"`
 	Args  []string `json:"args"`
-	Cond  []any    `json:"cond,omitempty"`
+	Cond  any      `json:"cond,omitempty"`
 }
 
 type X struct {
@@ -47,6 +47,8 @@ type X struct {
 	Dump        bool
 	Tool        []*Tool
 	Option      [][]any
+	BuildTool   func(*gin.Context) []*Tool
+	BuildOption func(*gin.Context) []*Option
 	WrapData    func([]map[string]string)
 	BuildQuery  func(cond builder.Cond, sele bool) *xorm.Session
 }
@@ -71,6 +73,12 @@ func NewX(m g.ModelX) *X {
 		},
 	}
 
+	x.BuildTool = func(c *gin.Context) []*Tool {
+		return x.BuildToolX(c)
+	}
+	x.BuildOption = func(c *gin.Context) []*Option {
+		return x.BuildOptionX(c)
+	}
 	x.BuildQuery = func(cond builder.Cond, withSelect bool) *xorm.Session {
 		return x.BuildQueryX(cond, withSelect)
 	}
@@ -124,7 +132,7 @@ func (x *X) getRuleByKey(key string) *g.Rule {
 	return nil
 }
 
-func (x *X) buildTool() []*Tool {
+func (x *X) BuildToolX(c *gin.Context) []*Tool {
 	ans := make([]*Tool, 0)
 	ans = append(ans, x.Tool...)
 	if x.BatchEdit {
@@ -136,15 +144,15 @@ func (x *X) buildTool() []*Tool {
 	return ans
 }
 
-func (x *X) buildOption() []*Option {
+func (x *X) BuildOptionX(c *gin.Context) []*Option {
 	ans := make([]*Option, 0)
 	for _, r := range x.Option {
-		ans = append(ans, x.wrapOption(r))
+		ans = append(ans, x.WrapOption(r))
 	}
 	return ans
 }
 
-func (x *X) wrapOption(r []any) *Option {
+func (x *X) WrapOption(r []any) *Option {
 	opt := &Option{
 		Title: r[0].(string),
 		Icon:  r[1].(string),
@@ -161,7 +169,7 @@ func (x *X) wrapOption(r []any) *Option {
 		opt.Args = []string{"id"}
 	}
 	if len(r) > 5 {
-		opt.Cond = r[5].([]any)
+		opt.Cond = r[5]
 	}
 	return opt
 }
@@ -178,8 +186,8 @@ func (x *X) ActionIndex(c *gin.Context) {
 		"headerHint": x.HeaderHint,
 		"batch":      x.BatchEdit || x.BatchDelete,
 		"dump":       x.Dump,
-		"tool":       x.buildTool(),
-		"option":     x.buildOption(),
+		"tool":       x.BuildTool(c),
+		"option":     x.BuildOption(c),
 		"sort":       x.initSort(c),
 		"rules":      x.getTableRules(),
 		"arg":        x.GetUriArg(c),
