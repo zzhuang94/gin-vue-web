@@ -22,7 +22,7 @@ func NewStats() *Stats {
 }
 
 func (r *Stats) initRules() {
-	r.Rules = r.RulesFilter(r.Rules, []string{
+	r.Rules = r.RulesFilter(r.GetRules(), []string{
 		"title", "lead_time", "progress",
 		"apply_user", "plan_user", "prepare_user",
 		"run_user", "remark", "status",
