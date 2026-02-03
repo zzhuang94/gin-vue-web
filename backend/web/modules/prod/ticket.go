@@ -18,6 +18,16 @@ func NewTicket() *Ticket {
 	r := &Ticket{X: frm.NewX(&prod.Ticket{})}
 	r.DB = g.CoreDB
 	r.Dump = true
+	r.AndWheres = []map[string]any{
+		{
+			"status": []string{
+				prod.StatusInit,
+				prod.StatusPlanned,
+				prod.StatusPrepared,
+				prod.StatusRunning,
+			},
+		},
+	}
 	r.BuildTool = func(c *gin.Context) []*frm.Tool {
 		return r.buildTool(c)
 	}

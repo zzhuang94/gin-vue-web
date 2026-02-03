@@ -562,13 +562,6 @@
             "required": true
         },
         {
-            "key": "lead_time",
-            "name": "交付时间",
-            "search": 2,
-            "date": true,
-            "required": true
-        },
-        {
             "key": "image",
             "name": "图片描述",
             "hide": true
@@ -630,6 +623,13 @@
             "search": 2,
             "hide": true,
             "readonly": true
+        },
+        {
+            "key": "lead_time",
+            "name": "交付时间",
+            "search": 2,
+            "date": true,
+            "required": true
         },
         {
             "key": "quantity_expected",
