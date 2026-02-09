@@ -28,6 +28,7 @@ type Rule struct {
 	Search     int               `json:"search,omitempty"`     // 搜索匹配方式 0: none, 1: eq, 2: like, 3: in
 	NoSort     bool              `json:"no_sort,omitempty"`    // 是否不排序
 	Hide       bool              `json:"hide,omitempty"`       // 是否在table中隐藏
+	AutoHide   string            `json:"auto_hide,omitempty"`  // 自动隐藏的屏幕宽度，如 "1000px"
 	Width      string            `json:"width,omitempty"`      // 宽度
 	Trans      *Trans            `json:"trans,omitempty"`      // 转译，自动将 外键id转换为外键值
 	Validation *Validation       `json:"validation,omitempty"` // 验证规则
@@ -98,6 +99,7 @@ func (r *Rule) SelfWrap() *Rule {
 		Search:     r.Search,
 		NoSort:     r.NoSort,
 		Hide:       r.Hide,
+		AutoHide:   r.AutoHide,
 		Width:      r.Width,
 		Trans:      r.Trans,
 		Validation: r.Validation,

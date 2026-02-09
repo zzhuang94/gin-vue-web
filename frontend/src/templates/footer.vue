@@ -1,7 +1,7 @@
 <template>
   <div>
     <span class="text-muted">
-      Copyright &copy; 2025 zzhuang94
+      Copyright &copy; 2026 zzhuang94
       <a href="#" class="link">首页地址</a>
     </span>
 

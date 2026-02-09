@@ -33,7 +33,7 @@ SELECT DISTINCT
 FROM navtree t
 JOIN navtree tp ON t.parent_id = tp.id
 LEFT JOIN action a ON t.action_id = a.id
-WHERE t.status = 1 AND t.level > 0 AND t.level < 4
+WHERE t.status = 1 AND tp.status = 1 AND t.level > 0 AND t.level < 4
 ORDER BY t.level, tp.rank, t.rank, t.id`
 	rows, _ := g.BaseDB.SQL(sql).QueryString()
 	for _, r := range rows {

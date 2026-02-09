@@ -111,25 +111,38 @@ func (x *X) getTableRules() []*g.Rule {
 		}
 	}
 	if x.WrapTime {
-		ans = append(ans, &g.Rule{
-			Key:  "created",
-			Name: "创建时间",
-		})
-		ans = append(ans, &g.Rule{
-			Key:  "updated",
-			Name: "更新时间",
-		})
+		ans = append(ans, x.getTimeRule("created"))
+		ans = append(ans, x.getTimeRule("updated"))
 	}
 	return ans
 }
 
 func (x *X) getRuleByKey(key string) *g.Rule {
+	if key == "created" || key == "updated" {
+		return x.getTimeRule(key)
+	}
 	for _, r := range x.Rules {
 		if r.Key == key {
 			return r
 		}
 	}
 	return nil
+}
+
+func (x *X) getTimeRule(key string) *g.Rule {
+	name := ""
+	switch key {
+	case "created":
+		name = "创建时间"
+	case "updated":
+		name = "更新时间"
+	}
+	return &g.Rule{
+		Key:      key,
+		Name:     name,
+		Search:   2,
+		AutoHide: "l1",
+	}
 }
 
 func (x *X) BuildToolX(c *gin.Context) []*Tool {

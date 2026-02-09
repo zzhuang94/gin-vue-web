@@ -7,7 +7,7 @@
 
       <a-form :label-col="{span: 6}" :wrapper-col="{span: 12}">
         <a-form-item label="账号">
-          <a-input v-model:value="username" placeholder="请输入账号（英文字母和数字组合）" />
+          <a-input v-model:value="username" placeholder="请输用户名" />
         </a-form-item>
 
         <a-form-item label="密码">
