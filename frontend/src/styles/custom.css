@@ -153,3 +153,12 @@ input[type="checkbox"]:disabled:checked {
     width: 90% !important;
   }
 }
+
+/* Mobile breakpoints: sm 576px, md 768px, lg 992px (see :root --breakpoint-*) */
+
+@media (max-width: 576px) {
+  .ant-modal {
+    width: 95% !important;
+    max-width: calc(100vw - 16px);
+  }
+}

@@ -5,6 +5,11 @@
   background-color: transparent;
 }
 
+.table-responsive {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
 .table th, .table td {
   text-align: inherit;
   vertical-align: middle !important;

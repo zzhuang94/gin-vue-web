@@ -1,5 +1,5 @@
 <template>
-  <div style="font-size: 1.1rem; color: gray">
+  <div class="title-bar" style="font-size: 1.1rem; color: gray">
     <router-link to="/" class="link"><i class="fa fa-home" style="font-size: 1.4rem"></i> 首页</router-link>
     <template v-for="t, i in title" :key="i">
       <span style="margin: 0 1rem">/</span><router-link :to="t.path" class="link">{{ t.name }}</router-link>
@@ -24,3 +24,17 @@ interface Props {
 
 defineProps<Props>()
 </script>
+
+<style scoped>
+.title-bar {
+  word-break: break-word;
+}
+@media (max-width: 768px) {
+  .title-bar {
+    font-size: 0.95rem !important;
+  }
+  .title-bar .fa-home {
+    font-size: 1.2rem !important;
+  }
+}
+</style>

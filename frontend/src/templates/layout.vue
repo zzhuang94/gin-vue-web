@@ -8,7 +8,15 @@
   </head>
 
   <div class="container">
-    <div :class="['sider', env, fold ? 'fold' : 'open']">
+    <div
+      v-if="drawerOpen"
+      class="sider-overlay"
+      aria-hidden="true"
+      @click="drawerOpen = false"
+    />
+    <div
+      :class="['sider', env, fold ? 'fold' : 'open', { 'drawer-open': drawerOpen }]"
+    >
       <div class="sider-header">
         <i @click="toggleFold" :class="'fa fa-' + (fold ? 'indent' : 'dedent')" style="cursor: pointer; font-size: 1.5rem; width: 2.3rem; margin-right: 0.2rem"></i>
         <span v-if="!fold" class="sider-title">{{ name }}</span>
@@ -32,7 +40,8 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch } from 'vue'
+import { ref, computed, watch, provide } from 'vue'
+import { useRoute } from 'vue-router'
 import lib from '@libs/lib.ts'
 import Header from './header.vue'
 import Title from './title.vue'
@@ -57,9 +66,24 @@ interface Props {
 
 const props = defineProps<Props>()
 const fold = ref(props.fold ?? false)
+const drawerOpen = ref(false)
+const route = useRoute()
+
+const setDrawerOpen = (open: boolean) => {
+  drawerOpen.value = open
+}
+const toggleDrawer = () => {
+  drawerOpen.value = !drawerOpen.value
+}
+provide('drawerOpen', drawerOpen)
+provide('setDrawerOpen', setDrawerOpen)
+provide('toggleDrawer', toggleDrawer)
 
 watch(() => props.fold, (newVal) => {
   fold.value = newVal ?? false
+})
+watch(() => route.path, () => {
+  drawerOpen.value = false
 })
 
 const headTitle = computed(() => {
@@ -176,6 +200,21 @@ const toggleFold = () => {
   box-shadow: -2px -8px 41px -14px rgba(202, 210, 222, 0.61);
 }
 
+@media (max-width: 768px) {
+  .body {
+    margin: 6px 6px 4px 6px;
+  }
+  .title {
+    padding: 0 12px;
+  }
+  .footer {
+    padding: 0 12px;
+  }
+  .header {
+    padding: 0 12px;
+  }
+}
+
 .footer {
   padding: 0px 20px;
   height: 40px;
@@ -183,5 +222,34 @@ const toggleFold = () => {
   background: #ffffff;
   flex-shrink: 0;
   box-shadow: -2px -8px 41px -14px rgba(202, 210, 222, 0.61);
+}
+
+/* Small screen: sidebar becomes overlay drawer */
+@media (max-width: 992px) {
+  .sider-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 199;
+    background: rgba(0, 0, 0, 0.45);
+    cursor: pointer;
+  }
+  .sider {
+    position: fixed;
+    left: 0;
+    top: 0;
+    height: 100vh;
+    z-index: 200;
+    transform: translateX(-100%);
+    transition: transform 0.2s ease;
+  }
+  .sider.drawer-open {
+    transform: translateX(0);
+  }
+  .sider.fold {
+    width: 200px;
+  }
+  .main-content {
+    width: 100%;
+  }
 }
 </style>

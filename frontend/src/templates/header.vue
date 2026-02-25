@@ -1,5 +1,13 @@
 <template>
   <div :class="env">
+    <button
+      type="button"
+      class="hamburger"
+      aria-label="打开菜单"
+      @click="openDrawer"
+    >
+      <i class="fa fa-bars"></i>
+    </button>
     <a-space :size="30" class="l1 space">
       <template v-for="l, i in l1" :key="i">
         <router-link v-if="l.path" :to="l.path">
@@ -10,11 +18,27 @@
         </router-link>
       </template>
     </a-space>
-    <a-space :size="20" class="pull-right space">
-      <a-input-search v-model:value="ip" :style="{ width, transition: 'width 0.3s ease' }" class="search-input"
-        placeholder="全局搜索" enter-button
-        @search="onSearch" @focus="() => width = '300px'" @blur="() => width = '200px'" />
-
+    <a-space :size="20" class="pull-right space header-right">
+      <button
+        v-if="isSmallScreen && searchCollapsed"
+        type="button"
+        class="search-icon-btn"
+        aria-label="搜索"
+        @click="searchCollapsed = false"
+      >
+        <i class="fa fa-search"></i>
+      </button>
+      <a-input-search
+        v-else
+        v-model:value="ip"
+        :style="{ width: searchWidth, transition: 'width 0.3s ease' }"
+        class="search-input"
+        placeholder="全局搜索"
+        enter-button
+        @search="onSearch"
+        @focus="() => { searchWidth = '300px' }"
+        @blur="() => { searchWidth = '200px'; onSearchBlur() }"
+      />
       <a href="#" target="_blank">
         <Tooltip :icon="false" msg="使用文档" placement="bottom"><i class="fa fa-book" style="font-size: 1.4rem"></i></Tooltip>
       </a>
@@ -43,7 +67,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, onUnmounted, inject } from 'vue'
 import { useRouter } from 'vue-router'
 import lib from '@libs/lib.ts'
 import Tooltip from '@components/tooltip.vue'
@@ -70,11 +94,37 @@ defineProps<Props>()
 const router = useRouter()
 
 const ip = ref('')
-const width = ref('200px')
+const searchWidth = ref('200px')
 const avatarUrl = ref('')
+
+const toggleDrawer = inject<() => void>('toggleDrawer')
+const openDrawer = () => toggleDrawer?.()
+
+const isSmallScreen = ref(false)
+const searchCollapsed = ref(false)
+
+function checkScreen() {
+  isSmallScreen.value = window.matchMedia('(max-width: 576px)').matches
+  if (isSmallScreen.value) {
+    searchCollapsed.value = true
+  } else {
+    searchCollapsed.value = false
+  }
+}
+
+function onSearchBlur() {
+  if (isSmallScreen.value) {
+    setTimeout(() => { searchCollapsed.value = true }, 150)
+  }
+}
 
 onMounted(async () => {
   avatarUrl.value = await lib.loadAvatar()
+  checkScreen()
+  window.addEventListener('resize', checkScreen)
+})
+onUnmounted(() => {
+  window.removeEventListener('resize', checkScreen)
 })
 
 const onSearch = () => {
@@ -131,6 +181,46 @@ const onSearch = () => {
 }
 .l1 .a:hover {
   color: gray;
+}
+
+.hamburger {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  margin: 0 -8px 0 0;
+  padding: 0;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  font-size: 1.4rem;
+  color: inherit;
+}
+@media (max-width: 992px) {
+  .hamburger {
+    display: flex;
+  }
+}
+
+.search-icon-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  font-size: 1.2rem;
+  color: inherit;
+}
+
+@media (max-width: 768px) {
+  .header-right.space {
+    gap: 12px;
+  }
 }
 </style>
 <style>

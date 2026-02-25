@@ -1,6 +1,6 @@
 <template>
-  <div style="display: flex; gap: 8px; flex-wrap: wrap;">
-    <div class="portlet" style="flex: 0 0 400px;">
+  <div class="user-edit-layout" style="display: flex; gap: 8px; flex-wrap: wrap;">
+    <div class="portlet user-edit-portlet" style="flex: 0 0 400px;">
       <div class="portlet-head">
         <b style="font-size: 1.2rem"><i class="fa fa-image"></i> 修改头像</b>
       </div>
@@ -37,7 +37,7 @@
       </div>
     </div>
 
-    <div class="portlet" style="flex: 1; min-width: 400px;">
+    <div class="portlet user-edit-portlet" style="flex: 1; min-width: 400px;">
       <div class="portlet-head">
         <b style="font-size: 1.2rem"><i class="fa fa-user-gear"></i> 个人设置</b>
       </div>
@@ -199,4 +199,13 @@ onMounted(() => {
   loadCurrentAvatar()
 })
 </script>
+
+<style scoped>
+@media (max-width: 768px) {
+  .user-edit-layout .user-edit-portlet {
+    flex: 1 1 100% !important;
+    min-width: 0 !important;
+  }
+}
+</style>
   

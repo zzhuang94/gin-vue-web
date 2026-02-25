@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="table-responsive">
     <a-spin :spinning="loading">
       <table class="table table-hover" :class="small ? 'table-sm' : ''" :id="id ? id : undefined" :style="{ width, height, margin }">
         <thead>

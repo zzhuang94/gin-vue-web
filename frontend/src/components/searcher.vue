@@ -1,8 +1,8 @@
 <template>
   <div class="searcher">
     <a-row align="middle">
-      <a-col :span="2" class="label">筛选条件：</a-col>
-      <a-col :span="22">
+      <a-col :xs="24" :md="2" class="label">筛选条件：</a-col>
+      <a-col :xs="24" :md="22">
         <a-space :size="4">
           <label v-for="v in rules" :key="v.key" @click="toggle(v.key)"
             class="btn btn-sm" :class="visibleKeys.has(v.key) ? 'btn-success' : 'btn-default'">
@@ -13,8 +13,8 @@
     </a-row>
 
     <a-row align="middle" v-for="v in rules" :key="v.key" v-show="visibleKeys.has(v.key)">
-      <a-col :span="2" class="label">{{ v.name }}：</a-col>
-      <a-col :span="22">
+      <a-col :xs="24" :md="2" class="label">{{ v.name }}：</a-col>
+      <a-col :xs="24" :md="22">
 
           <a-select v-if="v.limit && v.limit.length"
             v-model:value="formData[v.key]"
@@ -50,8 +50,8 @@
     </a-row>
 
     <a-row>
-      <a-col :span="2"></a-col>
-      <a-col :span="22">
+      <a-col :xs="24" :md="2"></a-col>
+      <a-col :xs="24" :md="22">
         <a-space :size="4">
           <button class="btn btn-sm btn-primary" @click="emit('search')">
             <i class="fa fa-search"></i> 搜 索
@@ -145,6 +145,8 @@ onMounted(initVisibleKeys)
 .searcher {
   margin-left: 5px;
   margin-bottom: 5px;
+  width: 100%;
+  max-width: 480px;
 }
 .label {
   font-weight: bold;
@@ -153,7 +155,13 @@ onMounted(initVisibleKeys)
   padding: 2px 0;
 }
 .search-input {
-  width: 480px;
+  width: 100%;
+  max-width: 480px;
+}
+@media (max-width: 768px) {
+  .search-input {
+    max-width: none;
+  }
 }
 .ant-space:not(.auto-hide-l1) {
   display: flex !important;

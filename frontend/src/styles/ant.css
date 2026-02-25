@@ -55,8 +55,8 @@
 }
 
 .ant-notification-notice {
-  width: 500px !important;
-  max-width: 80vw !important;
+  width: min(500px, 90vw) !important;
+  max-width: 90vw !important;
 }
 .ant-notification-notice-message, .ant-modal-confirm-title {
   font-size: 18px !important;
