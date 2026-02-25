@@ -271,10 +271,7 @@ func (x *X) BuildQueryX(cond builder.Cond, withSelect bool) *xorm.Session {
 		return ans
 	}
 
-	fields := make([]string, 0)
-	if !x.NoID {
-		fields = append(fields, "`id`")
-	}
+	fields := []string{"`id`"}
 	for _, rule := range x.Rules {
 		if !rule.Hide && rule.Key != "" {
 			fields = append(fields, "`"+rule.Key+"`")

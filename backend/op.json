@@ -43,6 +43,6 @@
     "ticket": {
         "name": "生产需求",
         "db": "prod",
-        "show": ["title", "sku", "material", "color", "quantity_expected", "lead_time", "image", "remark"]
+        "show": ["title", "sku", "material", "color", "quantity", "lead_time", "image", "remark"]
     }
 }

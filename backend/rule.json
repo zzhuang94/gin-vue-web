@@ -497,18 +497,36 @@
         }
     ],
 
-    "material": [
+    "category": [
         {
             "key": "name",
             "name": "名称",
             "search": 2,
+            "readonly": true,
             "required": true
         },
         {
             "key": "remark",
             "name": "备注",
             "search": 2,
-            "textarea": true
+            "textarea": true,
+            "auto_hide": "l1"
+        }
+    ],
+    "material": [
+        {
+            "key": "name",
+            "name": "名称",
+            "search": 2,
+            "readonly": true,
+            "required": true
+        },
+        {
+            "key": "remark",
+            "name": "备注",
+            "search": 2,
+            "textarea": true,          
+            "auto_hide": "l1"
         }
     ],
     "color": [
@@ -516,13 +534,15 @@
             "key": "name",
             "name": "名称",
             "search": 2,
+            "readonly": true,
             "required": true
         },
         {
             "key": "remark",
             "name": "备注",
             "search": 2,
-            "textarea": true
+            "textarea": true,
+            "auto_hide": "l1"
         }
     ],
     "machine": [
@@ -530,41 +550,88 @@
             "key": "name",
             "name": "名称",
             "search": 2,
+            "readonly": true,
             "required": true
         },
         {
             "key": "remark",
             "name": "备注",
             "search": 2,
-            "textarea": true
+            "textarea": true,
+            "auto_hide": "l1"
+        }
+    ],
+
+    "store": [
+        {
+            "key": "category",
+            "name": "类型",
+            "search": 2,
+            "required": true,
+            "readonly": true,
+            "trans": { "db": "core", "table": "category", "key": "name", "val": "name" },
+            "no_sort": true
+        },
+        {
+            "key": "material",
+            "name": "材质",
+            "search": 2,
+            "readonly": true,
+            "trans": { "db": "core", "table": "material", "key": "name", "val": "name" },
+            "required": true,
+            "no_sort": true
+        },
+        {
+            "key": "color",
+            "name": "颜色",
+            "search": 2,
+            "readonly": true,
+            "trans": { "db": "core", "table": "color", "key": "name", "val": "name" },
+            "required": true,
+            "no_sort": true
+        },
+        {
+            "key": "count",
+            "name": "数量",
+            "search": 2,
+            "validation": { "is_int": true, "int_range": true, "int_min": 0, "int_max": 10000 },
+            "required": true,
+            "no_sort": true
+        },
+        {
+            "key": "remark",
+            "name": "备注",
+            "search": 2,
+            "textarea": true,
+            "no_sort": true,
+            "auto_hide": "l1"
         }
     ],
 
     "ticket": [
         {
-            "key": "title",
-            "name": "标题",
+            "key": "category",
+            "name": "类型",
             "search": 2,
-            "required": true
+            "required": true,
+            "trans": { "db": "core", "table": "category", "key": "name", "val": "name" },
+            "no_sort": true
         },
         {
             "key": "material",
             "name": "材质",
             "search": 2,
             "trans": { "db": "core", "table": "material", "key": "name", "val": "name" },
-            "required": true
+            "required": true,
+            "no_sort": true
         },
         {
             "key": "color",
             "name": "颜色",
             "search": 2,
             "trans": { "db": "core", "table": "color", "key": "name", "val": "name" },
-            "required": true
-        },
-        {
-            "key": "image",
-            "name": "图片描述",
-            "hide": true
+            "required": true,
+            "no_sort": true
         },
         {
             "key": "apply_user",
@@ -632,7 +699,7 @@
             "required": true
         },
         {
-            "key": "quantity_expected",
+            "key": "quantity",
             "name": "期望数量",
             "search": 2,
             "validation": { "is_int": true, "int_range": true, "int_min": 0, "int_max": 10000 },
@@ -640,26 +707,21 @@
             "hide": true
         },
         {
-            "key": "quantity_actual",
-            "name": "已生产数量",
-            "search": 2,
-            "default": "0",
-            "validation": { "is_int": true, "int_range": true, "int_min": 0, "int_max": 10000 },
-            "required": true,
-            "hide": true
-        },
-        {
             "key": "progress",
             "name": "生产进度",
+            "describe": "良品数/劣品数/期望数",
             "search": 2,
-            "readonly": true
+            "readonly": true,
+            "no_sort": true
         },
         {
             "key": "machine_plan",
             "name": "机器编排",
             "search": 2,
             "required": true,
-            "textarea": true
+            "textarea": true,
+            "auto_hide": "l1",
+            "no_sort": true
         },
         {
             "key": "machine_list",
@@ -667,7 +729,9 @@
             "search": 2,
             "required": true,
             "split_sep": ",",
-            "trans": { "db": "core", "table": "machine", "key": "name", "val": "name" }
+            "trans": { "db": "core", "table": "machine", "key": "name", "val": "name" },
+            "auto_hide": "l1",
+            "no_sort": true
         },
         {
             "key": "status",
@@ -688,7 +752,9 @@
             "key": "remark",
             "name": "备注",
             "search": 2,
-            "textarea": true
+            "textarea": true,
+            "auto_hide": "l1",
+            "no_sort": true
         }
     ]
 }

@@ -5,6 +5,7 @@ import (
 	"backend/models/prod"
 	"backend/web/frm"
 	"fmt"
+	"strings"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -17,6 +18,7 @@ type Ticket struct {
 func NewTicket() *Ticket {
 	r := &Ticket{X: frm.NewX(&prod.Ticket{})}
 	r.DB = g.CoreDB
+	r.NoID = true
 	r.Dump = true
 	r.AndWheres = []map[string]any{
 		{
@@ -86,7 +88,11 @@ func (t *Ticket) buildOption(c *gin.Context) []*frm.Option {
 	}
 	if user.IsStorekeeper || user.IsManager {
 		ans = append(ans, t.WrapOption([]any{
-			"更新收货", "truck", "receive", "modal", []string{"id"},
+			"良品入库", "download", "receive", "modal", []string{"id"},
+			[]string{"status", "EQ", "RUNNING"},
+		}))
+		ans = append(ans, t.WrapOption([]any{
+			"劣品上报", "warning", "reject", "modal", []string{"id"},
 			[]string{"status", "EQ", "RUNNING"},
 		}))
 	}
@@ -111,15 +117,13 @@ func (t *Ticket) buildOption(c *gin.Context) []*frm.Option {
 
 func (t *Ticket) ActionRead(c *gin.Context) {
 	rules := t.GetRules()
-	rules = t.RulesUnset(rules, []string{
-		"material", "color", "image",
-		"quantity_actual", "quantity_expected", "machine_plan", "machine_list",
+	fields := []string{
+		"category", "material", "color",
+		"quantity", "machine_plan", "machine_list",
 		"status", "remark",
-	})
-	rules = t.RulesReadonly(rules, []string{
-		"title", "material", "color", "quantity_expected",
-		"lead_time", "image", "remark",
-	})
+	}
+	rules = t.RulesFilter(rules, fields)
+	rules = t.RulesReadonly(rules, fields)
 	title := "<i class='fa fa-eye'></i>&nbsp;&nbsp;查看详情"
 	t.editModel(c, title, rules)
 }
@@ -127,7 +131,7 @@ func (t *Ticket) ActionRead(c *gin.Context) {
 func (t *Ticket) ActionApply(c *gin.Context) {
 	rules := t.GetRules()
 	rules = t.RulesFilter(rules, []string{
-		"title", "material", "color", "quantity_expected", "lead_time", "image", "remark",
+		"category", "material", "color", "quantity", "lead_time", "remark",
 	})
 	title := "<i class='fa fa-pencil'></i>&nbsp;&nbsp;生产需求"
 	t.editModel(c, title, rules)
@@ -136,12 +140,12 @@ func (t *Ticket) ActionApply(c *gin.Context) {
 func (t *Ticket) ActionPlan(c *gin.Context) {
 	rules := t.GetRules()
 	rules = t.RulesFilter(rules, []string{
-		"title", "material", "color", "quantity_expected", "lead_time", "image",
-		"apply_user", "apply_time", "machine_plan",
-		"remark",
+		"apply_user", "apply_time",
+		"category", "material", "color", "quantity", "lead_time",
+		"machine_plan", "remark",
 	})
 	rules = t.RulesReadonly(rules, []string{
-		"title", "material", "color", "quantity_expected", "lead_time", "image",
+		"category", "material", "color", "quantity", "lead_time",
 	})
 	title := "<i class='fa fa-grip-vertical'></i>&nbsp;&nbsp;编排机器"
 	t.editModel(c, title, rules)
@@ -150,33 +154,101 @@ func (t *Ticket) ActionPlan(c *gin.Context) {
 func (t *Ticket) ActionPrepare(c *gin.Context) {
 	rules := t.GetRules()
 	rules = t.RulesFilter(rules, []string{
-		"title", "plan_user", "plan_time", "machine_plan", "machine_list", "remark",
+		"plan_user", "plan_time", "machine_plan", "machine_list", "remark",
 	})
-	rules = t.RulesReadonly(rules, []string{
-		"title", "machine_plan",
-	})
+	rules = t.RulesReadonly(rules, []string{"machine_plan"})
 	title := "<i class='fa fa-list'></i>&nbsp;&nbsp;准备机器"
 	t.editModel(c, title, rules)
 }
 
+type storeArg struct {
+	Id     string `json:"id"`
+	Count  int    `json:"count"`
+	Remark string `json:"remark"`
+}
+
 func (t *Ticket) ActionReceive(c *gin.Context) {
-	rules := t.GetRules()
-	rules = t.RulesFilter(rules, []string{
-		"title", "lead_time", "quantity_expected", "quantity_actual",
-		"run_user", "run_time",
-		"remark",
-	})
-	rules = t.RulesReadonly(rules, []string{
-		"title", "lead_time", "quantity_expected",
-	})
-	title := "<i class='fa fa-truck'></i>&nbsp;&nbsp;更新收货"
-	t.editModel(c, title, rules)
+	m := &prod.Ticket{}
+	has, err := t.DB.ID(c.DefaultQuery("id", "")).Get(m)
+	if err != nil || !has {
+		t.JsonFail(c, fmt.Errorf("数据异常"))
+		return
+	}
+	t.Modal(c, map[string]any{"ticket": m})
+}
+
+func (t *Ticket) ActionReceiveSave(c *gin.Context) {
+	arg := &storeArg{}
+	if err := c.ShouldBindJSON(arg); err != nil {
+		t.JsonFail(c, err)
+		return
+	}
+	if arg.Count <= 0 {
+		t.JsonFail(c, fmt.Errorf("数量不能小于0"))
+		return
+	}
+
+	m := &prod.Ticket{}
+	has, err := t.DB.ID(arg.Id).Get(m)
+	if err != nil || !has {
+		t.JsonFail(c, fmt.Errorf("数据异常"))
+		return
+	}
+	sess := t.BeginSess(t.DB, c)
+	if err := m.Receive(sess, arg.Count, arg.Remark); err != nil {
+		sess.Rollback()
+		t.JsonFail(c, err)
+		return
+	}
+	sess.Commit()
+	t.JsonSucc(c, "入库成功")
+}
+
+func (t *Ticket) ActionReject(c *gin.Context) {
+	m := &prod.Ticket{}
+	has, err := t.DB.ID(c.DefaultQuery("id", "")).Get(m)
+	if err != nil || !has {
+		t.JsonFail(c, fmt.Errorf("数据异常"))
+		return
+	}
+	t.Modal(c, map[string]any{"ticket": m})
+}
+
+func (t *Ticket) ActionRejectSave(c *gin.Context) {
+	arg := &storeArg{}
+	if err := c.ShouldBindJSON(arg); err != nil {
+		t.JsonFail(c, err)
+		return
+	}
+	if arg.Count <= 0 {
+		t.JsonFail(c, fmt.Errorf("数量不能小于0"))
+		return
+	}
+	if arg.Remark == "" {
+		t.JsonFail(c, fmt.Errorf("劣品原因不能为空"))
+		return
+	}
+
+	m := &prod.Ticket{}
+	has, err := t.DB.ID(arg.Id).Get(m)
+	if err != nil || !has {
+		t.JsonFail(c, fmt.Errorf("数据异常"))
+		return
+	}
+	sess := t.BeginSess(t.DB, c)
+	if err := m.Reject(sess, arg.Count, arg.Remark); err != nil {
+		sess.Rollback()
+		t.JsonFail(c, err)
+		return
+	}
+	sess.Commit()
+	t.JsonSucc(c, "劣品上报成功")
 }
 
 func (t *Ticket) ActionEdit(c *gin.Context) {
 	rules := t.GetRules()
 	rules = t.RulesFilter(rules, []string{
-		"title", "material", "color", "quantity_expected", "quantity_actual",
+		"category", "material", "color", "quantity",
 		"apply_user", "plan_user", "prepare_user",
 		"lead_time", "image", "machine_plan", "machine_list", "remark",
 	})
@@ -258,5 +330,16 @@ func (t *Ticket) wrapData(data []map[string]string) {
 		} else if lead.Sub(today).Hours()/24 < 3 {
 			d["lead_time"] = "<b class='text-warning'>" + d["lead_time"] + "</b>"
 		}
+		ss := strings.Split(d["progress"], "/")
+		if ss[0] == ss[2] {
+			ss[0] = "<b class='text-success'>" + ss[2] + "</b>"
+		} else {
+			ss[0] = "<b class='text-info'>" + ss[0] + "</b>"
+		}
+		ss[2] = "<b class='text-primary'>" + ss[2] + "</b>"
+		if ss[1] != "0" {
+			ss[1] = "<b class='text-danger'>" + ss[1] + "</b>"
+		}
+		d["progress"] = strings.Join(ss, "/")
 	}
 }

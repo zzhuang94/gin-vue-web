@@ -13,6 +13,7 @@ type Stats struct {
 func NewStats() *Stats {
 	r := &Stats{X: frm.NewX(&prod.Ticket{})}
 	r.DB = g.CoreDB
+	r.NoID = true
 	r.Dump = true
 	r.AndWheres = []map[string]any{{"status": []string{prod.StatusFinished, prod.StatusStopped}}}
 	r.initRules()

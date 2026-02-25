@@ -29,6 +29,10 @@ function formatJson(str: string): string {
   }
 }
 
+function formatTime(time: string): string {
+  return new Date(time).toLocaleString()
+}
+
 function formatFunc(func: string, val: any): string {
   switch (func) {
     case 'formatXxx':
@@ -156,6 +160,7 @@ function prettyFlow(flow: any): string {
 
 export default {
   lineExplode,
+  formatTime,
   formatFunc,
   wrapBadge,
   buildBadge,

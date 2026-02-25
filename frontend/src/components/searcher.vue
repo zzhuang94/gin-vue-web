@@ -1,8 +1,8 @@
 <template>
   <div class="searcher">
     <a-row align="middle">
-      <a-col :xs="24" :md="2" class="label">筛选条件：</a-col>
-      <a-col :xs="24" :md="22">
+      <a-col :xs="8" :md="4" class="label">筛选条件：</a-col>
+      <a-col :xs="16" :md="20">
         <a-space :size="4">
           <label v-for="v in rules" :key="v.key" @click="toggle(v.key)"
             class="btn btn-sm" :class="visibleKeys.has(v.key) ? 'btn-success' : 'btn-default'">
@@ -13,8 +13,8 @@
     </a-row>
 
     <a-row align="middle" v-for="v in rules" :key="v.key" v-show="visibleKeys.has(v.key)">
-      <a-col :xs="24" :md="2" class="label">{{ v.name }}：</a-col>
-      <a-col :xs="24" :md="22">
+      <a-col :xs="8" :md="4" class="label">{{ v.name }}：</a-col>
+      <a-col :xs="16" :md="20">
 
           <a-select v-if="v.limit && v.limit.length"
             v-model:value="formData[v.key]"

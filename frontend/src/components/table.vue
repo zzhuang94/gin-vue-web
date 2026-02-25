@@ -8,6 +8,9 @@
               <input type="checkbox" v-model="allSelected" @change="toggleAll" />
             </th>
             <th v-for="r in rules" :key="r.key" :class="calcClass(r)" style="white-space: nowrap; cursor: pointer" @click="sortChange(r.key, r)">
+              <a-tooltip v-if="r.describe" :title="r.describe">
+                <i class="fa fa-info-circle fa-sm text-info" style="margin-right: 0.25rem"></i>
+              </a-tooltip>
               <span v-html="r.name"></span> <i v-if="! noSort && ! r.no_sort" :class="sortIcon(r.key)"></i>
             </th>
             <th v-if="option.length" class="table-op-col">操作</th>

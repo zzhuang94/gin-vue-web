@@ -68,5 +68,7 @@ func routeProd() {
 	frm.RegController("prod", "material", prod.NewMaterial())
 	frm.RegController("prod", "color", prod.NewColor())
 	frm.RegController("prod", "machine", prod.NewMachine())
+	frm.RegController("prod", "category", prod.NewCategory())
 	frm.RegController("prod", "stats", prod.NewStats())
+	frm.RegController("prod", "store", prod.NewStore())
 }
