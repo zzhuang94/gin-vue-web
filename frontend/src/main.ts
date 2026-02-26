@@ -2,6 +2,7 @@ import { createApp } from 'vue'
 import { createRouter, createWebHistory } from 'vue-router'
 
 import App from './app.vue'
+import print from 'vue3-print-nb'
 
 import '@fortawesome/fontawesome-free/css/all.min.css'
 import '@styles/custom.css'
@@ -20,4 +21,4 @@ const router = createRouter({
   ],
 })
 
-createApp(App).use(router).mount('#app')
+createApp(App).use(router).use(print).mount('#app')
