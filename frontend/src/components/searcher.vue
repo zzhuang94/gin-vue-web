@@ -50,8 +50,8 @@
     </a-row>
 
     <a-row>
-      <a-col :xs="24" :md="2"></a-col>
-      <a-col :xs="24" :md="22">
+      <a-col :xs="8" :md="4"></a-col>
+      <a-col :xs="16" :md="20">
         <a-space :size="4">
           <button class="btn btn-sm btn-primary" @click="emit('search')">
             <i class="fa fa-search"></i> 搜 索

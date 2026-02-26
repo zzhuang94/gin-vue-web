@@ -591,8 +591,16 @@
             "no_sort": true
         },
         {
-            "key": "count",
-            "name": "数量",
+            "key": "goods",
+            "name": "良品",
+            "search": 2,
+            "validation": { "is_int": true, "int_range": true, "int_min": 0, "int_max": 10000 },
+            "required": true,
+            "no_sort": true
+        },
+        {
+            "key": "bads",
+            "name": "劣品",
             "search": 2,
             "validation": { "is_int": true, "int_range": true, "int_min": 0, "int_max": 10000 },
             "required": true,
@@ -609,6 +617,15 @@
     ],
 
     "ticket": [
+        {
+            "key": "store_id",
+            "name": "库存",
+            "hide": true,
+            "op_use": true,
+            "readonly": true,
+            "required": true,
+            "no_sort": true
+        },
         {
             "key": "category",
             "name": "类型",

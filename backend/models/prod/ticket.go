@@ -6,6 +6,8 @@ import (
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/sirupsen/logrus"
 )
 
 const (
@@ -20,9 +22,12 @@ const (
 type Ticket struct {
 	g.Model `xorm:"extends"`
 
-	Category    string `xorm:"category" json:"category"`         // 类型
-	Material    string `xorm:"material" json:"material"`         // 材质
-	Color       string `xorm:"color" json:"color"`               // 颜色
+	StoreId int `xorm:"store_id" json:"store_id,string"` // 仓库ID
+
+	Category string `xorm:"category" json:"category"` // 类型
+	Material string `xorm:"material" json:"material"` // 材质
+	Color    string `xorm:"color" json:"color"`       // 颜色
+
 	Quantity    int    `xorm:"quantity" json:"quantity,string"`  // 期望数量
 	Progress    string `xorm:"progress" json:"progress"`         // 生产进度
 	LeadTime    string `xorm:"lead_time" json:"lead_time"`       // 交付时间
@@ -55,6 +60,11 @@ func (t *Ticket) Save(sess *g.Sess) error {
 		t.ApplyTime = time.Now().Format("2006-01-02 15:04:05")
 		t.Status = StatusInit
 		t.Progress = fmt.Sprintf("0/0/%d", t.Quantity)
+		store, err := t.getOrCreateStore(sess)
+		if err != nil {
+			return err
+		}
+		t.StoreId = store.Id
 	} else if t.Status == StatusInit && t.MachinePlan != "" {
 		t.PlanUser = sess.Ctx.GetString("username")
 		t.PlanTime = time.Now().Format("2006-01-02 15:04:05")
@@ -71,62 +81,62 @@ func (t *Ticket) Delete(sess *g.Sess) error {
 	return t.DeleteBean(sess, t)
 }
 
-func (t *Ticket) Receive(sess *g.Sess, count int, remark string) error {
-	if err := t.updateProgress(sess, count, 0); err != nil {
-		return err
-	}
+func (t *Ticket) tryUpdateProgress(sess *g.Sess, goods, bads int) (int, int) {
+	logrus.Infof("tryUpdateProgress: goods=%d, bads=%d", goods, bads)
 
+	ss := strings.Split(t.Progress, "/")
+	currGoods, _ := strconv.Atoi(ss[0])
+	currBads, _ := strconv.Atoi(ss[1])
+	newGoods, newBads := currGoods, currBads
+
+	if goods > 0 {
+		needGoods := t.Quantity - currGoods - currBads
+		if needGoods < goods {
+			goods -= needGoods
+			newGoods += needGoods
+		} else {
+			newGoods += goods
+			goods = 0
+		}
+	}
+	if bads > 0 {
+		needBads := t.Quantity - currGoods - currBads
+		if needBads < bads {
+			bads -= needBads
+			newBads += needBads
+		} else {
+			newBads += bads
+			bads = 0
+		}
+	}
+	t.Progress = fmt.Sprintf("%d/%d/%d", newGoods, newBads, t.Quantity)
+	if newGoods+newBads == t.Quantity {
+		t.Status = StatusFinished
+	}
+	logrus.Infof("tryUpdateProgress: progress=%s", t.Progress)
+	if err := t.SaveBean(sess, t); err != nil {
+		logrus.Errorf("tryUpdateProgress: %v", err)
+		return goods, bads
+	}
+	return goods, bads
+}
+
+func (t *Ticket) getOrCreateStore(sess *g.Sess) (*Store, error) {
 	store := &Store{}
 	has, err := sess.Where(
 		"category = ? AND material = ? AND color = ?",
 		t.Category, t.Material, t.Color,
 	).Get(store)
 	if err != nil {
-		return err
+		return nil, err
 	}
 	if !has {
 		store.Category = t.Category
 		store.Material = t.Material
 		store.Color = t.Color
 		if err := store.Save(sess); err != nil {
-			return err
+			return nil, err
 		}
 	}
-	return store.Plus(sess, t, count, remark)
-}
-
-func (t *Ticket) Reject(sess *g.Sess, count int, remark string) error {
-	if err := t.updateProgress(sess, 0, count); err != nil {
-		return err
-	}
-
-	reject := &Reject{
-		TicketId: t.Id,
-		Count:    count,
-		Remark:   remark,
-		User:     sess.Ctx.GetString("username"),
-	}
-	return reject.Save(sess)
-}
-
-func (t *Ticket) updateProgress(sess *g.Sess, good, rej int) error {
-	ss := strings.Split(t.Progress, "/")
-	s0, _ := strconv.Atoi(ss[0])
-	s1, _ := strconv.Atoi(ss[1])
-	good = s0 + good
-	rej = s1 + rej
-	if good+rej > t.Quantity {
-		return fmt.Errorf(
-			"该工单良品数[%d]+劣品数[%d]不能大于期望数量[%d]",
-			good, rej, t.Quantity,
-		)
-	}
-	t.Progress = fmt.Sprintf("%d/%d/%d", good, rej, t.Quantity)
-
-	// 如果良品数等于期望数量，则状态为已完成
-	if good == t.Quantity {
-		t.Status = StatusFinished
-	}
-
-	return t.Save(sess)
+	return store, nil
 }

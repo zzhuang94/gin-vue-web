@@ -88,11 +88,17 @@ func (t *Ticket) buildOption(c *gin.Context) []*frm.Option {
 	}
 	if user.IsStorekeeper || user.IsManager {
 		ans = append(ans, t.WrapOption([]any{
-			"良品入库", "download", "receive", "modal", []string{"id"},
+			"库存信息", "box", "/prod/store/detail", "link",
+			[]map[string]string{{"k": "store_id", "v": "id"}},
+		}))
+		ans = append(ans, t.WrapOption([]any{
+			"良品入库", "download", "/prod/store/plus", "modal",
+			[]map[string]string{{"k": "store_id", "v": "id"}},
 			[]string{"status", "EQ", "RUNNING"},
 		}))
 		ans = append(ans, t.WrapOption([]any{
-			"劣品上报", "warning", "reject", "modal", []string{"id"},
+			"劣品上报", "warning", "/prod/store/reject", "modal",
+			[]map[string]string{{"k": "store_id", "v": "id"}},
 			[]string{"status", "EQ", "RUNNING"},
 		}))
 	}
@@ -159,90 +165,6 @@ func (t *Ticket) ActionPrepare(c *gin.Context) {
 	rules = t.RulesReadonly(rules, []string{"machine_plan"})
 	title := "<i class='fa fa-list'></i>&nbsp;&nbsp;准备机器"
 	t.editModel(c, title, rules)
-}
-
-type storeArg struct {
-	Id     string `json:"id"`
-	Count  int    `json:"count"`
-	Remark string `json:"remark"`
-}
-
-func (t *Ticket) ActionReceive(c *gin.Context) {
-	m := &prod.Ticket{}
-	has, err := t.DB.ID(c.DefaultQuery("id", "")).Get(m)
-	if err != nil || !has {
-		t.JsonFail(c, fmt.Errorf("数据异常"))
-		return
-	}
-	t.Modal(c, map[string]any{"ticket": m})
-}
-
-func (t *Ticket) ActionReceiveSave(c *gin.Context) {
-	arg := &storeArg{}
-	if err := c.ShouldBindJSON(arg); err != nil {
-		t.JsonFail(c, err)
-		return
-	}
-	if arg.Count <= 0 {
-		t.JsonFail(c, fmt.Errorf("数量不能小于0"))
-		return
-	}
-
-	m := &prod.Ticket{}
-	has, err := t.DB.ID(arg.Id).Get(m)
-	if err != nil || !has {
-		t.JsonFail(c, fmt.Errorf("数据异常"))
-		return
-	}
-	sess := t.BeginSess(t.DB, c)
-	if err := m.Receive(sess, arg.Count, arg.Remark); err != nil {
-		sess.Rollback()
-		t.JsonFail(c, err)
-		return
-	}
-	sess.Commit()
-	t.JsonSucc(c, "入库成功")
-}
-
-func (t *Ticket) ActionReject(c *gin.Context) {
-	m := &prod.Ticket{}
-	has, err := t.DB.ID(c.DefaultQuery("id", "")).Get(m)
-	if err != nil || !has {
-		t.JsonFail(c, fmt.Errorf("数据异常"))
-		return
-	}
-	t.Modal(c, map[string]any{"ticket": m})
-}
-
-func (t *Ticket) ActionRejectSave(c *gin.Context) {
-	arg := &storeArg{}
-	if err := c.ShouldBindJSON(arg); err != nil {
-		t.JsonFail(c, err)
-		return
-	}
-	if arg.Count <= 0 {
-		t.JsonFail(c, fmt.Errorf("数量不能小于0"))
-		return
-	}
-	if arg.Remark == "" {
-		t.JsonFail(c, fmt.Errorf("劣品原因不能为空"))
-		return
-	}
-
-	m := &prod.Ticket{}
-	has, err := t.DB.ID(arg.Id).Get(m)
-	if err != nil || !has {
-		t.JsonFail(c, fmt.Errorf("数据异常"))
-		return
-	}
-	sess := t.BeginSess(t.DB, c)
-	if err := m.Reject(sess, arg.Count, arg.Remark); err != nil {
-		sess.Rollback()
-		t.JsonFail(c, err)
-		return
-	}
-	sess.Commit()
-	t.JsonSucc(c, "劣品上报成功")
 }
 
 func (t *Ticket) ActionEdit(c *gin.Context) {

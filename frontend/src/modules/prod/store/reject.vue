@@ -2,30 +2,43 @@
   <a-modal cancel-text="取消" ok-text="保存" :maskClosable="false" @ok="submit" v-model:open="open"
     :confirm-loading="submitting">
     <template #title>
-      <i class="fa fa-download"></i> 良品入库
+      <i class="fa fa-warning"></i> 劣品上报
     </template>
     <hr />
     <table class="table table-hover" style="width: 100%; border: 0;">
       <tbody>
         <tr>
           <td>类型</td>
-          <td>{{ ticket?.category }}</td>
+          <td>{{ store?.category }}</td>
         </tr>
         <tr>
           <td>材质</td>
-          <td>{{ ticket?.material }}</td>
+          <td>{{ store?.material }}</td>
         </tr>
         <tr>
           <td>颜色</td>
-          <td>{{ ticket?.color }}</td>
+          <td>{{ store?.color }}</td>
         </tr>
         <tr>
-          <td>本次入库</td>
+          <td>劣品库存</td>
+          <td>{{ store?.bads }}</td>
+        </tr>
+        <tr>
+          <td>劣品来源</td>
+          <td>
+            <a-radio-group v-model:value="src">
+              <a-radio value="gen">新生产</a-radio>
+              <a-radio value="oth">退货/代工/其它</a-radio>
+            </a-radio-group>
+          </td>
+        </tr>
+        <tr>
+          <td>本次劣品</td>
           <td><a-input-number v-model:value="count" /></td>
         </tr>
         <tr>
-          <td>备注</td>
-          <td><a-input v-model:value="remark" /></td>
+          <td>劣品原因</td>
+          <td><a-input v-model:value="remark" placeholder="必须输入劣品原因" /></td>
         </tr>
       </tbody>
     </table>
@@ -37,15 +50,16 @@
 import { ref } from 'vue';
 import lib from '@libs/lib.ts'
 
-interface Ticket {
+interface Store {
   id: string | number
   category: string
   material: string
   color: string
+  bads: number
 }
 
 interface Props {
-  ticket?: Ticket
+  store: Store
 }
 
 const props = defineProps<Props>()
@@ -54,11 +68,17 @@ const submitting = ref(false)
 const open = ref(true)
 const count = ref(0)
 const remark = ref('')
+const src = ref('gen')
 
 const submit = async () => {
   submitting.value = true
-  const params = { id: props.ticket?.id, count: count.value, remark: remark.value }
-  const ok = await lib.ajax('receive-save', params)
+  const ok = await lib.ajax('/prod/store/op', {
+    op: 'REJECT',
+    id: props.store.id, 
+    count: count.value, 
+    remark: remark.value, 
+    src: src.value,
+  })
   if (ok) {
     open.value = false
     emit('submit')
@@ -67,8 +87,9 @@ const submit = async () => {
 }
 </script>
 
+
 <style scoped>
-tr td:first-child {
+tr td:last-child {
   font-weight: bold;
 }
 </style>

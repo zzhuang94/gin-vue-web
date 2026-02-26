@@ -21,6 +21,7 @@ var (
 
 type cfg struct {
 	Env   string                  `json:"env"`
+	Host  string                  `json:"host"`
 	Name  string                  `json:"name"`
 	Debug bool                    `json:"debug"`
 	Port  int                     `json:"port"`

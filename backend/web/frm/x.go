@@ -25,12 +25,12 @@ type Tool struct {
 }
 
 type Option struct {
-	Title string   `json:"title"`
-	Icon  string   `json:"icon"`
-	URL   string   `json:"url"`
-	Type  string   `json:"type"`
-	Args  []string `json:"args"`
-	Cond  any      `json:"cond,omitempty"`
+	Title string `json:"title"`
+	Icon  string `json:"icon"`
+	URL   string `json:"url"`
+	Type  string `json:"type"`
+	Args  any    `json:"args"`
+	Cond  any    `json:"cond,omitempty"`
 }
 
 type X struct {
@@ -177,7 +177,7 @@ func (x *X) WrapOption(r []any) *Option {
 		opt.Type = "modal"
 	}
 	if len(r) > 4 {
-		opt.Args = r[4].([]string)
+		opt.Args = r[4]
 	} else {
 		opt.Args = []string{"id"}
 	}
@@ -273,7 +273,7 @@ func (x *X) BuildQueryX(cond builder.Cond, withSelect bool) *xorm.Session {
 
 	fields := []string{"`id`"}
 	for _, rule := range x.Rules {
-		if !rule.Hide && rule.Key != "" {
+		if rule.OpUse || (!rule.Hide && rule.Key != "") {
 			fields = append(fields, "`"+rule.Key+"`")
 		}
 	}

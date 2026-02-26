@@ -1,6 +1,7 @@
 {
     "env": "dev",
     "name": "GinVue",
+    "host": "localhost:5173",
     "debug": true,
     "port": 3000,
 

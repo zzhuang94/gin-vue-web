@@ -5,9 +5,10 @@ import (
 )
 
 const (
-	OpPlus  = "PLUS"  // 入库
-	OpMinus = "MINUS" // 出库
-	OpEdit  = "EDIT"  // 盘点
+	OpPlus   = "PLUS"   // 入库
+	OpMinus  = "MINUS"  // 出库
+	OpReject = "REJECT" // 劣品
+	OpEdit   = "EDIT"   // 盘点
 )
 
 type StoreOp struct {
