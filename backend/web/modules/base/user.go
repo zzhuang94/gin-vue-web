@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"image"
 	"image/jpeg"
+	"time"
 
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"
@@ -220,6 +221,8 @@ func (u *User) loadJoinArg(c *gin.Context) (*joinArg, error) {
 func (u *User) writeSession(c *gin.Context, username string) {
 	session := sessions.Default(c)
 	session.Set("username", username)
+	// 记录最近一次活跃时间，用于滑动过期
+	session.Set("last_active", time.Now().Unix())
 	if err := session.Save(); err != nil {
 		logrus.Errorf("保存 session 失败: %v", err)
 		u.JsonFail(c, fmt.Errorf("保存 session 失败: %v", err))

@@ -3,6 +3,7 @@ package frm
 import (
 	"backend/g"
 	"strings"
+	"time"
 
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"
@@ -29,6 +30,26 @@ func Middleware(c *gin.Context) {
 		web.RenderDataPage(c, gin.H{"path": fullPath}, "modules/base/user/join")
 		c.Abort()
 		return
+	}
+
+	// 仅在「距离上次活跃超过一定时间」时，刷新一次过期时间，避免每个请求都写 Redis
+	const refreshInterval = 24 * time.Hour
+	now := time.Now().Unix()
+	lastActiveRaw := session.Get("last_active")
+	var lastActive int64
+	switch v := lastActiveRaw.(type) {
+	case int64:
+		lastActive = v
+	case int:
+		lastActive = int64(v)
+	case float64:
+		lastActive = int64(v)
+	}
+	if lastActive == 0 || now-lastActive >= int64(refreshInterval/time.Second) {
+		session.Set("last_active", now)
+		// 不改 MaxAge，沿用在 router 中给 store 设定的 30 天，
+		// 只通过 Save() 让底层存储刷新 TTL，实现「30 天不访问才失效」
+		_ = session.Save()
 	}
 
 	user := buildUser(username.(string))
