@@ -35,7 +35,7 @@ func initSession(rg *gin.RouterGroup) {
 
 	store.Options(sessions.Options{
 		Path:     "/",
-		MaxAge:   7 * 24 * 60 * 60,
+		MaxAge:   30 * 24 * 60 * 60,
 		HttpOnly: true,
 		Secure:   false,
 	})

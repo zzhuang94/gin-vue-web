@@ -50,6 +50,6 @@ interface Props {
   ops?: StoreOp[]
 }
 
-const props = defineProps<Props>()
+defineProps<Props>()
 const open = ref(true)
 </script>

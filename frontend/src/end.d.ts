@@ -7,3 +7,4 @@ declare module '*.vue' {
 declare module 'xlsx'
 declare module 'diff2html'
 declare module 'highlight.js'
+declare module 'vue3-print-nb'
