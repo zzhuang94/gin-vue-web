@@ -1,6 +1,9 @@
 package prod
 
-import "backend/g"
+import (
+	"backend/g"
+	"fmt"
+)
 
 type Color struct {
 	g.Model `xorm:"extends"`
@@ -18,6 +21,15 @@ func (Color) New() g.ModelX {
 }
 
 func (c *Color) Save(sess *g.Sess) error {
+	if c.Id == 0 {
+		exists, err := sess.Where("name = ?", c.Name).Exist(&Color{})
+		if err != nil {
+			return err
+		}
+		if exists {
+			return fmt.Errorf("该颜色已存在")
+		}
+	}
 	return c.SaveBean(sess, c)
 }
 

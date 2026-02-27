@@ -1,6 +1,9 @@
 package prod
 
-import "backend/g"
+import (
+	"backend/g"
+	"fmt"
+)
 
 type Machine struct {
 	g.Model `xorm:"extends"`
@@ -18,6 +21,15 @@ func (Machine) New() g.ModelX {
 }
 
 func (m *Machine) Save(sess *g.Sess) error {
+	if m.Id == 0 {
+		exists, err := sess.Where("name = ?", m.Name).Exist(&Machine{})
+		if err != nil {
+			return err
+		}
+		if exists {
+			return fmt.Errorf("该机器已存在")
+		}
+	}
 	return m.SaveBean(sess, m)
 }
 

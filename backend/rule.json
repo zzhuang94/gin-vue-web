@@ -596,7 +596,8 @@
             "search": 2,
             "validation": { "is_int": true, "int_range": true, "int_min": 0, "int_max": 10000 },
             "required": true,
-            "no_sort": true
+            "no_sort": true,
+            "default": "0"
         },
         {
             "key": "bads",
@@ -604,7 +605,8 @@
             "search": 2,
             "validation": { "is_int": true, "int_range": true, "int_min": 0, "int_max": 10000 },
             "required": true,
-            "no_sort": true
+            "no_sort": true,
+            "default": "0"
         },
         {
             "key": "remark",

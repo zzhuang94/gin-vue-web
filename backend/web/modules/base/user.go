@@ -21,7 +21,7 @@ type User struct {
 
 func NewUser() *User {
 	u := &User{X: frm.NewX(&base.User{})}
-	u.Tool = []*frm.Tool{}
+	u.Tool = [][]string{}
 	u.Option = [][]any{}
 	return u
 }

@@ -1,6 +1,9 @@
 package prod
 
-import "backend/g"
+import (
+	"backend/g"
+	"fmt"
+)
 
 type Category struct {
 	g.Model `xorm:"extends"`
@@ -18,6 +21,15 @@ func (Category) New() g.ModelX {
 }
 
 func (c *Category) Save(sess *g.Sess) error {
+	if c.Id == 0 {
+		exists, err := sess.Where("name = ?", c.Name).Exist(&Category{})
+		if err != nil {
+			return err
+		}
+		if exists {
+			return fmt.Errorf("该类型已存在")
+		}
+	}
 	return c.SaveBean(sess, c)
 }
 

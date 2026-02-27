@@ -45,7 +45,7 @@ type X struct {
 	BatchEdit   bool
 	BatchDelete bool
 	Dump        bool
-	Tool        []*Tool
+	Tool        [][]string
 	Option      [][]any
 	BuildTool   func(*gin.Context) []*Tool
 	BuildOption func(*gin.Context) []*Option
@@ -66,7 +66,7 @@ func NewX(m g.ModelX) *X {
 		Model:    m,
 		Rules:    rules,
 		WrapTime: true,
-		Tool:     []*Tool{{"新 增", "plus", "edit", "modal", "primary"}},
+		Tool:     [][]string{{"新 增", "plus", "edit", "modal", "primary"}},
 		Option: [][]any{
 			{"编 辑", "edit", "edit"},
 			{"删 除", "trash", "delete", "async"},
@@ -147,7 +147,9 @@ func (x *X) getTimeRule(key string) *g.Rule {
 
 func (x *X) BuildToolX(c *gin.Context) []*Tool {
 	ans := make([]*Tool, 0)
-	ans = append(ans, x.Tool...)
+	for _, r := range x.Tool {
+		ans = append(ans, x.WrapTool(r))
+	}
 	if x.BatchEdit {
 		ans = append(ans, &Tool{"批量修改", "edit", "", "batch-edit", "warning"})
 	}
@@ -163,6 +165,26 @@ func (x *X) BuildOptionX(c *gin.Context) []*Option {
 		ans = append(ans, x.WrapOption(r))
 	}
 	return ans
+}
+
+func (x *X) WrapTool(r []string) *Tool {
+	tool := &Tool{
+		Title: r[0],
+		Icon:  r[1],
+		URL:   r[2],
+	}
+	if len(r) > 3 {
+		tool.Type = r[3]
+	} else {
+		tool.Type = "modal"
+	}
+
+	if len(r) > 4 {
+		tool.Color = r[4]
+	} else {
+		tool.Color = "primary"
+	}
+	return tool
 }
 
 func (x *X) WrapOption(r []any) *Option {
@@ -531,4 +553,45 @@ func (x *X) GetListRules(args map[string]string) []*g.Rule {
 		ans = append(ans, r.SelfWrap())
 	}
 	return ans
+}
+
+func (x *X) BatchAddModal(c *gin.Context) {
+	x.ModalPage(c, gin.H{}, "components/batch-add")
+}
+
+// 注意，这种批量添加使用原生SQL，不会自动记录操作日志
+func (x *X) BatchAdd(c *gin.Context) {
+	arg := &struct {
+		Names []string `json:"names"`
+	}{}
+	if err := c.ShouldBindJSON(arg); err != nil {
+		x.JsonFail(c, err)
+		return
+	}
+	sql := "SELECT name FROM " + x.Model.TableName()
+	rows, err := x.DB.QueryString(sql)
+	if err != nil {
+		x.JsonFail(c, err)
+		return
+	}
+	olds := make(map[string]bool)
+	for _, row := range rows {
+		olds[strings.ToLower(row["name"])] = true
+	}
+	news := []string{}
+	for _, name := range arg.Names {
+		if _, ok := olds[strings.ToLower(name)]; !ok {
+			news = append(news, fmt.Sprintf("('%s')", name))
+		}
+	}
+	if len(news) == 0 {
+		x.JsonSucc(c, "没有需要新增的数据")
+		return
+	}
+	sql = "INSERT INTO " + x.Model.TableName() + " (name) VALUES " + strings.Join(news, ",")
+	if _, err = x.DB.Exec(sql); err != nil {
+		x.JsonFail(c, err)
+		return
+	}
+	x.JsonSucc(c, fmt.Sprintf("批量新增成功 %d 条", len(news)))
 }

@@ -17,7 +17,7 @@ func NewStats() *Stats {
 	r.Dump = true
 	r.AndWheres = []map[string]any{{"status": []string{prod.StatusFinished, prod.StatusStopped}}}
 	r.initRules()
-	r.Tool = []*frm.Tool{}
+	r.Tool = [][]string{}
 	r.Option = [][]any{{"查看详情", "eye", "/prod/ticket/read", "modal", []string{"id"}}}
 	return r
 }

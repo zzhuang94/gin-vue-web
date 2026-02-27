@@ -28,6 +28,16 @@ func (Store) New() g.ModelX {
 
 func (s *Store) Save(sess *g.Sess) error {
 	if s.Id == 0 {
+		exists, err := sess.Where(
+			"category = ? AND material = ? AND color = ?",
+			s.Category, s.Material, s.Color,
+		).Exist(&Store{})
+		if err != nil {
+			return err
+		}
+		if exists {
+			return fmt.Errorf("该类型、材质、颜色已存在")
+		}
 		return s.SaveBean(sess, s)
 	}
 	if s.Goods < 0 || s.Bads < 0 {
