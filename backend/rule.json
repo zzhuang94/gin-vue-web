@@ -569,8 +569,7 @@
             "search": 2,
             "required": true,
             "readonly": true,
-            "trans": { "db": "core", "table": "category", "key": "name", "val": "name" },
-            "no_sort": true
+            "trans": { "db": "core", "table": "category", "key": "name", "val": "name" }
         },
         {
             "key": "material",
@@ -578,8 +577,7 @@
             "search": 2,
             "readonly": true,
             "trans": { "db": "core", "table": "material", "key": "name", "val": "name" },
-            "required": true,
-            "no_sort": true
+            "required": true
         },
         {
             "key": "color",
@@ -587,8 +585,7 @@
             "search": 2,
             "readonly": true,
             "trans": { "db": "core", "table": "color", "key": "name", "val": "name" },
-            "required": true,
-            "no_sort": true
+            "required": true
         },
         {
             "key": "goods",
@@ -596,7 +593,6 @@
             "search": 2,
             "validation": { "is_int": true, "int_range": true, "int_min": 0, "int_max": 10000 },
             "required": true,
-            "no_sort": true,
             "default": "0"
         },
         {
@@ -605,7 +601,6 @@
             "search": 2,
             "validation": { "is_int": true, "int_range": true, "int_min": 0, "int_max": 10000 },
             "required": true,
-            "no_sort": true,
             "default": "0"
         },
         {

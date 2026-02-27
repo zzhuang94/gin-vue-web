@@ -3,7 +3,7 @@
     <a-row align="middle">
       <a-col :xs="8" :md="4" class="label">筛选条件：</a-col>
       <a-col :xs="16" :md="20">
-        <a-space :size="4">
+        <a-space :size="4" class="filter-tags">
           <label v-for="v in rules" :key="v.key" @click="toggle(v.key)"
             class="btn btn-sm" :class="visibleKeys.has(v.key) ? 'btn-success' : 'btn-default'">
             {{ v.name }}
@@ -166,6 +166,15 @@ onMounted(initVisibleKeys)
 .ant-space:not(.auto-hide-l1) {
   display: flex !important;
   flex-wrap: wrap !important;
+}
+/* 大屏时筛选条件标签不折行 */
+.searcher .filter-tags {
+  flex-wrap: nowrap !important;
+}
+@media (max-width: 768px) {
+  .searcher .filter-tags {
+    flex-wrap: wrap !important;
+  }
 }
 </style>
 
