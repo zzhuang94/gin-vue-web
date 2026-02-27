@@ -5,7 +5,7 @@
       <a href="#" class="link">首页地址</a>
     </span>
 
-    <a-space :size="20" class="pull-right">
+    <a-space :size="20" class="pull-right footer-links">
       <a href="#" target="_blank">
         <span class="text-brand">
           <i class="fa fa-book"></i> 使用文档
@@ -28,5 +28,11 @@
 <style scoped>
 a>span {
   font-weight: bold;
+}
+
+@media (max-width: 768px) {
+  .footer-links {
+    display: none !important;
+  }
 }
 </style>

@@ -12,7 +12,7 @@
       <template v-for="l, i in l1" :key="i">
         <router-link v-if="l.path" :to="l.path">
           <span class="a" :class="l.active ? 'active' : ''">
-            <i :class="'fas fa-' + l.icon" style="margin-right: 0.4rem"></i>
+            <i :class="'fas fa-' + l.icon" class="l1-icon"></i>
             <span class="auto-hide-l1">{{ l.name }}</span>
           </span>
         </router-link>
@@ -137,6 +137,9 @@ const onSearch = () => {
   font-weight: bold;
   font-size: 1.2rem;
 }
+.l1 .a .l1-icon {
+  margin-right: 0.4rem;
+}
 
 .prod {
   background: white;
@@ -203,6 +206,8 @@ const onSearch = () => {
 @media (max-width: 992px) {
   .hamburger {
     display: flex;
+    margin-left: -6px;
+    margin-right: 8px;
   }
 }
 
@@ -233,6 +238,29 @@ const onSearch = () => {
 @media (max-width: 768px) {
   .header-right.space {
     gap: 12px;
+  }
+}
+
+/* 小屏时一级导航图标更紧凑（与 custom.css 中 .auto-hide-l1 隐藏文字对应） */
+@media (max-width: 1000px) {
+  .l1.space {
+    gap: 10px !important;
+  }
+  .l1 .a .l1-icon {
+    margin-right: 0 !important;
+  }
+  .l1 .a {
+    padding: 4px 6px;
+    min-width: auto;
+  }
+}
+@media (max-width: 576px) {
+  .l1.space {
+    gap: 8px !important;
+  }
+  .l1 .a {
+    padding: 2px 4px;
+    font-size: 1.1rem;
   }
 }
 </style>
