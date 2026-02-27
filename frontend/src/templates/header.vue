@@ -20,7 +20,7 @@
     </a-space>
     <a-space :size="20" class="pull-right space header-right">
       <button
-        v-if="isSmallScreen && searchCollapsed"
+        v-if="!isSmallScreen && searchCollapsed"
         type="button"
         class="search-icon-btn"
         aria-label="搜索"
@@ -29,7 +29,7 @@
         <i class="fa fa-search"></i>
       </button>
       <a-input-search
-        v-else
+        v-else-if="!isSmallScreen"
         v-model:value="ip"
         :style="{ width: searchWidth, transition: 'width 0.3s ease' }"
         class="search-input"
@@ -39,10 +39,10 @@
         @focus="() => { searchWidth = '300px' }"
         @blur="() => { searchWidth = '200px'; onSearchBlur() }"
       />
-      <a href="#" target="_blank">
+      <a v-if="!isSmallScreen" href="#" target="_blank">
         <Tooltip :icon="false" msg="使用文档" placement="bottom"><i class="fa fa-book" style="font-size: 1.4rem"></i></Tooltip>
       </a>
-      <a href="#" target="_blank" >
+      <a v-if="!isSmallScreen" href="#" target="_blank" >
         <Tooltip :icon="false" msg="提交反馈" placement="bottom"><i class="fa fa-commenting" style="font-size: 1.4rem"></i></Tooltip>
       </a>
       <a-popover placement="bottomRight" trigger="click">
@@ -58,9 +58,9 @@
           <router-link to="/base/user/join" class="link"><i class="fa fa-user-group" style="width: 2rem"></i> <b>切换账号</b></router-link>
         </template>
         <img v-if="avatarUrl" :src="avatarUrl" style="width:40px;height:40px;cursor:pointer;border-radius:50%;object-fit:cover;" />
-        <div v-else style="width:40px;height:40px;cursor:pointer;border-radius:50%;background:#1890ff;display:flex;align-items:center;justify-content:center;color:white;font-weight:bold;font-size:16px;">
-          {{ (user?.cn_name || user?.username || 'A').charAt(0).toUpperCase() }}
-        </div>
+        <span v-else class="header-user-name text-primary" style="font-size: 1.4rem; cursor: pointer">
+          <i class="fa fa-circle-user" style="margin-right: 0.3rem;"></i>{{ user?.cn_name || user?.username || '' }}
+        </span>
       </a-popover>
     </a-space>
   </div>
@@ -167,6 +167,9 @@ const onSearch = () => {
 .test .l1 .a.active {
   color: yellow;
 }
+.test .header-user-name {
+  color: white;
+}
 
 .space {
   display: flex;
@@ -215,6 +218,16 @@ const onSearch = () => {
   cursor: pointer;
   font-size: 1.2rem;
   color: inherit;
+}
+
+.header-user-name {
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 0.95rem;
+  max-width: 120px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 @media (max-width: 768px) {
