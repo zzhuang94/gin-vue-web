@@ -9,11 +9,11 @@ import (
 )
 
 type Material struct {
-	*frm.X
+	*frm.XB[*prod.Material]
 }
 
 func NewMaterial() *Material {
-	r := &Material{X: frm.NewX(&prod.Material{})}
+	r := &Material{XB: frm.NewXB(&prod.Material{})}
 	r.DB = g.CoreDB
 	r.Dump = true
 	r.Tool = [][]string{{"批量新增", "plus", "batch-add-modal"}}

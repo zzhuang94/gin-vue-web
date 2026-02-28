@@ -9,11 +9,11 @@ import (
 )
 
 type Category struct {
-	*frm.X
+	*frm.XB[*prod.Category]
 }
 
 func NewCategory() *Category {
-	r := &Category{X: frm.NewX(&prod.Category{})}
+	r := &Category{XB: frm.NewXB(&prod.Category{})}
 	r.DB = g.CoreDB
 	r.Dump = true
 	r.Tool = [][]string{{"批量新增", "plus", "batch-add-modal"}}

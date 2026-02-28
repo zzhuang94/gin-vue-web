@@ -9,11 +9,11 @@ import (
 )
 
 type Machine struct {
-	*frm.X
+	*frm.XB[*prod.Machine]
 }
 
 func NewMachine() *Machine {
-	r := &Machine{X: frm.NewX(&prod.Machine{})}
+	r := &Machine{XB: frm.NewXB(&prod.Machine{})}
 	r.DB = g.CoreDB
 	r.Dump = true
 	r.Tool = [][]string{{"批量新增", "plus", "batch-add-modal"}}

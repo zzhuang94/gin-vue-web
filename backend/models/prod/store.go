@@ -13,6 +13,7 @@ type Store struct {
 	Category string `xorm:"category" json:"category"`  // 类型
 	Material string `xorm:"material" json:"material"`  // 材质
 	Color    string `xorm:"color" json:"color"`        // 颜色
+	Label    string `xorm:"label" json:"label"`        // 标签
 	Goods    int    `xorm:"goods" json:"goods,string"` // 良品
 	Bads     int    `xorm:"bads" json:"bads,string"`   // 劣品
 	Remark   string `xorm:"remark" json:"remark"`      // 备注
@@ -76,7 +77,7 @@ func (s *Store) Plus(sess *g.Sess, count int, remark, src string) error {
 		return err
 	}
 	if src == "gen" {
-		s.updateTickets(sess, count, 0)
+		s.updateTickets(sess, count)
 	}
 	return nil
 }
@@ -114,32 +115,29 @@ func (s *Store) Reject(sess *g.Sess, count int, remark, src string) error {
 	if err := op.Save(sess); err != nil {
 		return err
 	}
-	if src == "gen" {
-		s.updateTickets(sess, 0, count)
-	}
 	return nil
 }
 
-func (s *Store) updateTickets(sess *g.Sess, goods, bads int) (int, int) {
-	logrus.Infof("updateTickets: goods=%d, bads=%d", goods, bads)
+func (s *Store) updateTickets(sess *g.Sess, goods int) int {
+	logrus.Infof("updateTickets: goods=%d", goods)
 
 	ts := s.getRunningTickets(sess)
 	if len(ts) == 0 {
-		return goods, bads
+		return goods
 	}
 	for _, t := range ts {
-		goods, bads = t.tryUpdateProgress(sess, goods, bads)
-		if goods == 0 && bads == 0 {
+		goods = t.tryUpdateProgress(sess, goods)
+		if goods == 0 {
 			break
 		}
 	}
-	return goods, bads
+	return goods
 }
 
 func (s *Store) getRunningTickets(sess *g.Sess) []*Ticket {
 	ts := []*Ticket{}
 	err := sess.Where(
-		"store_id = ? AND status = ?",
+		"store_id = ? AND status = ? AND rate < 100",
 		s.Id, StatusRunning,
 	).OrderBy("lead_time ASC").Find(&ts)
 	if err != nil {

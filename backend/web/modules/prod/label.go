@@ -8,22 +8,22 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-type Color struct {
-	*frm.XB[*prod.Color]
+type Label struct {
+	*frm.XB[*prod.Label]
 }
 
-func NewColor() *Color {
-	r := &Color{XB: frm.NewXB(&prod.Color{})}
+func NewLabel() *Label {
+	r := &Label{XB: frm.NewXB(&prod.Label{})}
 	r.DB = g.CoreDB
 	r.Dump = true
 	r.Tool = [][]string{{"批量新增", "plus", "batch-add-modal"}}
 	return r
 }
 
-func (r *Color) ActionBatchAddModal(c *gin.Context) {
+func (r *Label) ActionBatchAddModal(c *gin.Context) {
 	r.BatchAddModal(c)
 }
 
-func (r *Color) ActionBatchAdd(c *gin.Context) {
+func (r *Label) ActionBatchAdd(c *gin.Context) {
 	r.BatchAdd(c)
 }

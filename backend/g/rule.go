@@ -21,6 +21,8 @@ type Rule struct {
 	Datetime   bool              `json:"datetime,omitempty"`   // 是否日期时间
 	Json       bool              `json:"json,omitempty"`       // 是否JSON
 	Bold       bool              `json:"bold,omitempty"`       // 是否加粗展示
+	Suffix     string            `json:"suffix,omitempty"`     // 后缀
+	Prefix     string            `json:"prefix,omitempty"`     // 前缀
 	SplitSep   string            `json:"split_sep,omitempty"`  // 分割符
 	Limit      []*Limit          `json:"limit,omitempty"`      // 下拉选项
 	LimitList  []string          `json:"limit_list,omitempty"` // 下拉选项列表
@@ -96,6 +98,8 @@ func (r *Rule) SelfWrap() *Rule {
 		Datetime:   r.Datetime,
 		Json:       r.Json,
 		Bold:       r.Bold,
+		Suffix:     r.Suffix,
+		Prefix:     r.Prefix,
 		SplitSep:   r.SplitSep,
 		Search:     r.Search,
 		NoSort:     r.NoSort,

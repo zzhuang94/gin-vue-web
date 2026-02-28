@@ -10,11 +10,11 @@ import (
 )
 
 type Store struct {
-	*frm.X
+	*frm.XB[*prod.Store]
 }
 
 func NewStore() *Store {
-	r := &Store{X: frm.NewX(&prod.Store{})}
+	r := &Store{XB: frm.NewXB(&prod.Store{})}
 	r.NoID = true
 	r.DB = g.CoreDB
 	r.Dump = true

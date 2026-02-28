@@ -497,6 +497,22 @@
         }
     ],
 
+    "label": [
+        {
+            "key": "name",
+            "name": "名称",
+            "search": 2,
+            "readonly": true,
+            "required": true
+        },
+        {
+            "key": "remark",
+            "name": "备注",
+            "search": 2,
+            "textarea": true,
+            "auto_hide": "l1"
+        }
+    ],
     "category": [
         {
             "key": "name",
@@ -563,6 +579,13 @@
     ],
 
     "store": [
+        {
+            "key": "label",
+            "name": "标签",
+            "search": 2,
+            "trans": { "db": "core", "table": "label", "key": "name", "val": "name" },
+            "required": true
+        },
         {
             "key": "category",
             "name": "类型",
@@ -723,10 +746,17 @@
         {
             "key": "progress",
             "name": "生产进度",
-            "describe": "良品数/劣品数/期望数",
+            "bold": true,
             "search": 2,
             "readonly": true,
             "no_sort": true
+        },
+        {
+            "key": "rate",
+            "name": "完成率",
+            "bold": true,
+            "suffix": "%",
+            "readonly": true
         },
         {
             "key": "machine_plan",

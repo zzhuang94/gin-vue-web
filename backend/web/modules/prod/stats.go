@@ -18,13 +18,13 @@ func NewStats() *Stats {
 	r.AndWheres = []map[string]any{{"status": []string{prod.StatusFinished, prod.StatusStopped}}}
 	r.initRules()
 	r.Tool = [][]string{}
-	r.Option = [][]any{{"查看详情", "eye", "/prod/ticket/read", "modal", []string{"id"}}}
+	r.Option = [][]any{{"查看详情", "eye", "/prod/ticket/read"}}
 	return r
 }
 
 func (r *Stats) initRules() {
 	r.Rules = r.RulesFilter(r.GetRules(), []string{
-		"title", "lead_time", "progress",
+		"title", "lead_time", "progress", "rate",
 		"apply_user", "plan_user", "prepare_user",
 		"run_user", "remark", "status",
 	})

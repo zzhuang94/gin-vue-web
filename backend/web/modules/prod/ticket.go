@@ -5,7 +5,6 @@ import (
 	"backend/models/prod"
 	"backend/web/frm"
 	"fmt"
-	"strings"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -252,16 +251,5 @@ func (t *Ticket) wrapData(data []map[string]string) {
 		} else if lead.Sub(today).Hours()/24 < 3 {
 			d["lead_time"] = "<b class='text-warning'>" + d["lead_time"] + "</b>"
 		}
-		ss := strings.Split(d["progress"], "/")
-		if ss[0] == ss[2] {
-			ss[0] = "<b class='text-success'>" + ss[2] + "</b>"
-		} else {
-			ss[0] = "<b class='text-info'>" + ss[0] + "</b>"
-		}
-		ss[2] = "<b class='text-primary'>" + ss[2] + "</b>"
-		if ss[1] != "0" {
-			ss[1] = "<b class='text-danger'>" + ss[1] + "</b>"
-		}
-		d["progress"] = strings.Join(ss, "/")
 	}
 }

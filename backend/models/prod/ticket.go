@@ -6,8 +6,6 @@ import (
 	"strconv"
 	"strings"
 	"time"
-
-	"github.com/sirupsen/logrus"
 )
 
 const (
@@ -30,6 +28,7 @@ type Ticket struct {
 
 	Quantity    int    `xorm:"quantity" json:"quantity,string"`  // 期望数量
 	Progress    string `xorm:"progress" json:"progress"`         // 生产进度
+	Rate        int    `xorm:"rate" json:"rate,string"`          // 进度百分比
 	LeadTime    string `xorm:"lead_time" json:"lead_time"`       // 交付时间
 	MachinePlan string `xorm:"machine_plan" json:"machine_plan"` // 机器编排
 	MachineList string `xorm:"machine_list" json:"machine_list"` // 机器列表
@@ -81,44 +80,25 @@ func (t *Ticket) Delete(sess *g.Sess) error {
 	return t.DeleteBean(sess, t)
 }
 
-func (t *Ticket) tryUpdateProgress(sess *g.Sess, goods, bads int) (int, int) {
-	logrus.Infof("tryUpdateProgress: goods=%d, bads=%d", goods, bads)
-
+func (t *Ticket) tryUpdateProgress(sess *g.Sess, goods int) int {
 	ss := strings.Split(t.Progress, "/")
 	currGoods, _ := strconv.Atoi(ss[0])
-	currBads, _ := strconv.Atoi(ss[1])
-	newGoods, newBads := currGoods, currBads
+	newGoods := currGoods
 
-	if goods > 0 {
-		needGoods := t.Quantity - currGoods - currBads
-		if needGoods < goods {
-			goods -= needGoods
-			newGoods += needGoods
-		} else {
-			newGoods += goods
-			goods = 0
-		}
+	needGoods := t.Quantity - currGoods
+	if needGoods < goods {
+		goods -= needGoods
+		newGoods += needGoods
+	} else {
+		newGoods += goods
+		goods = 0
 	}
-	if bads > 0 {
-		needBads := t.Quantity - currGoods - currBads
-		if needBads < bads {
-			bads -= needBads
-			newBads += needBads
-		} else {
-			newBads += bads
-			bads = 0
-		}
+	t.Progress = fmt.Sprintf("%d/%d", newGoods, t.Quantity)
+	if t.Quantity > 0 {
+		t.Rate = newGoods * 100 / t.Quantity
 	}
-	t.Progress = fmt.Sprintf("%d/%d/%d", newGoods, newBads, t.Quantity)
-	if newGoods+newBads == t.Quantity {
-		t.Status = StatusFinished
-	}
-	logrus.Infof("tryUpdateProgress: progress=%s", t.Progress)
-	if err := t.SaveBean(sess, t); err != nil {
-		logrus.Errorf("tryUpdateProgress: %v", err)
-		return goods, bads
-	}
-	return goods, bads
+	t.SaveBean(sess, t)
+	return goods
 }
 
 func (t *Ticket) getOrCreateStore(sess *g.Sess) (*Store, error) {

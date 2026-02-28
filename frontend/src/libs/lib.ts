@@ -174,7 +174,13 @@ function displayDK(r: any, v: any, autoBreak: boolean = true): string {
     }
     return calcLimit(v, r.limit_map)
   }
-  if (autoBreak) {
+  if (r.prefix) {
+    v = r.prefix + v
+  }
+  if (r.suffix) {
+    v = v + r.suffix
+  }
+  if (autoBreak) {  
     return v.replace(/\n/g, '<br/>')
   }
   if (r.split_sep && r.textarea) {
