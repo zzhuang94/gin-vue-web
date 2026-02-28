@@ -31,6 +31,8 @@ type Option struct {
 	Type  string `json:"type"`
 	Args  any    `json:"args"`
 	Cond  any    `json:"cond,omitempty"`
+	Alone bool   `json:"alone,omitempty"`
+	Color string `json:"color,omitempty"`
 }
 
 type X struct {

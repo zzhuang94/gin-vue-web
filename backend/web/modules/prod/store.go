@@ -31,12 +31,24 @@ func (s *Store) buildOption(c *gin.Context) []*frm.Option {
 		"查看二维码", "qrcode", "qrcode", "modal", []string{"id"},
 	}))
 	if user.IsStorekeeper || user.IsManager {
-		ans = append(ans, s.WrapOption([]any{
-			"良品入库", "download", "plus", "modal", []string{"id"},
-		}))
-		ans = append(ans, s.WrapOption([]any{
-			"良品出库", "upload", "minus", "modal", []string{"id"},
-		}))
+		ans = append(ans, &frm.Option{
+			Title: "良品入库",
+			Icon:  "download",
+			URL:   "plus",
+			Type:  "modal",
+			Args:  []string{"id"},
+			Alone: true,
+			Color: "primary",
+		})
+		ans = append(ans, &frm.Option{
+			Title: "良品出库",
+			Icon:  "upload",
+			URL:   "minus",
+			Type:  "modal",
+			Args:  []string{"id"},
+			Alone: true,
+			Color: "success",
+		})
 		ans = append(ans, s.WrapOption([]any{
 			"劣品上报", "warning", "reject", "modal", []string{"id"},
 		}))
