@@ -58,7 +58,7 @@ func (t *Ticket) Save(sess *g.Sess) error {
 		t.ApplyUser = sess.Ctx.GetString("username")
 		t.ApplyTime = time.Now().Format("2006-01-02 15:04:05")
 		t.Status = StatusInit
-		t.Progress = fmt.Sprintf("0/0/%d", t.Quantity)
+		t.Progress = fmt.Sprintf("0/%d", t.Quantity)
 		store, err := t.getOrCreateStore(sess)
 		if err != nil {
 			return err
