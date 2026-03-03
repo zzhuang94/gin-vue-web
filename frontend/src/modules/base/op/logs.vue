@@ -23,11 +23,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import Log from './log.vue'
-
-interface Rule {
-  key: string
-  [key: string]: any
-}
+import type { Rule } from '@libs/frm.ts'
 
 interface Props {
   open?: boolean

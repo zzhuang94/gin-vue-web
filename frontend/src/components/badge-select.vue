@@ -17,23 +17,18 @@
 
 <script setup lang="ts">
 import { computed } from 'vue'
-
-interface LimitItem {
-  key?: string | number
-  label?: string
-  badge?: string
-}
+import type { RuleLimit } from '@libs/frm.ts'
 
 interface Props {
-  value?: string | number
-  limit?: LimitItem[]
-  limit_map?: Record<string | number, LimitItem>
+  value: string
+  limit: RuleLimit[] | null
+  limit_map: Record<string, RuleLimit> | null
 }
 
 const props = defineProps<Props>()
 const emit = defineEmits<{
   'change': []
-  'update:value': [value: string | number]
+  'update:value': [value: string]
 }>();
 
 const currentItem = computed(() => {
@@ -43,7 +38,7 @@ const currentItem = computed(() => {
   return props.limit_map[props.value] || null
 })
 
-const handleMenuClick = ({ key }: { key: string | number }) => {
+const handleMenuClick = ({ key }: { key: string }) => {
   emit('update:value', key)
   emit('change')
 }

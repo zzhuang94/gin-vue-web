@@ -20,23 +20,7 @@
 import lib from '@libs/lib.ts'
 import strlib from '@libs/strlib.ts'
 import swal from '@libs/swal.ts'
-
-interface Rule {
-  link_prefix?: string
-  format_func?: string
-  click_swal_modal?: boolean
-  swal_width?: string
-  click_swal_info?: boolean
-  wrap_badge?: any
-  textarea?: boolean
-  split_sep?: string
-  json?: boolean
-  bold?: boolean
-  textcolor?: string
-  dangers?: any[]
-  name?: string
-  [key: string]: any
-}
+import type { Rule } from '@libs/frm.ts'
 
 interface Props {
   r: Rule
@@ -49,7 +33,6 @@ const calcClass = (r: Rule, v: any): string[] => {
   return [
     r.bold ? 'span-bold' : '',
     r.textcolor ? 'text-' + r.textcolor : '',
-    r.dangers && r.dangers.includes(v) ? 'text-danger' : '',
   ].filter(Boolean) as string[]
 }
 </script>

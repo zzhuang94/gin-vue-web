@@ -10,64 +10,73 @@ import (
 )
 
 type Rule struct {
-	Key        string            `json:"key"`                  // 数据表字段名
-	Name       string            `json:"name"`                 // 显示中文名称
-	Default    string            `json:"default,omitempty"`    // 默认值
-	Readonly   bool              `json:"readonly,omitempty"`   // 是否只读
-	Required   bool              `json:"required,omitempty"`   // 是否必填
-	Describe   string            `json:"describe,omitempty"`   // 字段描述，一般在form表单时提示
-	Textarea   bool              `json:"textarea,omitempty"`   // 是否多行文本
-	Date       bool              `json:"date,omitempty"`       // 是否日期
-	Datetime   bool              `json:"datetime,omitempty"`   // 是否日期时间
-	Json       bool              `json:"json,omitempty"`       // 是否JSON
-	Bold       bool              `json:"bold,omitempty"`       // 是否加粗展示
-	Suffix     string            `json:"suffix,omitempty"`     // 后缀
-	Prefix     string            `json:"prefix,omitempty"`     // 前缀
-	SplitSep   string            `json:"split_sep,omitempty"`  // 分割符
-	Limit      []*Limit          `json:"limit,omitempty"`      // 下拉选项
-	LimitList  []string          `json:"limit_list,omitempty"` // 下拉选项列表
-	LimitMap   map[string]*Limit `json:"limit_map,omitempty"`  // 下拉选项映射
-	Search     int               `json:"search,omitempty"`     // 搜索匹配方式 0: none, 1: eq, 2: like, 3: in
-	NoSort     bool              `json:"no_sort,omitempty"`    // 是否不排序
-	Hide       bool              `json:"hide,omitempty"`       // 是否在table中隐藏
-	OpUse      bool              `json:"op_use,omitempty"`     // 是否在操作中使用
-	AutoHide   string            `json:"auto_hide,omitempty"`  // 自动隐藏的屏幕宽度，如 "1000px"
-	Width      string            `json:"width,omitempty"`      // 宽度
-	Trans      *Trans            `json:"trans,omitempty"`      // 转译，自动将 外键id转换为外键值
-	Validation *Validation       `json:"validation,omitempty"` // 验证规则
+	Key  string `json:"key"`  // 数据表字段名
+	Name string `json:"name"` // 显示中文名称
+
+	Default  string `json:"default"`  // 默认值
+	Readonly bool   `json:"readonly"` // 是否只读
+	Required bool   `json:"required"` // 是否必填
+	Describe string `json:"describe"` // 字段描述，一般在form表单时提示
+
+	Textarea   bool        `json:"textarea"`   // 是否多行文本
+	Json       bool        `json:"json"`       // 是否JSON
+	Date       bool        `json:"date"`       // 是否日期
+	Datetime   bool        `json:"datetime"`   // 是否日期时间
+	Trans      *Trans      `json:"trans"`      // 转译，自动将 外键id转换为外键值
+	Validation *Validation `json:"validation"` // 验证规则
+
+	Bold      bool   `json:"bold"`      // 是否加粗展示
+	Textcolor string `json:"textcolor"` // 文本颜色 primary/success/warning/danger/info/metal
+	Suffix    string `json:"suffix"`    // 后缀
+	Prefix    string `json:"prefix"`    // 前缀
+
+	SplitSep string `json:"split_sep"` // 分割符
+
+	Limit     []*Limit          `json:"limit"`      // 下拉选项
+	LimitList []string          `json:"limit_list"` // 下拉选项列表
+	LimitMap  map[string]*Limit `json:"limit_map"`  // 下拉选项映射
+
+	Search int `json:"search"` // 搜索匹配方式 0: 不支持搜索, 1: eq, 2: like, 3: in
+
+	NoSort   bool   `json:"no_sort"`   // 是否不排序
+	Hide     bool   `json:"hide"`      // 是否在table中隐藏
+	OpUse    bool   `json:"op_use"`    // 是否在操作中使用
+	AutoHide string `json:"auto_hide"` // 自动隐藏的屏幕宽度，l1/l2/l3/l4/l5
+	Width    string `json:"width"`     // 宽度
+
 }
 
 type Limit struct {
 	Key   string `json:"key"`
 	Label string `json:"label"`
-	Badge string `json:"badge,omitempty"`
+	Badge string `json:"badge"`
 }
 
 type Trans struct {
-	Ajax  bool   `json:"ajax,omitempty"`
-	DB    string `json:"db,omitempty"`
-	SQL   string `json:"sql,omitempty"`
-	Table string `json:"table,omitempty"`
+	Ajax  bool   `json:"ajax"`
+	DB    string `json:"db"`
+	SQL   string `json:"sql"`
+	Table string `json:"table"`
 	Key   string `json:"key"`
 	Val   string `json:"val"`
 }
 
 type Validation struct {
-	IsInt    bool `json:"is_int,omitempty"`
-	IntRange bool `json:"int_range,omitempty"`
-	IntMin   int  `json:"int_min,omitempty"`
-	IntMax   int  `json:"int_max,omitempty"`
+	IsInt    bool `json:"is_int"`
+	IntRange bool `json:"int_range"`
+	IntMin   int  `json:"int_min"`
+	IntMax   int  `json:"int_max"`
 
-	IsFloat    bool    `json:"is_float,omitempty"`
-	FloatRange bool    `json:"float_range,omitempty"`
-	FloatMin   float64 `json:"float_min,omitempty"`
-	FloatMax   float64 `json:"float_max,omitempty"`
+	IsFloat    bool    `json:"is_float"`
+	FloatRange bool    `json:"float_range"`
+	FloatMin   float64 `json:"float_min"`
+	FloatMax   float64 `json:"float_max"`
 
-	IsIP   bool `json:"is_ip,omitempty"`
-	IsIPv4 bool `json:"is_ipv4,omitempty"`
-	IsIPv6 bool `json:"is_ipv6,omitempty"`
+	IsIP   bool `json:"is_ip"`
+	IsIPv4 bool `json:"is_ipv4"`
+	IsIPv6 bool `json:"is_ipv6"`
 
-	Regex string `json:"regex,omitempty"`
+	Regex string `json:"regex"`
 }
 
 func initRules() error {
@@ -141,6 +150,9 @@ func (r *Rule) smartLimit() ([]*Limit, map[string]*Limit) {
 	lm := make(map[string]*Limit)
 	for _, limit := range limits {
 		lm[limit.Key] = limit
+	}
+	if len(lm) == 0 {
+		return nil, nil
 	}
 	return limits, lm
 }

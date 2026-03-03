@@ -89,17 +89,7 @@ import { ref, reactive, onMounted } from 'vue'
 import lib from '@libs/lib.ts'
 import swal from '@libs/swal.ts'
 import Tooltip from '@components/tooltip.vue'
-
-interface Rule {
-  key: string
-  name: string
-  required?: boolean
-  describe?: string
-  limit?: any[]
-  split_sep?: string
-  readonly?: boolean
-  [key: string]: any
-}
+import type { Rule } from '@libs/frm.ts'
 
 interface Props {
   user?: Record<string, any>

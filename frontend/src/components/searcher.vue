@@ -16,7 +16,7 @@
       <a-col :xs="8" :md="4" class="label">{{ v.name }}：</a-col>
       <a-col :xs="16" :md="20">
 
-          <a-select v-if="v.limit && v.limit.length"
+          <a-select v-if="v.limit"
             v-model:value="formData[v.key]"
             show-search
             allow-clear
@@ -70,15 +70,7 @@
 import { watch, computed, onMounted, reactive, ref } from 'vue'
 import lib from '@libs/lib.ts'
 import AjaxSelect from '@components/ajax-select.vue';
-
-interface Rule {
-  key: string
-  name: string
-  search?: boolean
-  limit?: any[]
-  trans?: any
-  [key: string]: any
-}
+import type { Rule } from '@libs/frm.ts'
 
 interface Props {
   rules: Rule[]

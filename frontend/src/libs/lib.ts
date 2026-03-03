@@ -2,6 +2,7 @@ import { defineAsyncComponent } from 'vue'
 import { isEmpty, isObject } from 'lodash'
 import axios from 'axios'
 import swal from '@libs/swal.ts'
+import type { Rule, RuleLimit } from '@libs/frm.ts'
 
 const pages = import.meta.glob('../**/*.vue')
 
@@ -153,17 +154,7 @@ function removeHtmlTags(html: string): string  {
     return doc.body.textContent || ''
 }
 
-function displayDK(r: any, v: any, autoBreak: boolean = true): string {
-  if (r.limit && ! r.limit_map) {
-    r.limit_map = {}
-    for (let i = 0; i < r.limit.length; i++) {
-      let l = r.limit[i]
-      if (! l.badge) {
-        l.badge = 'rand-' + i % 40
-      }
-      r.limit_map[l.key] = l
-    }
-  }
+function displayDK(r: Rule, v: any, autoBreak: boolean = true): string {
   if (r.limit_map) {
     if (r.split_sep) {
       const arr = []

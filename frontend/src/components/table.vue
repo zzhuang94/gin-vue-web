@@ -90,15 +90,7 @@ import { ref, computed, watch, toRaw, onMounted, onUnmounted } from 'vue'
 import { isEmpty } from 'lodash'
 import oplib from '@libs/oplib.ts'
 import Td from '@components/td.vue'
-
-interface Rule {
-  key: string
-  name: string
-  auto_hide?: string
-  width?: string
-  no_sort?: boolean
-  [key: string]: any
-}
+import type { Rule } from '@libs/frm.ts'
 
 interface Option {
   icon: string

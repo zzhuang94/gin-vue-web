@@ -64,8 +64,9 @@
             style="width: 100%;"
             />
 
-          <a-date-time-picker
+          <a-date-picker
             v-else-if="v.datetime"
+            show-time
             v-model:value="formData[v.key]"
             :placeholder="`请选择${v.name}`"
             :readonly="(data?.id || check) && v.readonly"
@@ -99,24 +100,7 @@ import lib from '@libs/lib.ts'
 import strlib from '@libs/strlib.ts'
 import AjaxSelect from '@components/ajax-select.vue'
 import Tooltip from '@components/tooltip.vue'
-
-interface Rule {
-  key: string
-  name: string
-  readonly?: boolean
-  required?: boolean
-  limit?: any[]
-  limit_list?: any[]
-  trans?: any
-  textarea?: boolean
-  date?: boolean
-  datetime?: boolean
-  split_sep?: string
-  json?: boolean
-  default?: any
-  describe?: string
-  [key: string]: any
-}
+import type { Rule } from '@libs/frm.ts'
 
 interface Props {
   width?: string
@@ -200,7 +184,7 @@ function initFormData(): Record<string, any> {
         ans[r.key] = data.value[r.key]
       }
     } else {
-      if (r.split_sep && (r.limit || r.limit_list)) {
+      if (r.split_sep && r.limit) {
         ans[r.key] = []
       } else {
         ans[r.key] = r.default || ''

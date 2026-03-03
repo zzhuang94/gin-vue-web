@@ -11,12 +11,7 @@
 
 <script setup lang="ts">
 import Td from '@components/td.vue'
-
-interface Rule {
-  name: string
-  key: string
-  [key: string]: any
-}
+import type { Rule } from '@libs/frm.ts'
 
 interface Props {
   id?: string

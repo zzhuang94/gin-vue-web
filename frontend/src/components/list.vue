@@ -35,7 +35,7 @@
               />
 
               <span
-                v-else-if="activeRow !== element.id || !action?.edit || rule.is_readonly"
+                v-else-if="activeRow !== element.id || !action?.edit || rule.readonly"
                 v-html="lib.displayDK(rule, element[rule.key], true)"
               ></span>
 
@@ -127,21 +127,7 @@ import draggable from 'vuedraggable'
 import lib from '@libs/lib.ts'
 import AjaxSelect from '@components/ajax-select.vue'
 import BadgeSelect from '@components/badge-select.vue'
-
-interface Rule {
-  key: string
-  name: string
-  readonly?: boolean
-  is_readonly?: boolean
-  limit?: any[]
-  limit_map?: Record<string | number, any>
-  trans?: any
-  textarea?: boolean
-  split_sep?: string
-  default?: any
-  width?: string
-  [key: string]: any
-}
+import type { Rule } from '@libs/frm.ts'
 
 interface Action {
   prefix: string
