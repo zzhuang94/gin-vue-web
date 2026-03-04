@@ -40,9 +40,45 @@
         "db": "core",
         "show": ["name", "service_id", "vidc_id"]
     },
+
     "ticket": {
         "name": "生产需求",
-        "db": "prod",
+        "db": "core",
+        "show": ["category", "material", "color", "quantity", "lead_time", "remark"]
+    },
+    "store": {
+        "name": "库存",
+        "db": "core",
         "show": ["title", "sku", "material", "color", "quantity", "lead_time", "image", "remark"]
+    },
+    "store_op": {
+        "name": "库存变化",
+        "db": "core",
+        "show": ["store_id", "op", "count", "remark", "user"]
+    },
+    "category": {
+        "name": "产品类型",
+        "db": "core",
+        "show": ["name"]
+    },
+    "color": {
+        "name": "产品颜色",
+        "db": "core",
+        "show": ["name"]
+    },
+    "material": {
+        "name": "产品材质",
+        "db": "core",
+        "show": ["name"]
+    },
+    "label": {
+        "name": "产品标签",
+        "db": "core",
+        "show": ["name"]
+    },
+    "machine": {
+        "name": "机器",
+        "db": "core",
+        "show": ["name"]
     }
 }

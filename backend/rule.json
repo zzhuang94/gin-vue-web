@@ -636,6 +636,51 @@
         }
     ],
 
+    "store_op": [
+        {
+            "key": "store_id",
+            "name": "库存",
+            "hide": true,
+            "op_use": true,
+            "readonly": true,
+            "required": true,
+            "no_sort": true,
+            "trans": {
+                "sql": "SELECT id, CONCAT_WS(' ', category, material, color) val FROM store",
+                "db": "core",
+                "key": "id",
+                "val": "val"
+            }
+        },
+        {
+            "key": "op",
+            "name": "操作",
+            "search": 1,
+            "required": true,
+            "limit": [
+                { "key": "PLUS", "label": "良品入库", "badge": "primary" },
+                { "key": "MINUS", "label": "良品出库", "badge": "success" },
+                { "key": "REJECT", "label": "劣品上报", "badge": "danger" },
+                { "key": "EDIT", "label": "修改", "badge": "warning" }
+            ]
+        },
+        {
+            "key": "count",
+            "name": "数量",
+            "search": 2
+        },
+        {
+            "key": "user",
+            "name": "操作人",
+            "search": 2
+        },
+        {
+            "key": "remark",
+            "name": "备注",
+            "search": 2
+        }
+    ],
+
     "ticket": [
         {
             "key": "store_id",
@@ -674,7 +719,7 @@
             "key": "apply_user",
             "name": "申请人",
             "search": 2,
-            "hide": true,
+            "auto_hide": "l1",
             "readonly": true
         },
         {
@@ -684,7 +729,6 @@
             "hide": true,
             "readonly": true
         },
-
         {
             "key": "plan_user",
             "name": "编排人",
@@ -699,7 +743,6 @@
             "hide": true,
             "readonly": true
         },
-
         {
             "key": "prepare_user",
             "name": "准备人",
