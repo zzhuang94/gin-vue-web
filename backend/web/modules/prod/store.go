@@ -31,10 +31,12 @@ func (s *Store) buildTableMenu(c *gin.Context) []*frm.TableMenu {
 	if user.IsStorekeeper || user.IsManager {
 		ans = append(ans, &frm.TableMenu{
 			Menu:  s.WrapMenu([]string{"良品入库", "download", "plus", "modal", "primary"}),
+			Args:  []*frm.MenuArg{{Key: "id", Val: "id"}},
 			Alone: true,
 		})
 		ans = append(ans, &frm.TableMenu{
 			Menu:  s.WrapMenu([]string{"良品出库", "upload", "minus", "modal", "success"}),
+			Args:  []*frm.MenuArg{{Key: "id", Val: "id"}},
 			Alone: true,
 		})
 		ans = append(ans, s.WrapTableMenu([]string{"劣品上报", "warning", "reject"}))

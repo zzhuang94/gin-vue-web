@@ -755,6 +755,7 @@
             "key": "rate",
             "name": "完成率",
             "bold": true,
+            "auto_hide": "l1",
             "suffix": "%",
             "readonly": true
         },
@@ -764,7 +765,6 @@
             "search": 2,
             "required": true,
             "textarea": true,
-            "auto_hide": "l1",
             "no_sort": true
         },
         {

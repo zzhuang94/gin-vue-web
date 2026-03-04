@@ -2,7 +2,7 @@ import { defineAsyncComponent } from 'vue'
 import { isEmpty, isObject } from 'lodash'
 import axios from 'axios'
 import swal from '@libs/swal.ts'
-import type { Rule, RuleLimit } from '@libs/frm.ts'
+import type { Rule } from '@libs/frm.ts'
 
 const pages = import.meta.glob('../**/*.vue')
 

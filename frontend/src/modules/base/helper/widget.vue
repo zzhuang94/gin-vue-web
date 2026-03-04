@@ -157,17 +157,6 @@
         <div style="margin-top: 10px">开始: {{ timeStart }}, 结束: {{ timeEnd }}</div>
       </Card>
 
-      <!-- Searcher 组件 -->
-      <Card title="Searcher 搜索器" icon="search" color="info">
-        <div style="margin-bottom: 10px">
-          <p><strong>功能：</strong>动态筛选条件搜索组件，支持多种输入类型</p>
-          <p><strong>用法：</strong>&lt;Searcher :rules="rules" :arg="arg" @search="handleSearch" /&gt;</p>
-          <p><strong>Props：</strong>rules(规则配置), arg(参数对象), bind(绑定数据)</p>
-          <p><strong>说明：</strong>rules 中每个字段可配置 limit(选项), trans(翻译), search(是否可搜索)</p>
-        </div>
-        <Searcher :rules="searcherRules" :arg="searcherArg" @search="handleSearcher" />
-      </Card>
-
       <!-- Card 组件 -->
       <Card title="Card 卡片" icon="id-card" color="brand">
         <div style="margin-bottom: 10px">
@@ -192,16 +181,6 @@
         <Tooltip msg="这是一个提示信息" placement="right">
           <span style="cursor: pointer; color: #36a3f7">鼠标悬停查看提示</span>
         </Tooltip>
-      </Card>
-
-      <!-- TableV 组件 -->
-      <Card title="TableV 垂直表格" icon="table" color="default">
-        <div style="margin-bottom: 10px">
-          <p><strong>功能：</strong>垂直布局的表格组件，用于展示键值对数据</p>
-          <p><strong>用法：</strong>&lt;TableV :config="config" :data="data" /&gt;</p>
-          <p><strong>Props：</strong>config(字段配置对象), data(数据对象)</p>
-        </div>
-        <TableV :rules="tableVRules" :data="tableVData" />
       </Card>
 
       <!-- Lock 组件 -->
@@ -238,9 +217,7 @@ import BinCheck from '@components/bin-check.vue'
 import BtnSelect from '@components/btn-select.vue'
 import Input from '@components/input.vue'
 import TimeRange from '@components/time-range.vue'
-import Searcher from '@components/searcher.vue'
 import Tooltip from '@components/tooltip.vue'
-import TableV from '@components/table-v.vue'
 import Lock from '@components/lock.vue'
 import ImgTree from '@assets/tree.png'
 
@@ -266,23 +243,7 @@ const selectOptions = [
 ]
 const timeStart = ref('')
 const timeEnd = ref('')
-const searcherArg = ref<Record<string, any>>({})
-const searcherRules = [
-  { key: 'name', name: '名称', search: true },
-  { key: 'status', name: '状态', search: true, limit: [
-    { key: '1', label: '启用' },
-    { key: '0', label: '禁用' }
-  ]}
-]
-const tableVRules = [
-  { key: 'name', name: '名称' },
-  { key: 'status', name: '状态' }
-]
-const tableVData = {
-  id: 1,
-  name: '测试数据',
-  status: '启用'
-}
+
 const lockValue = ref(false)
 const lockUsers = ref<string[]>([])
 
@@ -304,9 +265,6 @@ const handleTimeRange = (timeStrings: string[]) => {
     timeStart.value = timeStrings[0] ?? ''
     timeEnd.value = timeStrings[1] ?? ''
   }
-}
-const handleSearcher = () => {
-  console.log('Searcher search:', searcherArg.value)
 }
 </script>
 

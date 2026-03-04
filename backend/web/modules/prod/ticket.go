@@ -62,24 +62,28 @@ func (t *Ticket) buildTableMenu(c *gin.Context) []*frm.TableMenu {
 	if user.IsSales || user.IsManager {
 		ans = append(ans, &frm.TableMenu{
 			Menu:  t.WrapMenu([]string{"修改需求", "pencil", "apply"}),
+			Args:  []*frm.MenuArg{{Key: "id", Val: "id"}},
 			Conds: []*frm.MenuCond{{Key: "status", Val: "INIT", Comp: "EQ"}},
 		})
 	}
 	if user.IsManager {
 		ans = append(ans, &frm.TableMenu{
 			Menu:  t.WrapMenu([]string{"编排机器", "grip-vertical", "plan"}),
+			Args:  []*frm.MenuArg{{Key: "id", Val: "id"}},
 			Conds: []*frm.MenuCond{{Key: "status", Val: []string{"INIT", "PLANNED"}, Comp: "IN"}},
 		})
 	}
 	if user.IsWorker || user.IsManager {
 		ans = append(ans, &frm.TableMenu{
 			Menu:  t.WrapMenu([]string{"准备机器", "list", "prepare"}),
+			Args:  []*frm.MenuArg{{Key: "id", Val: "id"}},
 			Conds: []*frm.MenuCond{{Key: "status", Val: []string{"PLANNED", "PREPARED"}, Comp: "IN"}},
 		})
 	}
 	if user.IsManager {
 		ans = append(ans, &frm.TableMenu{
 			Menu:  t.WrapMenu([]string{"开始生产", "play", "run", "async"}),
+			Args:  []*frm.MenuArg{{Key: "id", Val: "id"}},
 			Conds: []*frm.MenuCond{{Key: "status", Val: "PREPARED", Comp: "EQ"}},
 		})
 	}
@@ -103,10 +107,12 @@ func (t *Ticket) buildTableMenu(c *gin.Context) []*frm.TableMenu {
 	if user.IsManager {
 		ans = append(ans, &frm.TableMenu{
 			Menu:  t.WrapMenu([]string{"终止生产", "stop", "stop", "async"}),
+			Args:  []*frm.MenuArg{{Key: "id", Val: "id"}},
 			Conds: []*frm.MenuCond{{Key: "status", Val: "RUNNING", Comp: "EQ"}},
 		})
 		ans = append(ans, &frm.TableMenu{
 			Menu:  t.WrapMenu([]string{"完成生产", "check", "finish", "async"}),
+			Args:  []*frm.MenuArg{{Key: "id", Val: "id"}},
 			Conds: []*frm.MenuCond{{Key: "status", Val: "RUNNING", Comp: "EQ"}},
 		})
 		ans = append(ans, t.WrapTableMenu([]string{"修改工单", "edit", "edit"}))

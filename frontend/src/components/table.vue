@@ -73,7 +73,7 @@ interface Props {
   id?: string
   rules: Rule[]
   data: DataRow[]
-  table_menus: TableMenu[]
+  table_menus?: TableMenu[]
   loading?: boolean
   sortKey?: string
   sortOrder?: 'ASC' | 'DESC'
