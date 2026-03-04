@@ -16,7 +16,7 @@ func NewColor() *Color {
 	r := &Color{XB: frm.NewXB(&prod.Color{})}
 	r.DB = g.CoreDB
 	r.Dump = true
-	r.Tool = [][]string{{"批量新增", "plus", "batch-add-modal"}}
+	r.TopMenu = [][]string{{"批量新增", "plus", "batch-add-modal"}}
 	return r
 }
 

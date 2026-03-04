@@ -18,47 +18,29 @@ func NewStore() *Store {
 	r.NoID = true
 	r.DB = g.CoreDB
 	r.Dump = true
-	r.BuildOption = func(c *gin.Context) []*frm.Option {
-		return r.buildOption(c)
+	r.BuildTableMenu = func(c *gin.Context) []*frm.TableMenu {
+		return r.buildTableMenu(c)
 	}
 	return r
 }
 
-func (s *Store) buildOption(c *gin.Context) []*frm.Option {
+func (s *Store) buildTableMenu(c *gin.Context) []*frm.TableMenu {
 	user := s.GetUser(c)
-	ans := []*frm.Option{}
-	ans = append(ans, s.WrapOption([]any{
-		"查看二维码", "qrcode", "qrcode", "modal", []string{"id"},
-	}))
+	ans := []*frm.TableMenu{}
+	ans = append(ans, s.WrapTableMenu([]string{"查看二维码", "qrcode", "qrcode"}))
 	if user.IsStorekeeper || user.IsManager {
-		ans = append(ans, &frm.Option{
-			Title: "良品入库",
-			Icon:  "download",
-			URL:   "plus",
-			Type:  "modal",
-			Args:  []string{"id"},
+		ans = append(ans, &frm.TableMenu{
+			Menu:  s.WrapMenu([]string{"良品入库", "download", "plus", "modal", "primary"}),
 			Alone: true,
-			Color: "primary",
 		})
-		ans = append(ans, &frm.Option{
-			Title: "良品出库",
-			Icon:  "upload",
-			URL:   "minus",
-			Type:  "modal",
-			Args:  []string{"id"},
+		ans = append(ans, &frm.TableMenu{
+			Menu:  s.WrapMenu([]string{"良品出库", "upload", "minus", "modal", "success"}),
 			Alone: true,
-			Color: "success",
 		})
-		ans = append(ans, s.WrapOption([]any{
-			"劣品上报", "warning", "reject", "modal", []string{"id"},
-		}))
-		ans = append(ans, s.WrapOption([]any{
-			"库存编辑", "edit", "edit", "modal", []string{"id"},
-		}))
+		ans = append(ans, s.WrapTableMenu([]string{"劣品上报", "warning", "reject"}))
+		ans = append(ans, s.WrapTableMenu([]string{"库存编辑", "edit", "edit"}))
 	}
-	ans = append(ans, s.WrapOption([]any{
-		"变更历史", "history", "history", "modal", []string{"id"},
-	}))
+	ans = append(ans, s.WrapTableMenu([]string{"变更历史", "history", "history"}))
 	return ans
 }
 

@@ -16,7 +16,7 @@ import (
 	"xorm.io/xorm"
 )
 
-type Tool struct {
+type Menu struct {
 	Title string `json:"title"`
 	Icon  string `json:"icon"`
 	URL   string `json:"url"`
@@ -24,35 +24,41 @@ type Tool struct {
 	Color string `json:"color"`
 }
 
-type Option struct {
-	Title string `json:"title"`
-	Icon  string `json:"icon"`
-	URL   string `json:"url"`
-	Type  string `json:"type"`
-	Args  any    `json:"args"`
-	Cond  any    `json:"cond,omitempty"`
-	Alone bool   `json:"alone,omitempty"`
-	Color string `json:"color,omitempty"`
+type TableMenu struct {
+	*Menu
+	Alone bool        `json:"alone"`
+	Args  []*MenuArg  `json:"args"`
+	Conds []*MenuCond `json:"conds"`
 }
 
+type MenuArg struct {
+	Key string `json:"key"`
+	Val string `json:"val"`
+}
+
+type MenuCond struct {
+	Key  string `json:"key"`
+	Val  any    `json:"val"`
+	Comp string `json:"comp"` // EQ, NQ, LT, LE, GT, GE, IN, NIN
+}
 type X struct {
 	*Web
-	DB          *xorm.Engine
-	Model       g.ModelX
-	Rules       []*g.Rule
-	NoID        bool
-	WrapTime    bool
-	AndWheres   []map[string]any
-	HeaderHint  string
-	BatchEdit   bool
-	BatchDelete bool
-	Dump        bool
-	Tool        [][]string
-	Option      [][]any
-	BuildTool   func(*gin.Context) []*Tool
-	BuildOption func(*gin.Context) []*Option
-	WrapData    func([]map[string]string)
-	BuildQuery  func(cond builder.Cond, sele bool) *xorm.Session
+	DB             *xorm.Engine
+	Model          g.ModelX
+	Rules          []*g.Rule
+	NoID           bool
+	WrapTime       bool
+	AndWheres      []map[string]any
+	HeaderHint     string
+	BatchEdit      bool
+	BatchDelete    bool
+	Dump           bool
+	TopMenu        [][]string
+	TableMenu      [][]string
+	BuildTopMenu   func(*gin.Context) []*Menu
+	BuildTableMenu func(*gin.Context) []*TableMenu
+	WrapData       func([]map[string]string)
+	BuildQuery     func(cond builder.Cond, sele bool) *xorm.Session
 }
 
 func NewX(m g.ModelX) *X {
@@ -68,18 +74,18 @@ func NewX(m g.ModelX) *X {
 		Model:    m,
 		Rules:    rules,
 		WrapTime: true,
-		Tool:     [][]string{{"新 增", "plus", "edit", "modal", "primary"}},
-		Option: [][]any{
+		TopMenu:  [][]string{{"新 增", "plus", "edit", "modal", "primary"}},
+		TableMenu: [][]string{
 			{"编 辑", "edit", "edit"},
 			{"删 除", "trash", "delete", "async"},
 		},
 	}
 
-	x.BuildTool = func(c *gin.Context) []*Tool {
-		return x.BuildToolX(c)
+	x.BuildTopMenu = func(c *gin.Context) []*Menu {
+		return x.BuildTopMenuX(c)
 	}
-	x.BuildOption = func(c *gin.Context) []*Option {
-		return x.BuildOptionX(c)
+	x.BuildTableMenu = func(c *gin.Context) []*TableMenu {
+		return x.BuildTableMenuX(c)
 	}
 	x.BuildQuery = func(cond builder.Cond, withSelect bool) *xorm.Session {
 		return x.BuildQueryX(cond, withSelect)
@@ -147,68 +153,52 @@ func (x *X) getTimeRule(key string) *g.Rule {
 	}
 }
 
-func (x *X) BuildToolX(c *gin.Context) []*Tool {
-	ans := make([]*Tool, 0)
-	for _, r := range x.Tool {
-		ans = append(ans, x.WrapTool(r))
+func (x *X) BuildTopMenuX(c *gin.Context) []*Menu {
+	ans := make([]*Menu, 0)
+	for _, r := range x.TopMenu {
+		ans = append(ans, x.WrapMenu(r))
 	}
 	if x.BatchEdit {
-		ans = append(ans, &Tool{"批量修改", "edit", "", "batch-edit", "warning"})
+		ans = append(ans, &Menu{"批量修改", "edit", "", "batch-edit", "warning"})
 	}
 	if x.BatchDelete {
-		ans = append(ans, &Tool{"批量删除", "trash", "", "batch-delete", "danger"})
+		ans = append(ans, &Menu{"批量删除", "trash", "", "batch-delete", "danger"})
 	}
 	return ans
 }
 
-func (x *X) BuildOptionX(c *gin.Context) []*Option {
-	ans := make([]*Option, 0)
-	for _, r := range x.Option {
-		ans = append(ans, x.WrapOption(r))
+func (x *X) BuildTableMenuX(c *gin.Context) []*TableMenu {
+	ans := make([]*TableMenu, 0)
+	for _, r := range x.TableMenu {
+		ans = append(ans, x.WrapTableMenu(r))
 	}
 	return ans
 }
 
-func (x *X) WrapTool(r []string) *Tool {
-	tool := &Tool{
+func (x *X) WrapMenu(r []string) *Menu {
+	menu := &Menu{
 		Title: r[0],
 		Icon:  r[1],
 		URL:   r[2],
 	}
 	if len(r) > 3 {
-		tool.Type = r[3]
+		menu.Type = r[3]
 	} else {
-		tool.Type = "modal"
+		menu.Type = "modal"
 	}
-
 	if len(r) > 4 {
-		tool.Color = r[4]
+		menu.Color = r[4]
 	} else {
-		tool.Color = "primary"
+		menu.Color = "primary"
 	}
-	return tool
+	return menu
 }
 
-func (x *X) WrapOption(r []any) *Option {
-	opt := &Option{
-		Title: r[0].(string),
-		Icon:  r[1].(string),
-		URL:   r[2].(string),
+func (x *X) WrapTableMenu(r []string) *TableMenu {
+	return &TableMenu{
+		Menu: x.WrapMenu(r),
+		Args: []*MenuArg{{Key: "id", Val: "id"}},
 	}
-	if len(r) > 3 {
-		opt.Type = r[3].(string)
-	} else {
-		opt.Type = "modal"
-	}
-	if len(r) > 4 {
-		opt.Args = r[4]
-	} else {
-		opt.Args = []string{"id"}
-	}
-	if len(r) > 5 {
-		opt.Cond = r[5]
-	}
-	return opt
 }
 
 func (x *X) initSort(c *gin.Context) map[string]string {
@@ -220,15 +210,15 @@ func (x *X) initSort(c *gin.Context) map[string]string {
 
 func (x *X) ActionIndex(c *gin.Context) {
 	data := gin.H{
-		"headerHint": x.HeaderHint,
-		"batch":      x.BatchEdit || x.BatchDelete,
-		"dump":       x.Dump,
-		"tool":       x.BuildTool(c),
-		"option":     x.BuildOption(c),
-		"sort":       x.initSort(c),
-		"rules":      x.getTableRules(),
-		"arg":        x.GetUriArg(c),
-		"page_size":  x.GetPageSize(c),
+		"headerHint":  x.HeaderHint,
+		"batch":       x.BatchEdit || x.BatchDelete,
+		"dump":        x.Dump,
+		"rules":       x.getTableRules(),
+		"top_menus":   x.BuildTopMenu(c),
+		"table_menus": x.BuildTableMenu(c),
+		"sort":        x.initSort(c),
+		"arg":         x.GetUriArg(c),
+		"page_size":   x.GetPageSize(c),
 	}
 	x.RenderDataPage(c, data, "templates/index")
 }

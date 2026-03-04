@@ -17,7 +17,7 @@ type Role struct {
 
 func NewRole() *Role {
 	r := &Role{XB: frm.NewXB(&base.Role{})}
-	r.Option = append([][]any{{"特权管理", "folder-tree", "access"}}, r.Option...)
+	r.TableMenu = append([][]string{{"特权管理", "folder-tree", "access"}}, r.TableMenu...)
 	r.WrapData = func(data []map[string]string) { r.wrapData(data) }
 	return r
 }

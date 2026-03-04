@@ -17,7 +17,7 @@ type Ip struct {
 
 func NewIp() *Ip {
 	r := &Ip{XB: frm.NewXB(&res.Ip{})}
-	r.Option = append([][]any{{"流量统计", "chart-line", "flow"}}, r.Option...)
+	r.TableMenu = append([][]string{{"流量统计", "chart-line", "flow"}}, r.TableMenu...)
 	r.DB = g.CoreDB
 	r.Dump = true
 	return r

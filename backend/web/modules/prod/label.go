@@ -16,7 +16,7 @@ func NewLabel() *Label {
 	r := &Label{XB: frm.NewXB(&prod.Label{})}
 	r.DB = g.CoreDB
 	r.Dump = true
-	r.Tool = [][]string{{"批量新增", "plus", "batch-add-modal"}}
+	r.TopMenu = [][]string{{"批量新增", "plus", "batch-add-modal"}}
 	return r
 }
 

@@ -12,7 +12,7 @@ type Action struct {
 func NewAction() *Action {
 	a := &Action{XB: frm.NewXB(&base.Action{})}
 	a.BatchDelete = false
-	a.Tool = [][]string{}
-	a.Option = [][]any{{"编 辑", "edit", "edit", "modal", []string{"id"}}}
+	a.TopMenu = [][]string{}
+	a.TableMenu = [][]string{{"编 辑", "edit", "edit"}}
 	return a
 }

@@ -16,7 +16,7 @@ func NewMaterial() *Material {
 	r := &Material{XB: frm.NewXB(&prod.Material{})}
 	r.DB = g.CoreDB
 	r.Dump = true
-	r.Tool = [][]string{{"批量新增", "plus", "batch-add-modal"}}
+	r.TopMenu = [][]string{{"批量新增", "plus", "batch-add-modal"}}
 	return r
 }
 

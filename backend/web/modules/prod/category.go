@@ -16,7 +16,7 @@ func NewCategory() *Category {
 	r := &Category{XB: frm.NewXB(&prod.Category{})}
 	r.DB = g.CoreDB
 	r.Dump = true
-	r.Tool = [][]string{{"批量新增", "plus", "batch-add-modal"}}
+	r.TopMenu = [][]string{{"批量新增", "plus", "batch-add-modal"}}
 	return r
 }
 

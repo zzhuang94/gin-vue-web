@@ -11,7 +11,7 @@ type UserLog struct {
 
 func NewUserLog() *UserLog {
 	r := &UserLog{X: frm.NewX(&base.UserLog{})}
-	r.Tool = [][]string{}
-	r.Option = [][]any{}
+	r.TopMenu = [][]string{}
+	r.TableMenu = [][]string{}
 	return r
 }

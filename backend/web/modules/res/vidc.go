@@ -12,7 +12,7 @@ type Vidc struct {
 
 func NewVidc() *Vidc {
 	r := &Vidc{XB: frm.NewXB(&res.Vidc{})}
-	r.Option = append([][]any{{"IP管理", "list", "/res/vidc-ip/list-ip"}}, r.Option...)
+	r.TableMenu = append([][]string{{"IP管理", "list", "/res/vidc-ip/list-ip"}}, r.TableMenu...)
 	r.DB = g.CoreDB
 	return r
 }

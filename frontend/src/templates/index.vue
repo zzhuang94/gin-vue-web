@@ -4,15 +4,13 @@
     <component :is="modalCurr" v-bind="modalProps" @submit="fetchData(true)" @reload="reloadModal()" />
 
     <div class="portlet">
-      <div v-if="! isEmpty(tool) || ! isEmpty(lock) || dump" class="portlet-head">
+      <div v-if="! isEmpty(top_menus) || dump" class="portlet-head">
         <a-space :size="6">
-          <Button v-for="btn, i in tool" :key="i" v-bind="btn" />
+          <Button v-for="menu, i in top_menus" :key="i" :menu />
 
           <button v-if="dump" :disabled="dumping" class="btn btn-accent" @click="dumpExcel">
             <i class="fa fa-file-excel"></i> 导出Excel
           </button>
-
-          <Lock v-for="lck, i in lock" :key="i" v-bind="lck" />
         </a-space>
       </div>
 
@@ -20,11 +18,11 @@
         <Searcher v-model:arg="arg" :rules="props.rules ?? []" @search="fetchData" @clear="fetchData(true)" />
 
         <Table ref="tableRef"
-           :loading :rules="props.rules ?? []" :data :option
+           :loading :rules :data :table_menus
            :batch-select="batch" :id="tableId"
            v-model:sort-key="sort.key" v-model:sort-order="sort.order"
            @sort-change="fetchData(true)"
-           @op-click="handleOpClick"
+           @menu-click="menuClick"
            />
 
         <Pager :loading :total="page.total" v-model:curr="page.curr" v-model:size="page.size" @page-change="fetchData" />
@@ -38,29 +36,22 @@ import { computed, onMounted, provide, ref, shallowRef, nextTick } from 'vue'
 import type { Component } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { isEmpty } from 'lodash'
+import type { Menu, TableMenu, Rule } from '@libs/frm.ts'
 
 import lib from '@libs/lib.ts'
 import swal from '@libs/swal.ts'
 import excel from '@libs/excel.ts'
 
-import Lock from '@components/lock.vue'
 import Button from '@components/button.vue'
 import Searcher from '@components/searcher.vue'
 import Table from '@components/table.vue'
 import Pager from '@components/pager.vue'
 
-interface ToolObj {
-  type: string
-  url?: string
-  [key: string]: any
-}
-
 interface Props {
   headerHint?: string
-  rules?: any[]
-  lock?: any[]
-  tool?: ToolObj[]
-  option?: any[]
+  rules: Rule[]
+  top_menus: Menu[]
+  table_menus: TableMenu[]
   arg?: Record<string, any>
   page_size?: number
   sort?: Record<string, any>
@@ -97,35 +88,30 @@ const reloadModal = () => {
   lib.reloadModal(modalUrl.value, modalProps)
 }
 
-const handleOpClick = async (op: any) => {
-  const obj = op as ToolObj
-  await toolClick(obj)
-}
-
-const toolClick = async (obj: ToolObj) => {
-  if (obj.type == 'modal') {
-    modalUrl.value = obj.url ?? ''
+const menuClick = async (m: Menu) => {
+  if (m.type == 'modal') {
+    modalUrl.value = m.url
     lib.loadModal(modalUrl.value, modalCurr, modalProps)
-  } else if (obj.type == 'link') {
-    lib.redirect(obj.url ?? '')
-  } else if (obj.type == 'async') {
-    const ok = await lib.confirmCurl(obj.url ?? '')
+  } else if (m.type == 'link') {
+    lib.redirect(m.url)
+  } else if (m.type == 'async') {
+    const ok = await lib.confirmCurl(m.url)
     if (ok) {
       fetchData()
     }
-  } else if (obj.type.startsWith('batch-')) {
+  } else if (m.type.startsWith('batch-')) {
     const ids = tableRef.value?.getSelectedIds() ?? []
     if (ids.length == 0) {
       swal.warn("注意！", "请至少选择一条数据");
       return
     }
-    if (obj.type == 'batch-edit') {
+    if (m.type == 'batch-edit') {
       const url = 'batch-edit?count=' + ids.length + '&ids=' + ids.join(',')
       lib.loadModal(url, modalCurr, modalProps)
-    } else if (obj.type == 'batch-modal') {
-      const url = (obj.url ?? '') + '?count=' + ids.length + '&ids=' + ids.join(',')
+    } else if (m.type == 'batch-modal') {
+      const url = (m.url) + '?count=' + ids.length + '&ids=' + ids.join(',')
       lib.loadModal(url, modalCurr, modalProps)
-    } else if (obj.type == 'batch-delete') {
+    } else if (m.type == 'batch-delete') {
       const url = 'batch-delete?ids=' + ids.join(',')
       const ok = await lib.confirmCurl(url, '您将删除 ' + ids.length + ' 条数据')
       if (ok) {
@@ -169,7 +155,7 @@ const dumpExcel = async () => {
   dumping.value = false
 }
 
-provide('toolClick', toolClick)
+provide('menuClick', menuClick)
 
 onMounted(fetchData)
 </script>

@@ -32,7 +32,6 @@ export interface RuleValidation {
   regex: string
 }
 
-// 统一的前端字段规则定义，对应后端 g.Rule，大多数字段保持 snake_case
 export interface Rule {
   // 基本信息
   key: string
@@ -87,3 +86,27 @@ export interface Rule {
   wrap_badge: any
 }
 
+export interface Menu {
+  title: string
+  icon: string
+  url: string
+  type: string
+  color: string
+}
+
+export interface TableMenu extends Menu {
+  alone: boolean
+  args: MenuArg[]
+  conds: MenuCond[] | null
+}
+
+export interface MenuArg {
+  key: string
+  val: string
+}
+
+export interface MenuCond {
+  key: string
+  val: any
+  comp: string
+}

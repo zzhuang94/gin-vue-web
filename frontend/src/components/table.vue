@@ -13,7 +13,7 @@
               </a-tooltip>
               <span v-html="r.name"></span> <i v-if="! noSort && ! r.no_sort" :class="sortIcon(r.key)"></i>
             </th>
-            <th v-if="option.length" class="table-op-col">操作</th>
+            <th v-if="table_menus.length" class="table-op-col">操作</th>
           </tr>
         </thead>
         <tbody>
@@ -23,61 +23,32 @@
             </td>
             <td v-for="r in rules" :key="r.key" :class="calcClass(r)" :style="r.width ? { 'word-break': 'break-all', 'max-width': r.width } : {}">
               <Td :r :v="d[r.key]" />
-              </td>
-              <template v-if="option.length">
-                <td class="table-op-col">
-                  <!-- 窄屏：alone 失效，全部进下拉或单按钮 -->
-                  <template v-if="isNarrowView">
-                    <a-dropdown v-if="d.option.length > 1" placement="bottomRight" :trigger="['click']">
-                      <button class="btn btn-default btn-sm">
-                        <span class="fa fa-gear fa-sm" style="margin-right: 0.5rem"></span>
-                        <span class="fa fa-angle-down"></span>
-                      </button>
-                      <template #overlay>
-                        <a-menu>
-                          <a-menu-item v-for="op, i in d.option" :key="i" @click="runOp(op, d)">
-                            <i style="width: 1.5rem" :class="`fa fa-${op.icon}`"></i> {{ op.title }}
-                          </a-menu-item>
-                        </a-menu>
-                      </template>
-                    </a-dropdown>
-                    <button v-else-if="d.option.length === 1 && d.option[0]" class="btn btn-sm btn-info" @click="runOp(d.option[0], d)">
-                      <i :class="`fa fa-${d.option[0].icon}`"></i>
-                      {{ d.option[0].title }}
-                    </button>
-                    <span v-else>-</span>
-                  </template>
-                  <!-- 宽屏：alone 的单独按钮 + 其余进「更多操作」下拉 -->
-                  <template v-else>
-                    <template v-if="getAloneOptions(d).length || getDropdownOptions(d).length">
-                      <span v-for="(op, i) in getAloneOptions(d)" :key="'alone-' + i" class="table-op-alone-wrap">
-                        <button class="btn btn-sm" :class="`btn-${op.color}`" @click="runOp(op, d)">
-                          <i :class="`fa fa-${op.icon}`"></i> {{ op.title }}
-                        </button>
-                      </span>
-                      <a-dropdown v-if="getDropdownOptions(d).length > 1" placement="bottomRight" :trigger="['click']">
-                        <button class="btn btn-default btn-sm table-op-more-btn">
-                          <span class="fa fa-gear fa-sm" style="margin-right: 0.35rem"></span>
-                          <span v-if="getAloneOptions(d).length>0">更多操作</span>
-                          <span class="fa fa-angle-down" style="margin-left: 0.25rem"></span>
-                        </button>
-                        <template #overlay>
-                          <a-menu>
-                            <a-menu-item v-for="(op, i) in getDropdownOptions(d)" :key="i" @click="runOp(op, d)">
-                              <i style="width: 1.5rem" :class="`fa fa-${op.icon}`"></i> {{ op.title }}
-                            </a-menu-item>
-                          </a-menu>
-                        </template>
-                      </a-dropdown>
-                      <button v-if="getFirstDropdownOption(d)" class="btn btn-sm btn-info" @click="runOp(getFirstDropdownOption(d)!, d)">
-                        <i :class="`fa fa-${getFirstDropdownOption(d)!.icon}`"></i>
-                        {{ getFirstDropdownOption(d)!.title }}
-                      </button>
-                    </template>
-                    <span v-else>-</span>
-                  </template>
-                </td>
-              </template>
+            </td>
+            <td class="table-op-col">
+              <span v-for="(tm, i) in aloneMenus(d)" :key="'alone-' + i" class="alone-menu">
+                <button class="btn btn-sm" :class="`btn-${tm.color}`" @click="runMenu(tm, d)">
+                  <i :class="`fa fa-${tm.icon}`"></i> {{ tm.title }}
+                </button>
+              </span>
+              <a-dropdown v-if="dropdownMenus(d).length > 1" placement="bottomRight" :trigger="['click']">
+                <button class="btn btn-default btn-sm table-op-more-btn">
+                  <span class="fa fa-gear fa-sm" style="margin-right: 0.35rem"></span>
+                  <span v-if="aloneMenus(d).length>0">更多操作</span>
+                  <span class="fa fa-angle-down" style="margin-left: 0.25rem"></span>
+                </button>
+                <template #overlay>
+                  <a-menu>
+                    <a-menu-item v-for="(tm, i) in dropdownMenus(d)" :key="i" @click="runMenu(tm, d)">
+                      <i style="width: 1.5rem" :class="`fa fa-${tm.icon}`"></i> {{ tm.title }}
+                    </a-menu-item>
+                  </a-menu>
+                </template>
+              </a-dropdown>
+              <button v-if="onlyOneMenu(d)" class="btn btn-sm btn-info" @click="runMenu(onlyOneMenu(d)!, d)">
+                <i :class="`fa fa-${onlyOneMenu(d)!.icon}`"></i>
+                {{ onlyOneMenu(d)!.title }}
+              </button>
+            </td>
           </tr>
         </tbody>
       </table>
@@ -90,19 +61,11 @@ import { ref, computed, watch, toRaw, onMounted, onUnmounted } from 'vue'
 import { isEmpty } from 'lodash'
 import oplib from '@libs/oplib.ts'
 import Td from '@components/td.vue'
-import type { Rule } from '@libs/frm.ts'
-
-interface Option {
-  icon: string
-  title: string
-  alone?: boolean
-  color?: string
-  [key: string]: any
-}
+import type { Rule, TableMenu, Menu } from '@libs/frm.ts'
 
 interface DataRow {
   id: string | number
-  option: Option[]
+  table_menus: TableMenu[]
   [key: string]: any
 }
 
@@ -110,7 +73,7 @@ interface Props {
   id?: string
   rules: Rule[]
   data: DataRow[]
-  option?: Option[]
+  table_menus: TableMenu[]
   loading?: boolean
   sortKey?: string
   sortOrder?: 'ASC' | 'DESC'
@@ -124,7 +87,7 @@ interface Props {
 
 const props = withDefaults(defineProps<Props>(), {
   id: '',
-  option: () => [],
+  table_menus: () => [],
   loading: false,
   noSort: false,
   small: false,
@@ -138,7 +101,7 @@ const emit = defineEmits<{
   'update:sort-key': [value: string]
   'update:sort-order': [value: 'ASC' | 'DESC']
   'sort-change': []
-  'op-click': [op: Option]
+  'menu-click': [m: Menu]
 }>()
 
 const selectedRows = ref<(string | number)[]>([])
@@ -220,34 +183,38 @@ const sortChange = (k: string, v: Rule) => {
 const processedData = (): DataRow[] => {
   const ans: DataRow[] = []
   for (const d of props.data) {
-    d.option = oplib.filterOption(props.option, d)
+    d.table_menus = oplib.filterMenus(props.table_menus, d)
     ans.push(d)
   }
   return ans
 }
 
-const runOp = (op: Option, d: DataRow) => {
-  emit('op-click', oplib.calcOp(op, d))
+const runMenu = (tm: TableMenu, d: DataRow) => {
+  emit('menu-click', oplib.calcMenu(tm, d))
 }
 
-const getAloneOptions = (d: DataRow): Option[] => {
-  if (isNarrowView.value || !d.option?.length) return []
-  return d.option.filter((op) => op.alone === true)
+const aloneMenus = (d: DataRow): TableMenu[] => {
+  if (isNarrowView.value) {
+    return []
+  }
+  return d.table_menus.filter((tm) => tm.alone)
 }
 
-const getDropdownOptions = (d: DataRow): Option[] => {
-  if (isNarrowView.value) return d.option ?? []
-  return (d.option ?? []).filter((op) => op.alone !== true)
+const dropdownMenus = (d: DataRow): TableMenu[] => {
+  if (isNarrowView.value) {
+    return d.table_menus
+  }
+  return d.table_menus.filter((tm) => !tm.alone)
 }
 
-const getFirstDropdownOption = (d: DataRow): Option | undefined => {
-  const opts = getDropdownOptions(d)
-  return opts.length === 1 ? opts[0] : undefined
+const onlyOneMenu = (d: DataRow): TableMenu | undefined => {
+  const tms = dropdownMenus(d)
+  return tms.length === 1 ? tms[0] : undefined
 }
 </script>
 
 <style scoped>
-.table-op-alone-wrap {
+.alone-menu {
   margin-right: 0.35rem;
 }
 </style>

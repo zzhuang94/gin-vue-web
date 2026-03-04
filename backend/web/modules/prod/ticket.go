@@ -29,11 +29,11 @@ func NewTicket() *Ticket {
 			},
 		},
 	}
-	r.BuildTool = func(c *gin.Context) []*frm.Tool {
-		return r.buildTool(c)
+	r.BuildTopMenu = func(c *gin.Context) []*frm.Menu {
+		return r.buildTopMenu(c)
 	}
-	r.BuildOption = func(c *gin.Context) []*frm.Option {
-		return r.buildOption(c)
+	r.BuildTableMenu = func(c *gin.Context) []*frm.TableMenu {
+		return r.buildTableMenu(c)
 	}
 	r.WrapData = func(data []map[string]string) {
 		r.wrapData(data)
@@ -41,10 +41,10 @@ func NewTicket() *Ticket {
 	return r
 }
 
-func (t *Ticket) buildTool(c *gin.Context) []*frm.Tool {
+func (t *Ticket) buildTopMenu(c *gin.Context) []*frm.Menu {
 	user := t.GetUser(c)
 	if user.IsSales || user.IsManager {
-		return []*frm.Tool{{
+		return []*frm.Menu{{
 			Title: "新增需求",
 			Icon:  "pencil",
 			URL:   "apply",
@@ -52,70 +52,65 @@ func (t *Ticket) buildTool(c *gin.Context) []*frm.Tool {
 			Color: "primary",
 		}}
 	}
-	return []*frm.Tool{}
+	return []*frm.Menu{}
 }
 
-func (t *Ticket) buildOption(c *gin.Context) []*frm.Option {
+func (t *Ticket) buildTableMenu(c *gin.Context) []*frm.TableMenu {
 	user := t.GetUser(c)
-	ans := []*frm.Option{}
-	ans = append(ans, t.WrapOption([]any{
-		"查看详情", "eye", "read", "modal", []string{"id"},
-	}))
+	ans := []*frm.TableMenu{}
+	ans = append(ans, t.WrapTableMenu([]string{"查看详情", "eye", "read"}))
 	if user.IsSales || user.IsManager {
-		ans = append(ans, t.WrapOption([]any{
-			"修改需求", "pencil", "apply", "modal", []string{"id"},
-			[]string{"status", "EQ", "INIT"},
-		}))
+		ans = append(ans, &frm.TableMenu{
+			Menu:  t.WrapMenu([]string{"修改需求", "pencil", "apply"}),
+			Conds: []*frm.MenuCond{{Key: "status", Val: "INIT", Comp: "EQ"}},
+		})
 	}
 	if user.IsManager {
-		ans = append(ans, t.WrapOption([]any{
-			"编排机器", "grip-vertical", "plan", "modal", []string{"id"},
-			[]any{"status", "IN", []string{"INIT", "PLANNED"}},
-		}))
+		ans = append(ans, &frm.TableMenu{
+			Menu:  t.WrapMenu([]string{"编排机器", "grip-vertical", "plan"}),
+			Conds: []*frm.MenuCond{{Key: "status", Val: []string{"INIT", "PLANNED"}, Comp: "IN"}},
+		})
 	}
 	if user.IsWorker || user.IsManager {
-		ans = append(ans, t.WrapOption([]any{
-			"准备机器", "list", "prepare", "modal", []string{"id"},
-			[]any{"status", "IN", []string{"PLANNED", "PREPARED"}},
-		}))
+		ans = append(ans, &frm.TableMenu{
+			Menu:  t.WrapMenu([]string{"准备机器", "list", "prepare"}),
+			Conds: []*frm.MenuCond{{Key: "status", Val: []string{"PLANNED", "PREPARED"}, Comp: "IN"}},
+		})
 	}
 	if user.IsManager {
-		ans = append(ans, t.WrapOption([]any{
-			"开始生产", "play", "run", "async", []string{"id"},
-			[]string{"status", "EQ", "PREPARED"},
-		}))
+		ans = append(ans, &frm.TableMenu{
+			Menu:  t.WrapMenu([]string{"开始生产", "play", "run", "async"}),
+			Conds: []*frm.MenuCond{{Key: "status", Val: "PREPARED", Comp: "EQ"}},
+		})
 	}
 	if user.IsStorekeeper || user.IsManager {
-		ans = append(ans, t.WrapOption([]any{
-			"库存信息", "box", "/prod/store/detail", "link",
-			[]map[string]string{{"k": "store_id", "v": "id"}},
-		}))
-		ans = append(ans, t.WrapOption([]any{
-			"良品入库", "download", "/prod/store/plus", "modal",
-			[]map[string]string{{"k": "store_id", "v": "id"}},
-			[]string{"status", "EQ", "RUNNING"},
-		}))
-		ans = append(ans, t.WrapOption([]any{
-			"劣品上报", "warning", "/prod/store/reject", "modal",
-			[]map[string]string{{"k": "store_id", "v": "id"}},
-			[]string{"status", "EQ", "RUNNING"},
-		}))
+		ans = append(ans, &frm.TableMenu{
+			Menu:  t.WrapMenu([]string{"库存信息", "box", "/prod/store/detail", "link"}),
+			Args:  []*frm.MenuArg{{Key: "store_id", Val: "id"}},
+			Conds: []*frm.MenuCond{{Key: "status", Val: "RUNNING", Comp: "EQ"}},
+		})
+		ans = append(ans, &frm.TableMenu{
+			Menu:  t.WrapMenu([]string{"良品入库", "download", "/prod/store/plus"}),
+			Args:  []*frm.MenuArg{{Key: "store_id", Val: "id"}},
+			Conds: []*frm.MenuCond{{Key: "status", Val: "RUNNING", Comp: "EQ"}},
+		})
+		ans = append(ans, &frm.TableMenu{
+			Menu:  t.WrapMenu([]string{"劣品上报", "warning", "/prod/store/reject"}),
+			Args:  []*frm.MenuArg{{Key: "store_id", Val: "id"}},
+			Conds: []*frm.MenuCond{{Key: "status", Val: "RUNNING", Comp: "EQ"}},
+		})
 	}
 	if user.IsManager {
-		ans = append(ans, t.WrapOption([]any{
-			"终止生产", "stop", "stop", "async", []string{"id"},
-			[]string{"status", "EQ", "RUNNING"},
-		}))
-		ans = append(ans, t.WrapOption([]any{
-			"完成生产", "check", "finish", "async", []string{"id"},
-			[]string{"status", "EQ", "RUNNING"},
-		}))
-		ans = append(ans, t.WrapOption([]any{
-			"修改工单", "edit", "edit", "modal", []string{"id"},
-		}))
-		ans = append(ans, t.WrapOption([]any{
-			"删除工单", "trash", "delete", "async", []string{"id"},
-		}))
+		ans = append(ans, &frm.TableMenu{
+			Menu:  t.WrapMenu([]string{"终止生产", "stop", "stop", "async"}),
+			Conds: []*frm.MenuCond{{Key: "status", Val: "RUNNING", Comp: "EQ"}},
+		})
+		ans = append(ans, &frm.TableMenu{
+			Menu:  t.WrapMenu([]string{"完成生产", "check", "finish", "async"}),
+			Conds: []*frm.MenuCond{{Key: "status", Val: "RUNNING", Comp: "EQ"}},
+		})
+		ans = append(ans, t.WrapTableMenu([]string{"修改工单", "edit", "edit"}))
+		ans = append(ans, t.WrapTableMenu([]string{"删除工单", "trash", "delete", "async"}))
 	}
 	return ans
 }

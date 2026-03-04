@@ -1,26 +1,22 @@
 <template>
-  <button class="btn" :class="`btn-${color}`" @click="handleClick">
-    <i :class="`fa fa-${icon}`"></i>
-    {{ title }}
+  <button class="btn" :class="`btn-${menu.color}`" @click="handleClick">
+    <i :class="`fa fa-${menu.icon}`"></i>
+    {{ menu.title }}
   </button>
 </template>
 
 <script setup lang="ts">
 import { inject } from 'vue'
-
+import type { Menu } from '@libs/frm.ts'
 interface Props {
-  title?: string
-  icon?: string
-  url?: string
-  type?: string
-  color?: string
+  menu: Menu
 }
 
 const props = defineProps<Props>()
-const toolClick = inject<(props: Props) => void>('toolClick')
+const menuClick = inject<(menu: Menu) => void>('menuClick')
 const handleClick = () => {
-  if (toolClick) {
-    toolClick(props)
+  if (menuClick) {
+    menuClick(props.menu)
   }
 }
 </script>
