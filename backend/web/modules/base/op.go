@@ -53,11 +53,17 @@ func (r *Op) buildQuery(cond builder.Cond, withSelect bool) *xorm.Session {
 }
 
 func (r *Op) ActionIndex(c *gin.Context) {
+	var opRule *g.Rule
+	for _, rule := range g.Rules["op_log"] {
+		if rule.Key == "op" {
+			opRule = rule.SelfWrap()
+		}
+	}
 	data := gin.H{
 		"rules":     r.Rules,
 		"arg":       r.GetUriArg(c),
 		"page_size": r.GetPageSize(c),
-		"log_rules": g.Rules["op_log"],
+		"opRule":    opRule,
 	}
 	r.RenderData(c, data)
 }

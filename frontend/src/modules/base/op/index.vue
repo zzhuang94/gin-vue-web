@@ -1,7 +1,7 @@
 <template>
   <div class="portlet">
 
-    <Logs v-model:open="logsOpen" :lids :log_rules />
+    <Logs v-model:open="logsOpen" :lids :opRule />
 
     <div class="portlet-head">
       <button @click="tryRollback" v-show="! rollbacking" :disabled="loading" class="btn btn-primary">
@@ -40,7 +40,7 @@
                   <i class="fa fa-search"></i> <b style="font-size: 1.02em">{{ d.lids.split(',').length }}</b>
                 </label>
               </td>
-              <td><Log :id="d.lids.split(',')[0]" /></td>
+              <td><Log :id="d.lids.split(',')[0]" :opRule /></td>
               <td>{{ d.created }}</td>
             </tr>
           </tbody>
@@ -59,6 +59,7 @@ import { onMounted, ref, shallowRef, watch } from 'vue'
 import type { Component } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 
+import type { Rule } from '@libs/frm.ts'
 import lib from '@libs/lib.ts'
 import swal from '@libs/swal.ts'
 
@@ -76,8 +77,8 @@ interface DataRow {
 }
 
 interface Props {
-  rules?: any[]
-  log_rules?: any[]
+  rules: Rule[]
+  opRule: Rule
   arg?: Record<string, any>
   page_size?: number
 }

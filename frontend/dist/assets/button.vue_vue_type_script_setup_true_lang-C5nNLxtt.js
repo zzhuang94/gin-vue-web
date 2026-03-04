@@ -1,0 +1,1 @@
+import{d as o,au as s,a as l,o as i,n as t,b as m,v as u,t as r}from"./index-D0_a7m1E.js";const b=o({__name:"button",props:{menu:{}},setup(e){const a=e,n=s("menuClick"),c=()=>{n&&n(a.menu)};return(f,k)=>(i(),l("button",{class:t(["btn",`btn-${e.menu.color}`]),onClick:c},[m("i",{class:t(`fa fa-${e.menu.icon}`)},null,2),u(" "+r(e.menu.title),1)],2))}});export{b as _};

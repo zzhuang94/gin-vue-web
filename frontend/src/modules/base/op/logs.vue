@@ -14,7 +14,7 @@
         </tr>
       </thead>
       <tbody>
-        <Log v-for="lid in lids" :key="lid" :id="lid" :detail="true" :op_rule />
+        <Log v-for="lid in lids" :key="lid" :id="lid" :detail="true" :opRule />
       </tbody>
     </table>
   </a-modal>
@@ -28,7 +28,7 @@ import type { Rule } from '@libs/frm.ts'
 interface Props {
   open?: boolean
   lids?: string
-  log_rules?: Rule[]
+  opRule: Rule
 }
 
 const props = defineProps<Props>()
@@ -38,10 +38,6 @@ const emit = defineEmits<{
 
 const lids = computed(() => {
   return (props.lids ?? '').split(',')
-})
-
-const op_rule = computed(() => {
-  return props.log_rules?.find(r => r.key === 'op')
 })
 
 const cancel = () => {

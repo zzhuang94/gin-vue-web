@@ -3,7 +3,7 @@
   <tr v-else>
     <td>{{ log.id }}</td>
     <td>{{ name }}</td>
-    <td><Td :r="op_rule" :v="log.op" /></td>
+    <td><Td :r="opRule" :v="log.op" /></td>
     <td>{{ log.data_table }}</td>
     <td>{{ log.data_id }}</td>
     <td><LogDiffs :diffs="diffs" /></td>
@@ -13,6 +13,7 @@
 
 <script setup lang="ts">
 import { ref, onMounted, watch } from 'vue'
+import type { Rule } from '@libs/frm.ts'
 
 import lib from '@libs/lib.ts'
 import Td from '@components/td.vue'
@@ -21,14 +22,11 @@ import LogDiffs from './log-diffs.vue'
 interface Props {
   id?: string
   detail?: boolean
-  op_rule?: any
+  opRule: Rule
 }
 
-const props = withDefaults(defineProps<Props>(), {
-  id: '',
-  detail: false,
-  op_rule: null
-})
+const props = defineProps<Props>()
+
 const name = ref('')
 const log = ref<Record<string, any>>({})
 const diffs = ref<any[]>([])
