@@ -60,10 +60,10 @@ func (r *Op) ActionIndex(c *gin.Context) {
 		}
 	}
 	data := gin.H{
-		"rules":     r.Rules,
-		"arg":       r.GetUriArg(c),
-		"page_size": r.GetPageSize(c),
-		"opRule":    opRule,
+		"rules":    r.Rules,
+		"arg":      r.GetUriArg(c),
+		"pageSize": r.GetPageSize(c),
+		"opRule":   opRule,
 	}
 	r.RenderData(c, data)
 }

@@ -1,10 +1,10 @@
 <template>
   <div>
-    <a-config-provider :locale="locale">
+    <a-config-provider :locale="zhCN">
       <a-pagination
         v-model:current="curr"
         v-model:pageSize="size"
-        :total="total"
+        :total="page.total"
         :disabled="loading"
         show-quick-jumper
         show-size-changer
@@ -17,49 +17,46 @@
 </template>
 
 <script setup lang="ts">
-import { h, computed, watch } from 'vue';
-import zhCN from 'ant-design-vue/es/locale/zh_CN';
-import lib from '@libs/lib.ts';
-
-const locale = zhCN;
+import { h, computed, watch } from 'vue'
+import type { Page } from '@libs/frm.ts'
+import zhCN from 'ant-design-vue/es/locale/zh_CN'
+import lib from '@libs/lib.ts'
 
 interface Props {
   loading: boolean
-  curr: number
-  size: number
-  total?: number
+  page: Page
 }
 
 const props = defineProps<Props>()
-const emit = defineEmits<{
-  'update:curr': [value: number]
-  'update:size': [value: number]
-  'page-change': []
-}>()
+const emit = defineEmits<{'update:page': [value: Page]}>()
 
 const showTotal = (total: number) => {
-  return h('span', ['共', h('strong', {style: 'font-size: 1.1rem; padding: 0 8px;'}, total), '条']);
+  return h('span', ['共', h(
+    'strong',
+    { style: 'font-size: 1.1rem; padding: 0 8px;' },
+    total.toLocaleString()
+  ), '条'])
 }
 
 const curr = computed({
-  get: () => props.curr,
-  set: (value: number) => emit('update:curr', value)
-})
-const size = computed({
-  get: () => props.size,
-  set: (value: number) => emit('update:size', value)
+  get: () => props.page.curr,
+  set: (value: number) => {
+    emit('update:page', { ...props.page, curr: value })
+  },
 })
 
-watch(
-  () => [curr.value, size.value],
-  () => emit('page-change'),
-)
+const size = computed({
+  get: () => props.page.size,
+  set: (value: number) => {
+    emit('update:page', { ...props.page, size: value })
+  },
+})
 
 watch(
   () => size.value,
   (newSize: number) => {
     lib.curl(`/base/user/set?key=page_size&val=${newSize}`)
-  }
+  },
 )
 
 </script>

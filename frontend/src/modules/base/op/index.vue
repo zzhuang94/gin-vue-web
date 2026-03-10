@@ -1,6 +1,5 @@
 <template>
   <div class="portlet">
-
     <Logs v-model:open="logsOpen" :lids :opRule />
 
     <div class="portlet-head">
@@ -8,19 +7,28 @@
         <i class="fa fa-undo"></i> 回滚操作
       </button>
       <a-space style="margin-bottom: 10px">
-        <button @click="rollback(confirmIds)" v-show="rollbacking" class="btn btn-warning"><i class="fa fa-undo"></i> 确认回滚</button>
-        <button @click="cancel" v-show="rollbacking" class="btn btn-success"><i class="fa fa-arrow-left"></i> 取消操作</button>
+        <button @click="rollback(confirmIds)" v-show="rollbacking" class="btn btn-warning">
+          <i class="fa fa-undo"></i> 确认回滚
+        </button>
+        <button @click="cancel" v-show="rollbacking" class="btn btn-success">
+          <i class="fa fa-arrow-left"></i> 取消操作
+        </button>
       </a-space>
-      <a-alert v-show="rollbacking" type="warning" message="由于操作之间的存在依赖关系，您必须同时回滚下面的全部操作"></a-alert>
+      <a-alert v-show="rollbacking" type="warning"
+        message="由于操作之间的存在依赖关系，您必须同时回滚下面的全部操作">
+      </a-alert>
     </div>
     <div class="portlet-body">
-      <Searcher v-show="! rollbacking" v-model:arg="arg" :rules="props.rules ?? []" @search="fetchData" @clear="fetchData(true)" />
+      <Searcher v-show="! rollbacking" v-model:arg="arg" :rules
+        @search="fetch" @clear="reFetch" />
 
       <a-spin :spinning="loading">
         <table class="table table-hover">
           <thead>
             <tr>
-              <th style="width: 10px"><input v-show="! rollbacking" type="checkbox" v-model="allSelected" @change="toggleAll" /></th>
+              <th style="width: 10px">
+                <input v-show="! rollbacking" type="checkbox" v-model="allSelected" @change="toggleAll" />
+              </th>
               <th>ID</th>
               <th>用户</th>
               <th>路由</th>
@@ -37,7 +45,10 @@
               <td>{{ d.path }}</td>
               <td>
                 <label class="badge badge-info" style="cursor:pointer" @click="logs(d.lids)">
-                  <i class="fa fa-search"></i> <b style="font-size: 1.02em">{{ d.lids.split(',').length }}</b>
+                  <i class="fa fa-search"></i>
+                  <b style="font-size: 1.02em; margin-left: 0.5rem;">
+                    {{ d.lids.split(',').length }}
+                  </b>
                 </label>
               </td>
               <td><Log :id="d.lids.split(',')[0]" :opRule /></td>
@@ -47,7 +58,7 @@
         </table>
       </a-spin>
 
-      <Pager v-show="! rollbacking" :loading :total="page.total" v-model:curr="page.curr" v-model:size="page.size" @page-change="fetchData" />
+      <Pager v-show="! rollbacking" :loading v-model:page="page" @update:page="fetch" />
 
       <component :is="modalCurr" v-bind="modalProps" />
     </div>
@@ -58,8 +69,8 @@
 import { onMounted, ref, shallowRef, watch } from 'vue'
 import type { Component } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
+import type { Rule, Page, Arg } from '@libs/frm.ts'
 
-import type { Rule } from '@libs/frm.ts'
 import lib from '@libs/lib.ts'
 import swal from '@libs/swal.ts'
 
@@ -79,8 +90,8 @@ interface DataRow {
 interface Props {
   rules: Rule[]
   opRule: Rule
-  arg?: Record<string, any>
-  page_size?: number
+  arg: Arg
+  pageSize: number
 }
 
 const props = defineProps<Props>()
@@ -88,27 +99,34 @@ const route = useRoute()
 const router = useRouter()
 const modalCurr = shallowRef<Component | null>(null)
 const modalProps = ref<Record<string, any>>({})
-const loading = ref(true)
-const rollbacking = ref(false)
+const loading = ref<boolean>(true)
+const rollbacking = ref<boolean>(false)
 const data = ref<DataRow[]>([])
-const arg = ref<Record<string, any>>(props.arg ?? {})
-const page = ref<{ curr: number; size: number; total?: number }>({ curr: 1, size: props.page_size ?? 10 })
-const logsOpen = ref(false)
-const lids = ref('')
+const arg = ref<Arg>(props.arg)
+const page = ref<Page>({ curr: 1, size: props.pageSize, total: 0 })
+const logsOpen = ref<boolean>(false)
+const lids = ref<string>('')
 
 const ids = ref<(string | number)[]>([])
 const confirmIds = ref<(string | number)[]>([])
-const allSelected = ref(false)
+const allSelected = ref<boolean>(false)
 const toggleAll = () => {
   ids.value = allSelected.value ? data.value.map(r => r.id) : []
 }
-watch(ids, (newVal) => { allSelected.value = newVal.length > 0 && newVal.length === data.value.length })
-
-const fetchData = async (page1?: boolean) => {
-  loading.value = true
-  if (page1) {
-    page.value.curr = 1
+watch(
+  ids,
+  (newVal) => {
+    allSelected.value = newVal.length > 0 && newVal.length === data.value.length
   }
+)
+
+const reFetch = async () => {
+  page.value.curr = 1
+  await fetch()
+}
+
+const fetch = async () => {
+  loading.value = true
   try {
     const params = {arg: arg.value, page: page.value}
     const resp = await lib.curl('fetch', params)
@@ -169,8 +187,8 @@ const cancel = () => {
   rollbacking.value = false
   confirmIds.value = []
   ids.value = []
-  fetchData()
+  fetch()
 }
 
-onMounted(fetchData)
+onMounted(fetch)
 </script>

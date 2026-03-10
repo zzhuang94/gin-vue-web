@@ -122,5 +122,5 @@ export interface Sort {
 export interface Page {
   curr: number
   size: number
-  total?: number
+  total: number
 }

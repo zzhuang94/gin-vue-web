@@ -1,10 +1,10 @@
 <template>
   <div>
     <component :is="headerHintComponent" v-if="headerHintComponent" />
-    <component :is="modalCurr" v-bind="modalProps" @submit="fetchData(true)" @reload="reloadModal()" />
+    <component :is="modalCurr" v-bind="modalProps" @submit="reFetch" @reload="reloadModal()" />
 
     <div class="portlet">
-      <div v-if="! isEmpty(topMenus) || dump" class="portlet-head">
+      <div v-if="topMenus.length > 0 || dump" class="portlet-head">
         <a-space :size="6">
           <Button v-for="menu, i in topMenus" :key="i" :menu />
 
@@ -15,18 +15,17 @@
       </div>
 
       <div class="portlet-body">
-        <Searcher v-model:arg="arg" :rules="props.rules ?? []" @search="fetchData" @clear="fetchData(true)" />
+        <Searcher v-model:arg="arg" :rules="props.rules" @search="fetch" @clear="reFetch" />
 
         <Table ref="tableRef"
            :loading :rules :data :tableMenus
            :batch-select="batch" :id="tableId"
            v-model:sort-key="sort.key" v-model:sort-order="sort.order"
-           @sort-change="fetchData(true)"
+           @sort-change="reFetch"
            @menu-click="menuClick"
            />
 
-        <Pager :loading :total="page.total" v-model:curr="page.curr" v-model:size="page.size" 
-          @page-change="fetchData" />
+        <Pager :loading v-model:page="page" @update:page="fetch" />
       </div>
     </div>
   </div>
@@ -36,7 +35,6 @@
 import { computed, onMounted, provide, ref, shallowRef, nextTick } from 'vue'
 import type { Component } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { isEmpty } from 'lodash'
 import type { Menu, TableMenu, Rule, Sort, Page, Arg } from '@libs/frm.ts'
 
 import lib from '@libs/lib.ts'
@@ -69,7 +67,7 @@ const loading = ref(true)
 const data = ref<any[]>([])
 const arg = ref<Arg>(props.arg)
 const sort = ref<Sort>(props.sort)
-const page = ref<Page>({ curr: 1, size: props.pageSize })
+const page = ref<Page>({ curr: 1, size: props.pageSize, total: 0 })
 
 const tableId = 'index-table-id'
 const dumping = ref(false)
@@ -98,7 +96,7 @@ const menuClick = async (m: Menu) => {
   } else if (m.type == 'async') {
     const ok = await lib.confirmCurl(m.url)
     if (ok) {
-      fetchData()
+      fetch()
     }
   } else if (m.type.startsWith('batch-')) {
     const ids = tableRef.value?.getSelectedIds() ?? []
@@ -116,17 +114,19 @@ const menuClick = async (m: Menu) => {
       const url = 'batch-delete?ids=' + ids.join(',')
       const ok = await lib.confirmCurl(url, '您将删除 ' + ids.length + ' 条数据')
       if (ok) {
-        fetchData()
+        fetch()
       }
     }
   }
 }
 
-const fetchData = async (page1?: boolean) => {
+const reFetch = async () => {
+  page.value.curr = 1
+  await fetch()
+}
+
+const fetch = async () => {
   loading.value = true
-  if (page1) {
-    page.value.curr = 1
-  }
   try {
     const params = {arg: arg.value, sort: sort.value, page: page.value}
     const resp = await lib.curl('fetch', params)
@@ -158,5 +158,5 @@ const dumpExcel = async () => {
 
 provide('menuClick', menuClick)
 
-onMounted(fetchData)
+onMounted(fetch)
 </script>
