@@ -2,6 +2,7 @@ package frm
 
 import (
 	"backend/g"
+	"encoding/json"
 	"slices"
 	"strconv"
 
@@ -96,6 +97,8 @@ func (w *Web) GetUriArg(c *gin.Context) map[string]any {
 			arg[k] = vs
 		}
 	}
+	bs, _ := json.Marshal(arg)
+	logrus.Infof("arg: %s", string(bs))
 	return arg
 }
 

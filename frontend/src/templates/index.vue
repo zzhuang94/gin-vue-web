@@ -4,9 +4,9 @@
     <component :is="modalCurr" v-bind="modalProps" @submit="fetchData(true)" @reload="reloadModal()" />
 
     <div class="portlet">
-      <div v-if="! isEmpty(top_menus) || dump" class="portlet-head">
+      <div v-if="! isEmpty(topMenus) || dump" class="portlet-head">
         <a-space :size="6">
-          <Button v-for="menu, i in top_menus" :key="i" :menu />
+          <Button v-for="menu, i in topMenus" :key="i" :menu />
 
           <button v-if="dump" :disabled="dumping" class="btn btn-accent" @click="dumpExcel">
             <i class="fa fa-file-excel"></i> 导出Excel
@@ -18,14 +18,15 @@
         <Searcher v-model:arg="arg" :rules="props.rules ?? []" @search="fetchData" @clear="fetchData(true)" />
 
         <Table ref="tableRef"
-           :loading :rules :data :table_menus
+           :loading :rules :data :tableMenus
            :batch-select="batch" :id="tableId"
            v-model:sort-key="sort.key" v-model:sort-order="sort.order"
            @sort-change="fetchData(true)"
            @menu-click="menuClick"
            />
 
-        <Pager :loading :total="page.total" v-model:curr="page.curr" v-model:size="page.size" @page-change="fetchData" />
+        <Pager :loading :total="page.total" v-model:curr="page.curr" v-model:size="page.size" 
+          @page-change="fetchData" />
       </div>
     </div>
   </div>
@@ -36,7 +37,7 @@ import { computed, onMounted, provide, ref, shallowRef, nextTick } from 'vue'
 import type { Component } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { isEmpty } from 'lodash'
-import type { Menu, TableMenu, Rule } from '@libs/frm.ts'
+import type { Menu, TableMenu, Rule, Sort, Page, Arg } from '@libs/frm.ts'
 
 import lib from '@libs/lib.ts'
 import swal from '@libs/swal.ts'
@@ -48,15 +49,15 @@ import Table from '@components/table.vue'
 import Pager from '@components/pager.vue'
 
 interface Props {
-  headerHint?: string
+  headerHint: string
   rules: Rule[]
-  top_menus: Menu[]
-  table_menus: TableMenu[]
-  arg?: Record<string, any>
-  page_size?: number
-  sort?: Record<string, any>
-  batch?: boolean
-  dump?: boolean
+  topMenus: Menu[]
+  tableMenus: TableMenu[]
+  arg: Arg
+  pageSize: number
+  sort: Sort
+  batch: boolean
+  dump: boolean
 }
 
 const props = defineProps<Props>()
@@ -66,9 +67,9 @@ const router = useRouter()
 
 const loading = ref(true)
 const data = ref<any[]>([])
-const arg = ref<Record<string, any>>(props.arg ?? {})
-const sort = ref<Record<string, any>>(props.sort ?? {})
-const page = ref<{ curr: number; size: number; total?: number }>({ curr: 1, size: props.page_size ?? 10 })
+const arg = ref<Arg>(props.arg)
+const sort = ref<Sort>(props.sort)
+const page = ref<Page>({ curr: 1, size: props.pageSize })
 
 const tableId = 'index-table-id'
 const dumping = ref(false)

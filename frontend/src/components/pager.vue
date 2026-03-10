@@ -24,9 +24,9 @@ import lib from '@libs/lib.ts';
 const locale = zhCN;
 
 interface Props {
-  loading?: boolean
-  curr?: number
-  size?: number
+  loading: boolean
+  curr: number
+  size: number
   total?: number
 }
 
@@ -41,13 +41,26 @@ const showTotal = (total: number) => {
   return h('span', ['共', h('strong', {style: 'font-size: 1.1rem; padding: 0 8px;'}, total), '条']);
 }
 
-const curr = computed({get: () => props.curr ?? 1, set: (value: number) => emit('update:curr', value)})
-const size = computed({get: () => props.size ?? 10, set: (value: number) => emit('update:size', value)})
-watch(() => [curr.value, size.value], () => emit('page-change'))
-
-watch(() => size.value, (newSize: number) => {
-  lib.curl(`/base/user/set?key=page_size&val=${newSize}`)
+const curr = computed({
+  get: () => props.curr,
+  set: (value: number) => emit('update:curr', value)
 })
+const size = computed({
+  get: () => props.size,
+  set: (value: number) => emit('update:size', value)
+})
+
+watch(
+  () => [curr.value, size.value],
+  () => emit('page-change'),
+)
+
+watch(
+  () => size.value,
+  (newSize: number) => {
+    lib.curl(`/base/user/set?key=page_size&val=${newSize}`)
+  }
+)
 
 </script>
 

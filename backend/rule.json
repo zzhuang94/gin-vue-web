@@ -696,8 +696,7 @@
             "name": "类型",
             "search": 2,
             "required": true,
-            "trans": { "db": "core", "table": "category", "key": "name", "val": "name" },
-            "no_sort": true
+            "trans": { "db": "core", "table": "category", "key": "name", "val": "name" }
         },
         {
             "key": "material",

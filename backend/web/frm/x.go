@@ -210,15 +210,15 @@ func (x *X) initSort(c *gin.Context) map[string]string {
 
 func (x *X) ActionIndex(c *gin.Context) {
 	data := gin.H{
-		"headerHint":  x.HeaderHint,
-		"batch":       x.BatchEdit || x.BatchDelete,
-		"dump":        x.Dump,
-		"rules":       x.getTableRules(),
-		"top_menus":   x.BuildTopMenu(c),
-		"table_menus": x.BuildTableMenu(c),
-		"sort":        x.initSort(c),
-		"arg":         x.GetUriArg(c),
-		"page_size":   x.GetPageSize(c),
+		"headerHint": x.HeaderHint,
+		"batch":      x.BatchEdit || x.BatchDelete,
+		"dump":       x.Dump,
+		"rules":      x.getTableRules(),
+		"topMenus":   x.BuildTopMenu(c),
+		"tableMenus": x.BuildTableMenu(c),
+		"sort":       x.initSort(c),
+		"arg":        x.GetUriArg(c),
+		"pageSize":   x.GetPageSize(c),
 	}
 	x.RenderDataPage(c, data, "templates/index")
 }

@@ -110,3 +110,17 @@ export interface MenuCond {
   val: any
   comp: string
 }
+
+export interface Arg {
+  [key: string]: string | string[]
+}
+export interface Sort {
+  key: string
+  order: 'ASC' | 'DESC'
+}
+
+export interface Page {
+  curr: number
+  size: number
+  total?: number
+}

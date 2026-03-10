@@ -13,7 +13,7 @@
               </a-tooltip>
               <span v-html="r.name"></span> <i v-if="! noSort && ! r.no_sort" :class="sortIcon(r.key)"></i>
             </th>
-            <th v-if="table_menus.length" class="table-op-col">操作</th>
+            <th v-if="tableMenus.length" class="table-op-col">操作</th>
           </tr>
         </thead>
         <tbody>
@@ -65,7 +65,7 @@ import type { Rule, TableMenu, Menu } from '@libs/frm.ts'
 
 interface DataRow {
   id: string | number
-  table_menus: TableMenu[]
+  tableMenus: TableMenu[]
   [key: string]: any
 }
 
@@ -73,10 +73,10 @@ interface Props {
   id?: string
   rules: Rule[]
   data: DataRow[]
-  table_menus?: TableMenu[]
+  tableMenus?: TableMenu[]
   loading?: boolean
-  sortKey?: string
-  sortOrder?: 'ASC' | 'DESC'
+  sortKey: string
+  sortOrder: 'ASC' | 'DESC'
   noSort?: boolean
   small?: boolean
   batchSelect?: boolean
@@ -87,7 +87,7 @@ interface Props {
 
 const props = withDefaults(defineProps<Props>(), {
   id: '',
-  table_menus: () => [],
+  tableMenus: () => [],
   loading: false,
   noSort: false,
   small: false,
@@ -183,7 +183,7 @@ const sortChange = (k: string, v: Rule) => {
 const processedData = (): DataRow[] => {
   const ans: DataRow[] = []
   for (const d of props.data) {
-    d.table_menus = oplib.filterMenus(props.table_menus, d)
+    d.tableMenus = oplib.filterMenus(props.tableMenus, d)
     ans.push(d)
   }
   return ans
@@ -197,14 +197,14 @@ const aloneMenus = (d: DataRow): TableMenu[] => {
   if (isNarrowView.value) {
     return []
   }
-  return d.table_menus.filter((tm) => tm.alone)
+  return d.tableMenus.filter((tm) => tm.alone)
 }
 
 const dropdownMenus = (d: DataRow): TableMenu[] => {
   if (isNarrowView.value) {
-    return d.table_menus
+    return d.tableMenus
   }
-  return d.table_menus.filter((tm) => !tm.alone)
+  return d.tableMenus.filter((tm) => !tm.alone)
 }
 
 const onlyOneMenu = (d: DataRow): TableMenu | undefined => {
