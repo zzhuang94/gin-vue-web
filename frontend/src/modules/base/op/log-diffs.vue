@@ -26,16 +26,17 @@
 
 <script setup lang="ts">
 import Td from '@components/td.vue'
+import type { Rule } from '@libs/frm'
 
-interface Diff {
-  rule: any
-  old: any
-  new: any
+export interface Diff {
+  rule: Rule
+  old: string
+  new: string
 }
 
 interface Props {
   name?: string
-  diffs?: Diff[]
+  diffs: Diff[]
 }
 
 defineProps<Props>()

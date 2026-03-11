@@ -109,7 +109,7 @@ func (l *Log) CalcDiffs() []map[string]any {
 			r.Translate([]map[string]string{od, nd})
 		}
 		ans = append(ans, map[string]any{
-			"rule": r,
+			"rule": r.SelfWrap(),
 			"old":  od[r.Key],
 			"new":  nd[r.Key],
 		})

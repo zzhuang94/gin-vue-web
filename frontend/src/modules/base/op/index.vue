@@ -65,11 +65,10 @@
 
 <script setup lang="ts">
 import { onMounted, ref, watch } from 'vue'
-import type { Rule, Arg, Data } from '@libs/frm.ts'
-
-import lib from '@libs/lib.ts'
-import swal from '@libs/swal.ts'
+import type { Rule, Arg, Data } from '@libs/frm'
 import { useFetch } from '@/libs/fetch'
+import lib from '@libs/lib'
+import swal from '@libs/swal'
 
 import Searcher from '@components/searcher.vue'
 import Pager from '@components/pager.vue'

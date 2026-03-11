@@ -13,27 +13,28 @@
 
 <script setup lang="ts">
 import { ref, onMounted, watch } from 'vue'
-import type { Rule } from '@libs/frm.ts'
+import type { Rule } from '@libs/frm'
+import lib from '@libs/lib'
 
-import lib from '@libs/lib.ts'
 import Td from '@components/td.vue'
-import LogDiffs from './log-diffs.vue'
+import LogDiffs, { type Diff } from './log-diffs.vue'
 
 interface Props {
-  id?: string
+  id: string
   detail?: boolean
   opRule: Rule
 }
 
-const props = defineProps<Props>()
+const props = withDefaults(defineProps<Props>(), {
+  detail: false,
+})
 
 const name = ref('')
 const log = ref<Record<string, any>>({})
-const diffs = ref<any[]>([])
+const diffs = ref<Diff[]>([])
 const time = ref('')
 
 const fetchLog = async () => {
-  if (!props.id) return
   const r = await lib.curl(`log?id=${props.id}`)
   name.value = r.name
   log.value = r.log
