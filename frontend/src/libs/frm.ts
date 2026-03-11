@@ -124,3 +124,8 @@ export interface Page {
   size: number
   total: number
 }
+
+export interface Data {
+  id: string
+  [key: string]: any
+}

@@ -12,6 +12,7 @@
   text-align: center;
   display: inline-block;
   white-space: nowrap !important;
+  cursor: pointer;
 }
 
 .badge.badge-brand {

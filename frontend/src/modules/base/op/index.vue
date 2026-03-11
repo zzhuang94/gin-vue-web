@@ -44,14 +44,14 @@
               <td>{{ d.user }}</td>
               <td>{{ d.path }}</td>
               <td>
-                <label class="badge badge-info" style="cursor:pointer" @click="logs(d.lids)">
+                <label class="badge badge-info" @click="logs(d.lids ?? '')">
                   <i class="fa fa-search"></i>
                   <b style="font-size: 1.02em; margin-left: 0.5rem;">
-                    {{ d.lids.split(',').length }}
+                    {{ d.lids?.split(',').length }}
                   </b>
                 </label>
               </td>
-              <td><Log :id="d.lids.split(',')[0]" :opRule /></td>
+              <td><Log :id="d.lids?.split(',')[0]" :opRule /></td>
               <td>{{ d.created }}</td>
             </tr>
           </tbody>
@@ -59,33 +59,22 @@
       </a-spin>
 
       <Pager v-show="! rollbacking" :loading v-model:page="page" @update:page="fetch" />
-
-      <component :is="modalCurr" v-bind="modalProps" />
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { onMounted, ref, shallowRef, watch } from 'vue'
-import type { Component } from 'vue'
-import { useRoute, useRouter } from 'vue-router'
-import type { Rule, Page, Arg } from '@libs/frm.ts'
+import { onMounted, ref, watch } from 'vue'
+import type { Rule, Arg, Data } from '@libs/frm.ts'
 
 import lib from '@libs/lib.ts'
 import swal from '@libs/swal.ts'
+import { useFetch } from '@/libs/fetch'
 
 import Searcher from '@components/searcher.vue'
 import Pager from '@components/pager.vue'
 import Log from './log.vue'
 import Logs from './logs.vue'
-
-interface DataRow {
-  id: string | number
-  user: string
-  path: string
-  lids: string
-  created: string
-}
 
 interface Props {
   rules: Rule[]
@@ -95,23 +84,19 @@ interface Props {
 }
 
 const props = defineProps<Props>()
-const route = useRoute()
-const router = useRouter()
-const modalCurr = shallowRef<Component | null>(null)
-const modalProps = ref<Record<string, any>>({})
-const loading = ref<boolean>(true)
-const rollbacking = ref<boolean>(false)
-const data = ref<DataRow[]>([])
-const arg = ref<Arg>(props.arg)
-const page = ref<Page>({ curr: 1, size: props.pageSize, total: 0 })
+const { loading, data, arg, page, fetch, reFetch } = useFetch({
+  arg: props.arg,
+  pageSize: props.pageSize,
+})
 const logsOpen = ref<boolean>(false)
+const rollbacking = ref<boolean>(false)
 const lids = ref<string>('')
 
-const ids = ref<(string | number)[]>([])
-const confirmIds = ref<(string | number)[]>([])
+const ids = ref<string[]>([])
+const confirmIds = ref<string[]>([])
 const allSelected = ref<boolean>(false)
 const toggleAll = () => {
-  ids.value = allSelected.value ? data.value.map(r => r.id) : []
+  ids.value = allSelected.value ? data.value.map((r: Data) => r.id) : []
 }
 watch(
   ids,
@@ -120,37 +105,7 @@ watch(
   }
 )
 
-const reFetch = async () => {
-  page.value.curr = 1
-  await fetch()
-}
-
-const fetch = async () => {
-  loading.value = true
-  try {
-    const params = {arg: arg.value, page: page.value}
-    const resp = await lib.curl('fetch', params)
-    if (resp) {
-      data.value = resp.data
-      page.value = resp.page
-    }
-  } catch (error) {
-    console.error(error)
-  } finally {
-    updateUrl()
-    loading.value = false
-  }
-}
-
-const updateUrl = () => {
-  router.replace({
-    path: route.path,
-    query: lib.mapToUriParams(arg.value),
-  })
-}
-
 const logs = (ids: string) => {
-  console.log(ids, "IDS")
   logsOpen.value = true
   lids.value = ids
 }

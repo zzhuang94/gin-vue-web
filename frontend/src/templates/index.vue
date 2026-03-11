@@ -34,12 +34,12 @@
 <script setup lang="ts">
 import { computed, onMounted, provide, ref, shallowRef, nextTick } from 'vue'
 import type { Component } from 'vue'
-import { useRoute, useRouter } from 'vue-router'
-import type { Menu, TableMenu, Rule, Sort, Page, Arg } from '@libs/frm.ts'
+import type { Menu, TableMenu, Rule, Sort, Arg } from '@libs/frm.ts'
 
-import lib from '@libs/lib.ts'
-import swal from '@libs/swal.ts'
-import excel from '@libs/excel.ts'
+import lib from '@libs/lib'
+import swal from '@libs/swal'
+import excel from '@libs/excel'
+import { useFetch } from '@/libs/fetch'
 
 import Button from '@components/button.vue'
 import Searcher from '@components/searcher.vue'
@@ -60,14 +60,11 @@ interface Props {
 
 const props = defineProps<Props>()
 
-const route = useRoute()
-const router = useRouter()
-
-const loading = ref(true)
-const data = ref<any[]>([])
-const arg = ref<Arg>(props.arg)
-const sort = ref<Sort>(props.sort)
-const page = ref<Page>({ curr: 1, size: props.pageSize, total: 0 })
+const { loading, data, arg, page, sort, fetch, reFetch } = useFetch({
+  arg: props.arg,
+  pageSize: props.pageSize,
+  sort: props.sort,
+})
 
 const tableId = 'index-table-id'
 const dumping = ref(false)
@@ -118,35 +115,6 @@ const menuClick = async (m: Menu) => {
       }
     }
   }
-}
-
-const reFetch = async () => {
-  page.value.curr = 1
-  await fetch()
-}
-
-const fetch = async () => {
-  loading.value = true
-  try {
-    const params = {arg: arg.value, sort: sort.value, page: page.value}
-    const resp = await lib.curl('fetch', params)
-    if (resp) {
-      data.value = resp.data
-      page.value = resp.page
-    }
-  } catch (error) {
-    console.error(error)
-  } finally {
-    updateUrl()
-    loading.value = false
-  }
-}
-
-const updateUrl = () => {
-  router.replace({
-    path: route.path,
-    query: lib.mapToUriParams(arg.value),
-  })
 }
 
 const dumpExcel = async () => {

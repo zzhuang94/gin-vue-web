@@ -61,10 +61,10 @@ import { ref, computed, watch, toRaw, onMounted, onUnmounted } from 'vue'
 import { isEmpty } from 'lodash'
 import oplib from '@libs/oplib.ts'
 import Td from '@components/td.vue'
-import type { Rule, TableMenu, Menu } from '@libs/frm.ts'
+import type { Rule, TableMenu, Menu, Data } from '@libs/frm.ts'
 
 interface DataRow {
-  id: string | number
+  id: string
   tableMenus: TableMenu[]
   [key: string]: any
 }
@@ -72,7 +72,7 @@ interface DataRow {
 interface Props {
   id?: string
   rules: Rule[]
-  data: DataRow[]
+  data: Data[]
   tableMenus?: TableMenu[]
   loading?: boolean
   sortKey: string
@@ -183,8 +183,9 @@ const sortChange = (k: string, v: Rule) => {
 const processedData = (): DataRow[] => {
   const ans: DataRow[] = []
   for (const d of props.data) {
-    d.tableMenus = oplib.filterMenus(props.tableMenus, d)
-    ans.push(d)
+    const dr: DataRow = d as DataRow
+    dr.tableMenus = oplib.filterMenus(props.tableMenus, d)
+    ans.push(dr)
   }
   return ans
 }
