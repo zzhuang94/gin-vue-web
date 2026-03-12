@@ -15,7 +15,7 @@
       </div>
 
       <div class="portlet-body">
-        <Searcher v-model:arg="arg" :rules="props.rules" @search="fetch" @clear="reFetch" />
+        <Searcher v-model:arg="arg" :rules @search="fetch" @clear="reFetch" />
 
         <Table ref="tableRef"
            :loading :rules :data :tableMenus

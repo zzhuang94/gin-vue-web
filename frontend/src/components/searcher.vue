@@ -4,45 +4,43 @@
       <a-col :xs="8" :md="4" class="label">筛选条件：</a-col>
       <a-col :xs="16" :md="20">
         <a-space :size="4" class="filter-tags">
-          <label v-for="v in rules" :key="v.key" @click="toggle(v.key)"
-            class="btn btn-sm" :class="visibleKeys.has(v.key) ? 'btn-success' : 'btn-default'">
-            {{ v.name }}
+          <label v-for="r in rules" :key="r.key" @click="toggle(r.key)"
+            class="btn btn-sm" :class="keys.has(r.key) ? 'btn-success' : 'btn-default'">
+            {{ r.name }}
           </label>
         </a-space>
       </a-col>
     </a-row>
 
-    <a-row align="middle" v-for="v in rules" :key="v.key" v-show="visibleKeys.has(v.key)">
-      <a-col :xs="8" :md="4" class="label">{{ v.name }}：</a-col>
+    <a-row align="middle" v-for="r in rules" :key="r.key" v-show="keys.has(r.key)">
+      <a-col :xs="8" :md="4" class="label">{{ r.name }}：</a-col>
       <a-col :xs="16" :md="20">
 
-          <a-select v-if="v.limit"
-            v-model:value="formData[v.key]"
+          <a-select v-if="r.limit"
+            v-model:value="arg[r.key]"
             show-search
             allow-clear
-            :search-value="searchText"
-            @search="handleSearch"
             :filterOption="lib.filterByLabel"
-            :placeholder="`请选择${v.name}`"
-            :mode="(typeof v.search === 'number' && v.search === 3) ? 'multiple' : undefined"
+            :placeholder="`请选择${r.name}`"
+            :mode="r.search === 3 ? 'multiple' : undefined"
             class="search-input"
             >
-          <a-select-option v-for="lv in v.limit" :key="lv.key" :value="lv.key" :label="lv.label">
+          <a-select-option v-for="lv in r.limit" :key="lv.key" :label="lv.label">
             {{ lv.label }}
           </a-select-option>
         </a-select>
 
         <AjaxSelect
-          v-else-if="v.trans && v.trans.ajax"
-          v-model:value="formData[v.key]"
-          :placeholder="`请选择${v.name}`"
-          :translate="v.trans"
+          v-else-if="r.trans && r.trans.ajax"
+          v-model:value="arg[r.key] as string"
+          :placeholder="`请选择${r.name}`"
+          :translate="r.trans"
           class="search-input"
           />
 
         <a-input v-else
-          v-model:value="formData[v.key]"
-          :placeholder="`请输入${v.name}`"
+          v-model:value="arg[r.key] as string"
+          :placeholder="`请输入${r.name}`"
           class="search-input"
           />
 
@@ -67,70 +65,67 @@
 </template>
 
 <script setup lang="ts">
-import { watch, computed, onMounted, reactive, ref } from 'vue'
-import lib from '@libs/lib.ts'
-import AjaxSelect from '@components/ajax-select.vue';
-import type { Rule } from '@libs/frm.ts'
+import { computed, onMounted, ref } from 'vue'
+import type { Rule, Arg } from '@libs/frm'
+import lib from '@libs/lib'
+
+import AjaxSelect from '@components/ajax-select.vue'
 
 interface Props {
   rules: Rule[]
-  arg: Record<string, any>
-  bind?: any
+  arg: Arg
 }
 
 const props = defineProps<Props>()
 const emit = defineEmits<{
-  'update:arg': [arg: Record<string, any>]
+  'update:arg': [arg: Arg]
   'search': []
   'clear': []
 }>()
-
-const searchText = ref('')
-const handleSearch = (value: string) => {
-  searchText.value = value
-}
-
-const visibleKeys = ref<Set<string>>(new Set())
-const formData = reactive<Record<string, any>>(props.arg)
 
 const rules = computed(() => {
   return props.rules.filter(i => i.search)
 })
 
-const initVisibleKeys = () => {
-  visibleKeys.value.clear()
+const arg = computed({
+  get: () => props.arg,
+  set: (newArg: Arg) => {
+    emit('update:arg', newArg)
+  }
+})
+
+const keys = ref<Set<string>>(new Set())
+
+const initKeys = () => {
+  keys.value.clear()
   // 先找出有值的字段
-  for (const item of rules.value) {
-    if (props.arg && props.arg[item.key] !== undefined) {
-      visibleKeys.value.add(item.key)
+  for (const r of rules.value) {
+    if (arg.value && arg.value[r.key] !== undefined) {
+      keys.value.add(r.key)
     }
   }
   // 如果没有有值的字段，默认显示第一个
-  if (visibleKeys.value.size === 0 && rules.value.length > 0 && rules.value[0]) {
-    visibleKeys.value.add(rules.value[0].key)
+  if (keys.value.size === 0 && rules.value.length > 0) {
+    keys.value.add(rules.value[0]!.key)
   }
 }
 
 const toggle = (key: string) => {
-  if (visibleKeys.value.has(key)) {
-    visibleKeys.value.delete(key)
-    delete formData[key]
+  if (keys.value.has(key)) {
+    keys.value.delete(key)
+    delete arg.value[key]
   } else {
-    visibleKeys.value.add(key)
+    keys.value.add(key)
   }
 }
 
-watch(formData, (newFormData) => { emit('update:arg', newFormData) })
-
 const clear = () => {
-  Object.keys(formData).forEach(key => {
-    delete formData[key]
-  })
-  initVisibleKeys()
+  arg.value = {}
+  initKeys()
   emit('clear')
 }
 
-onMounted(initVisibleKeys)
+onMounted(initKeys)
 </script>
 
 <style scoped>
