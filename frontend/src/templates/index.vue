@@ -1,6 +1,7 @@
 <template>
   <div>
-    <component :is="headerHintComponent" v-if="headerHintComponent" />
+    <component :is="headerComp" v-if="headerComp" />
+
     <component :is="modalCurr" v-bind="modalProps" @submit="reFetch" @reload="reloadModal()" />
 
     <div class="portlet">
@@ -18,9 +19,8 @@
         <Searcher v-model:arg="arg" :rules @search="fetch" @clear="reFetch" />
 
         <Table ref="tableRef"
-           :loading :rules :data :tableMenus
-           :batch-select="batch" :id="tableId"
-           v-model:sort-key="sort.key" v-model:sort-order="sort.order"
+           :loading :rules :data :tableMenus :batch :id="tableId"
+           v-model:ids="ids" v-model:sort-key="sort.key" v-model:sort-order="sort.order"
            @sort-change="reFetch"
            @menu-click="menuClick"
            />
@@ -47,7 +47,7 @@ import Table from '@components/table.vue'
 import Pager from '@components/pager.vue'
 
 interface Props {
-  headerHint: string
+  header: string
   rules: Rule[]
   topMenus: Menu[]
   tableMenus: TableMenu[]
@@ -67,12 +67,12 @@ const { loading, data, arg, page, sort, fetch, reFetch } = useFetch({
 })
 
 const tableId = 'index-table-id'
+const ids = ref<string[]>([])
 const dumping = ref(false)
-const tableRef = ref<InstanceType<typeof Table> | null>(null)
 
-const headerHintComponent = computed(() => {
-  if (props.headerHint) {
-    return lib.loadComponent(props.headerHint)
+const headerComp = computed(() => {
+  if (props.header) {
+    return lib.loadComponent(props.header)
   }
   return null
 })
@@ -96,20 +96,19 @@ const menuClick = async (m: Menu) => {
       fetch()
     }
   } else if (m.type.startsWith('batch-')) {
-    const ids = tableRef.value?.getSelectedIds() ?? []
-    if (ids.length == 0) {
+    if (ids.value.length == 0) {
       swal.warn("注意！", "请至少选择一条数据");
       return
     }
     if (m.type == 'batch-edit') {
-      const url = 'batch-edit?count=' + ids.length + '&ids=' + ids.join(',')
+      const url = 'batch-edit?count=' + ids.value.length + '&ids=' + ids.value.join(',')
       lib.loadModal(url, modalCurr, modalProps)
     } else if (m.type == 'batch-modal') {
-      const url = (m.url) + '?count=' + ids.length + '&ids=' + ids.join(',')
+      const url = (m.url) + '?count=' + ids.value.length + '&ids=' + ids.value.join(',')
       lib.loadModal(url, modalCurr, modalProps)
     } else if (m.type == 'batch-delete') {
-      const url = 'batch-delete?ids=' + ids.join(',')
-      const ok = await lib.confirmCurl(url, '您将删除 ' + ids.length + ' 条数据')
+      const url = 'batch-delete?ids=' + ids.value.join(',')
+      const ok = await lib.confirmCurl(url, '您将删除 ' + ids.value.length + ' 条数据')
       if (ok) {
         fetch()
       }

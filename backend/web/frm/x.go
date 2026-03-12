@@ -49,7 +49,7 @@ type X struct {
 	NoID           bool
 	WrapTime       bool
 	AndWheres      []map[string]any
-	HeaderHint     string
+	Header         string
 	BatchEdit      bool
 	BatchDelete    bool
 	Dump           bool
@@ -210,7 +210,7 @@ func (x *X) initSort(c *gin.Context) map[string]string {
 
 func (x *X) ActionIndex(c *gin.Context) {
 	data := gin.H{
-		"headerHint": x.HeaderHint,
+		"header":     x.Header,
 		"batch":      x.BatchEdit || x.BatchDelete,
 		"dump":       x.Dump,
 		"rules":      x.getTableRules(),

@@ -24,7 +24,7 @@ import type { Rule } from '@libs/frm.ts'
 
 interface Props {
   r: Rule
-  v: any
+  v: string
 }
 
 defineProps<Props>()
