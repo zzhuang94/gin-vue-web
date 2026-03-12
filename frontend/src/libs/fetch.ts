@@ -3,6 +3,8 @@ import { useRoute, useRouter } from 'vue-router'
 import type { Arg, Page, Data, Sort } from '@libs/frm'
 import lib from '@libs/lib'
 
+export type FetchFunc = () => Promise<void>
+
 export function useFetch(opts: { arg: Arg, pageSize: number, sort?: Sort }) {
   const route = useRoute()
   const router = useRouter()

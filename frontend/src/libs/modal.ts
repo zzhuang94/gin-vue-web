@@ -3,6 +3,8 @@ import { ref, shallowRef } from 'vue'
 import lib from '@libs/lib'
 import swal from '@libs/swal'
 
+export type LoadModalFunc = (url: string, args?: any) => Promise<void>
+
 export function useModal() {
   const mc = shallowRef(null)
   const mp = ref({})

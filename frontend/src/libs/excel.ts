@@ -1,6 +1,8 @@
 import * as XLSX from 'xlsx'
 
-function exportTableToExcel(tableId: string, fileName: string = 'export.xlsx'): void {
+const DEFAULT_ID = 'index-table-id'
+
+function exportExcel(fileName: string = 'export.xlsx', tableId: string = DEFAULT_ID) {
   if (!fileName.endsWith('.xlsx')) {
     fileName += '.xlsx'
   }
@@ -11,4 +13,4 @@ function exportTableToExcel(tableId: string, fileName: string = 'export.xlsx'): 
   XLSX.writeFile(workbook, fileName)
 }
 
-export default { exportTableToExcel }
+export default { DEFAULT_ID, exportExcel }
