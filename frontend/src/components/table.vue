@@ -32,7 +32,7 @@
                   <i :class="`fa fa-${tm.icon}`"></i> {{ tm.title }}
                 </button>
               </span>
-              <a-dropdown v-if="dropdownMenus(d).length > 1" :trigger="['click']">
+              <a-dropdown v-if="dropdownMenus(d).length > 1" placement="bottomRight" :trigger="['click']">
                 <button class="btn btn-default btn-sm table-op-more-btn">
                   <span class="fa fa-gear fa-sm" style="margin-right: 0.35rem"></span>
                   <span v-if="aloneMenus(d).length>0">更多操作</span>

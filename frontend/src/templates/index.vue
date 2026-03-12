@@ -1,8 +1,8 @@
 <template>
   <div>
-    <component :is="headerComp" v-if="headerComp" />
+    <component v-if="header" :is="header" />
 
-    <component :is="modalCurr" v-bind="modalProps" @submit="reFetch" @reload="reloadModal()" />
+    <component :is="mc" v-bind="mp" @submit="reFetch" @reload="reloadModal" />
 
     <div class="portlet">
       <div v-if="topMenus.length > 0 || dump" class="portlet-head">
@@ -32,14 +32,14 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, provide, ref, shallowRef, nextTick } from 'vue'
-import type { Component } from 'vue'
-import type { Menu, TableMenu, Rule, Sort, Arg } from '@libs/frm.ts'
+import { onMounted, provide, ref, nextTick, computed } from 'vue'
+import type { Menu, TableMenu, Rule, Sort, Arg } from '@libs/frm'
+import { useFetch } from '@/libs/fetch'
+import { useModal } from '@/libs/modal'
 
 import lib from '@libs/lib'
 import swal from '@libs/swal'
 import excel from '@libs/excel'
-import { useFetch } from '@/libs/fetch'
 
 import Button from '@components/button.vue'
 import Searcher from '@components/searcher.vue'
@@ -60,34 +60,28 @@ interface Props {
 
 const props = defineProps<Props>()
 
-const { loading, data, arg, page, sort, fetch, reFetch } = useFetch({
-  arg: props.arg,
-  pageSize: props.pageSize,
-  sort: props.sort,
-})
-
-const tableId = 'index-table-id'
-const ids = ref<string[]>([])
-const dumping = ref(false)
-
-const headerComp = computed(() => {
+const header = computed(() => {
   if (props.header) {
     return lib.loadComponent(props.header)
   }
   return null
 })
 
-const modalCurr = shallowRef<Component | null>(null)
-const modalProps = ref<Record<string, any>>({})
-const modalUrl = ref('')
-const reloadModal = () => {
-  lib.reloadModal(modalUrl.value, modalProps)
-}
+const { loading, data, arg, page, sort, fetch, reFetch } = useFetch({
+  arg: props.arg,
+  pageSize: props.pageSize,
+  sort: props.sort,
+})
+
+const { mc, mp, loadModal, reloadModal } = useModal()
+
+const tableId = 'index-table-id'
+const ids = ref<string[]>([])
+const dumping = ref(false)
 
 const menuClick = async (m: Menu) => {
   if (m.type == 'modal') {
-    modalUrl.value = m.url
-    lib.loadModal(modalUrl.value, modalCurr, modalProps)
+    loadModal(m.url)
   } else if (m.type == 'link') {
     lib.redirect(m.url)
   } else if (m.type == 'async') {
@@ -102,10 +96,10 @@ const menuClick = async (m: Menu) => {
     }
     if (m.type == 'batch-edit') {
       const url = 'batch-edit?count=' + ids.value.length + '&ids=' + ids.value.join(',')
-      lib.loadModal(url, modalCurr, modalProps)
+      loadModal(url)
     } else if (m.type == 'batch-modal') {
       const url = (m.url) + '?count=' + ids.value.length + '&ids=' + ids.value.join(',')
-      lib.loadModal(url, modalCurr, modalProps)
+      loadModal(url)
     } else if (m.type == 'batch-delete') {
       const url = 'batch-delete?ids=' + ids.value.join(',')
       const ok = await lib.confirmCurl(url, '您将删除 ' + ids.value.length + ' 条数据')

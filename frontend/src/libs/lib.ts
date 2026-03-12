@@ -34,33 +34,6 @@ async function loadAvatar(): Promise<string> {
   return ''
 }
 
-async function loadModal(url: string, m: any, p: any, args: any = {}): Promise<void> {
-  try {
-    swal.startLoading()
-    const r = await post(url, args)
-    if (r.data.code === -1) {
-      swal.warn("抱歉，您无权限操作！")
-      return
-    }
-    const { page, props } = r.data
-    m.value = loadComponent(page)
-    p.value = props
-  } catch (error) {
-    console.error('Error fetching component:', error)
-  } finally {
-    swal.stopLoading()
-  }
-}
-
-async function reloadModal(url: string, p: any): Promise<void> {
-  try {
-    const resp = await post(url)
-    p.value = resp.data.props
-  } catch (error) {
-    console.error('Error fetching component:', error)
-  }
-}
-
 function loadComponent(page: string): any {
   page = '../' + page + '.vue'
   const pageLoader = pages[page]
@@ -206,11 +179,10 @@ function isLimitBadge(obj: any): boolean {
 
 export default {
   loadAvatar,
-  loadModal,
-  reloadModal,
   loadComponent,
   curl,
   ajax,
+  post,
   confirm,
   redirect,
   back,

@@ -53,18 +53,16 @@
         <i class="fa fa-list"></i> 全部库存列表
       </a>
       </div>
-      <component :is="modalCurr" v-bind="modalProps" @submit="reload" />
+      <component :is="mc" v-bind="mp" @submit="reload" />
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, shallowRef } from 'vue';
-import type { Component } from 'vue';
-import lib from '@libs/lib.ts'
+import { useModal } from '@/libs/modal'
 
 interface Store {
-  id: string | number
+  id: string
   category: string
   material: string
   color: string
@@ -77,33 +75,32 @@ interface Props {
   store: Store
 }
 
-const modalCurr = shallowRef<Component | null>(null)
-const modalProps = ref<Record<string, any>>({})
-
 const props = defineProps<Props>()
+
+const { mc, mp, loadModal } = useModal()
 
 const reload = () => {
   window.location.reload()
 }
 
 const reject = () => {
-  lib.loadModal('reject?id=' + props.store.id, modalCurr, modalProps)
+  loadModal('reject?id=' + props.store.id)
 }
 
 const plus = () => {
-  lib.loadModal('plus?id=' + props.store.id, modalCurr, modalProps)
+  loadModal('plus?id=' + props.store.id)
 }
 
 const minus = () => {
-  lib.loadModal('minus?id=' + props.store.id, modalCurr, modalProps)
+  loadModal('minus?id=' + props.store.id)
 }
 
 const edit = () => {
-  lib.loadModal('edit?id=' + props.store.id, modalCurr, modalProps)
+  loadModal('edit?id=' + props.store.id)
 }
 
 const history = () => {
-  lib.loadModal('history?id=' + props.store.id, modalCurr, modalProps)
+  loadModal('history?id=' + props.store.id)
 }
 
 </script>

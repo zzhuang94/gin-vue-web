@@ -2,17 +2,17 @@
   <div class="portlet">
     <div class="portlet-body">
       <Tree :data :ops @right-click="rightClick" @left-click="leftClick" />
-      <component :is="modalCurr" v-bind="modalProps" @submit="loadData" @reload="loadData" />
+      <component :is="mc" v-bind="mp" @submit="loadData" @reload="reloadModal" />
     </div>
   </div>
 </template>
 
 
 <script setup lang="ts">
-import { ref, shallowRef } from 'vue';
-import type { Component } from 'vue';
+import { ref } from 'vue';
 import lib from '@libs/lib.ts'
 import Tree from '@components/tree.vue'
+import { useModal } from '@/libs/modal'
 
 interface Props {
   data?: Record<string, any>
@@ -43,8 +43,7 @@ const ops = [
   },
 ]
 
-const modalCurr = shallowRef<Component | null>(null)
-const modalProps = ref<Record<string, any>>({})
+const { mc, mp, loadModal, reloadModal } = useModal()
 
 const loadData = async () => {
   const ans = await lib.curl('fetch')
@@ -54,14 +53,14 @@ const loadData = async () => {
 }
 
 const leftClick = async (id: string) => {
-  lib.loadModal('edit?id=' + id, modalCurr, modalProps)
+  loadModal('edit?id=' + id)
 }
 
 const rightClick = async (id: string, op: string) => {
   if (op == 'add') {
-    lib.loadModal('add?id=' + id, modalCurr, modalProps)
+    loadModal('add?id=' + id)
   } else if (op == 'edit') {
-    lib.loadModal('edit?id=' + id, modalCurr, modalProps)
+    loadModal('edit?id=' + id)
   } else if (op == 'del') {
     const ok = await lib.confirmCurl('/base/navtree/delete?id=' + id, '若有子节点也将连带删除')
     if (ok) {
