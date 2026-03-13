@@ -62,9 +62,9 @@
 <script setup lang="ts">
 import { ref, computed, watch, onMounted, onUnmounted } from 'vue'
 import { isEmpty } from 'lodash'
-import oplib from '@libs/oplib.ts'
 import Td from '@components/td.vue'
-import type { Rule, TableMenu, Menu, Data } from '@libs/frm.ts'
+import type { Rule, Data } from '@libs/frm'
+import { type TableMenu, type Menu, filterMenus, calcMenu } from '@libs/menu'
 
 interface DataRow extends Data {
   tableMenus: TableMenu[]
@@ -145,7 +145,7 @@ const toggleAll = () => {
 const data = computed(() =>{
     const ans: DataRow[] = []
     for (const d of props.data) {
-      ans.push({ ...d, tableMenus: oplib.filterMenus(props.tableMenus, d) })
+      ans.push({ ...d, tableMenus: filterMenus(props.tableMenus, d) })
     }
     return ans
 })
@@ -201,7 +201,7 @@ const sortChange = (r: Rule) => {
 }
 
 const runMenu = (tm: TableMenu, d: DataRow) => {
-  emit('menu-click', oplib.calcMenu(tm, d))
+  emit('menu-click', calcMenu(tm, d))
 }
 
 const aloneMenus = (d: DataRow): TableMenu[] => {

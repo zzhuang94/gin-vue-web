@@ -1,5 +1,5 @@
 import { createApp, h } from 'vue'
-import {  Modal, Input, notification, Spin } from 'ant-design-vue'
+import { Modal, Input, notification, Spin } from 'ant-design-vue'
 
 function succ(message: string, description: string = ''): void {
   notification.success(wrapNotiObj(message, description, 2, '#d4edda'))

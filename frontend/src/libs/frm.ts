@@ -86,30 +86,6 @@ export interface Rule {
   wrap_badge: any
 }
 
-export interface Menu {
-  title: string
-  icon: string
-  url: string
-  type: string
-  color: string
-}
-
-export interface TableMenu extends Menu {
-  alone: boolean
-  args: MenuArg[]
-  conds: MenuCond[] | null
-}
-
-export interface MenuArg {
-  key: string
-  val: string
-}
-
-export interface MenuCond {
-  key: string
-  val: any
-  comp: string
-}
 
 export interface Arg {
   [key: string]: string | string[]

@@ -1,9 +1,9 @@
 
 import { ref } from 'vue'
 
-import type { Menu } from '@libs/frm'
 import type { FetchFunc } from '@libs/fetch'
 import type { LoadModalFunc } from '@libs/modal'
+import type { Menu } from '@libs/menu'
 
 import swal from '@libs/swal'
 import lib from '@libs/lib'

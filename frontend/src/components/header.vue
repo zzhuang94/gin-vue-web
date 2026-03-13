@@ -13,7 +13,7 @@
 
 <script setup lang="ts">
 import { ref, nextTick } from 'vue'
-import type { Menu } from '@libs/frm'
+import type { Menu } from '@libs/menu'
 import excel from '@libs/excel'
 
 interface Props {

@@ -27,10 +27,11 @@
 
 <script setup lang="ts">
 import { onMounted, computed } from 'vue'
-import type { Menu, TableMenu, Rule, Sort, Arg } from '@libs/frm'
+import type { Rule, Sort, Arg } from '@libs/frm'
+
 import { useFetch } from '@/libs/fetch'
 import { useModal } from '@/libs/modal'
-import { useMenu } from '@/libs/menu'
+import { useMenu, type Menu, type TableMenu } from '@/libs/menu'
 import { useBatch } from '@/libs/batch'
 
 import lib from '@libs/lib'
