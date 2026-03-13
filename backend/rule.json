@@ -312,6 +312,7 @@
         {
             "key": "location",
             "name": "位置",
+            "describe": "城市名",
             "search": 2,
             "default": ""
         },

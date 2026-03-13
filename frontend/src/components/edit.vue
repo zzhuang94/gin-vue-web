@@ -1,187 +1,181 @@
 <template>
-  <a-modal :width="width" cancel-text="取消" ok-text="保存" :maskClosable="false" @ok="submit" v-model:open="open" :confirm-loading="submitting">
+  <a-modal :width="width" cancel-text="取消" ok-text="保存" :maskClosable="false"
+    @ok="submit" v-model:open="open" :confirm-loading="submitting">
     <template #title>
       <div v-html="title"></div>
-      <div v-if="subtitle" v-html="subtitle" style="font-size: 0.9rem; color: navy;"></div>
+      <div v-if="subtitle" v-html="subtitle" class="subtitle"></div>
     </template>
-
     <hr />
-
-    <a-form :model="formData" :label-col="{span: 4}" :wrapper-col="{span: 19}">
-
-      <a-form-item v-if="data?.id" style="display: none">
-        <a-input v-model:value="formData.id" type="hidden" />
-      </a-form-item>
-
-      <template v-for="v in rules" :key="v.key">
-        <a-form-item v-if="! check || ! v.readonly" :required="v.required && ! check">
+    <a-form :model="form" :label-col="{span: 4}" :wrapper-col="{span: 19}">
+      <template v-for="r in rules" :key="r.key">
+        <a-form-item v-if="! (pick && r.readonly)" :required="r.required && ! pick">
           <template #label>
-            <a-checkbox v-if="check" v-model:checked="enabledKeys[v.key]"></a-checkbox>&nbsp;&nbsp;
-            <Tooltip v-if="v.describe" placement="left" color="blue" :icon="false" :msg="v.describe">
-              <i class="fa fa-info-circle text-info"></i>&nbsp;{{ v.name }}
+            <a-checkbox v-if="pick" @click="toggleKey(r.key)"></a-checkbox>
+            <Tooltip v-if="r.describe" :placement="pick ? 'top' : 'left'"
+              color="blue" :icon="false" :msg="r.describe">
+              <i class="fa fa-info-circle text-info"></i>&nbsp;{{ r.name }}
             </Tooltip>
-            <span v-else>{{ v.name }}</span>
+            <span v-else style="cursor: pointer;">{{ r.name }}</span>
           </template>
 
           <a-select
-            v-if="v.limit"
-            v-model:value="formData[v.key]"
+            v-if="r.limit"
+            v-model:value="form[r.key]"
             show-search allow-clear
             :filterOption="lib.filterByLabel"
-            :placeholder="`请选择${v.name}`"
-            :disabled="! enabledKeys[v.key] || (data?.id || check) && v.readonly"
-            :mode="v.split_sep ? 'multiple' : 'undefined'"
+            :placeholder="`请选择${r.name}`"
+            :disabled="isDisabled(r)"
+            :mode="r.split_sep ? 'multiple' : 'undefined'"
             >
-            <a-select-option v-for="lv in v.limit" :key="lv.key || lv" :value="(lv.key !== undefined ? lv.key : lv)" :label="lv.label || lv">
-              {{ lv.label || lv }}
+            <a-select-option v-for="l in r.limit" :key="l.key" :label="l.label">
+              {{ l.label }}
             </a-select-option>
           </a-select>
 
           <AjaxSelect
-            v-else-if="v.trans && v.trans.ajax"
-            v-model:value="formData[v.key]"
-            :placeholder="`请选择${v.name}`"
-            :disabled="! enabledKeys[v.key] || (data?.id || check) && v.readonly"
-            :translate="v.trans"
+            v-else-if="r.trans && r.trans.ajax"
+            v-model:value="form[r.key]"
+            :placeholder="`请选择${r.name}`"
+            :disabled="isDisabled(r)"
+            :translate="r.trans"
             />
 
           <a-textarea
-            v-else-if="v.textarea"
-            v-show="! check || ! v.readonly"
-            v-model:value="formData[v.key]"
-            :placeholder="`请输入${v.name}，支持换行`"
-            :readonly="(data?.id || check) && v.readonly"
-            :disabled="! enabledKeys[v.key] || (data?.id || check) && v.readonly"
+            v-else-if="r.textarea"
+            v-model:value="form[r.key]"
+            :placeholder="`请输入${r.name}，支持换行`"
+            :disabled="isDisabled(r)"
             :auto-size="{minRows: 2}"
             />
 
           <a-date-picker
-            v-else-if="v.date"
-            v-model:value="formData[v.key]"
-            :placeholder="`请选择${v.name}`"
-            :readonly="(data?.id || check) && v.readonly"
-            :disabled="! enabledKeys[v.key] || (data?.id || check) && v.readonly"
+            v-else-if="r.date"
+            v-model:value="form[r.key]"
+            :placeholder="`请选择${r.name}`"
+            :disabled="isDisabled(r)"
             style="width: 100%;"
             />
 
           <a-date-picker
-            v-else-if="v.datetime"
+            v-else-if="r.datetime"
             show-time
-            v-model:value="formData[v.key]"
-            :placeholder="`请选择${v.name}`"
-            :readonly="(data?.id || check) && v.readonly"
-            :disabled="! enabledKeys[v.key] || (data?.id || check) && v.readonly"
+            v-model:value="form[r.key]"
+            :placeholder="`请选择${r.name}`"
+            :disabled="isDisabled(r)"
             style="width: 100%;"
             />
 
           <a-input
             v-else
-            v-show="! check || ! v.readonly"
-            v-model:value="formData[v.key]"
-            :placeholder="`请输入${v.name}`"
-            :readonly="(data?.id || check) && v.readonly"
-            :disabled="! enabledKeys[v.key] || (data?.id || check) && v.readonly"
+            v-model:value="form[r.key]"
+            :placeholder="`请输入${r.name}`"
+            :disabled="isDisabled(r)"
             />
 
         </a-form-item>
       </template>
-
     </a-form>
-
     <hr />
   </a-modal>
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, toRefs, watch } from 'vue'
-import { isArray } from 'lodash'
+import { ref, reactive } from 'vue'
+import { isArray, isEmpty } from 'lodash'
 import dayjs from 'dayjs'
-import lib from '@libs/lib.ts'
-import strlib from '@libs/strlib.ts'
+
+import type { Rule, Data } from '@libs/frm'
+import lib from '@libs/lib'
+import swal from '@libs/swal'
+import strlib from '@libs/strlib'
 import AjaxSelect from '@components/ajax-select.vue'
 import Tooltip from '@components/tooltip.vue'
-import type { Rule } from '@libs/frm.ts'
 
 interface Props {
+  title: string
+  data?: Data,
+  rules: Rule[]
+  action: string
   width?: string
-  title?: string
   subtitle?: string
-  data?: Record<string, any>
-  rules?: Rule[]
-  check?: boolean
-  action?: string
+  pick?: boolean
 }
 
 const props = withDefaults(defineProps<Props>(), {
+  data: () => ({id: ''}) as Data,
   width: '50%',
   subtitle: '',
-  rules: () => [],
-  check: false
+  pick: false
 })
-const { data, rules } = toRefs(props)
 const emit = defineEmits<{
   'submit': []
   'reload': []
 }>()
+
 const open = ref(true)
 const submitting = ref(false)
+const form = reactive(initForm())
+const keys = reactive(initKeys())
 
-const enabledKeys = reactive<Record<string, boolean>>(initEnableKeys())
+const isDisabled = (r: Rule): boolean => {
+  if (props.pick) {
+    return ! keys[r.key]
+  }
+  return props.data.id !== '' && r.readonly
+}
 
-watch(
-  enabledKeys,
-  (newVal) => {
-    Object.keys(newVal).forEach((key) => {
-      if (! newVal[key]) {
-        delete formData[key]
-      }
-    })
-  },
-  { deep: true }
-)
-
-const formData = reactive<Record<string, any>>(initFormData())
+const toggleKey = (key: string) => {
+  keys[key] = ! keys[key]
+  if (! keys[key]) {
+    delete form[key]
+  }
+}
 
 const submit = async () => {
+  const data = buildSubmitData()
+  if (isEmpty(data)) {
+    swal.error('请至少选择一条要修改的属性')
+    return
+  }
   submitting.value = true
-  const ok = await lib.ajax(props.action ?? '', buildSubmitData())
+  const ok = await lib.ajax(props.action, data)
   if (ok) {
-      open.value = false
-      emit('submit')
+    open.value = false
+    emit('submit')
   }
   submitting.value = false
 }
 
-function initEnableKeys(): Record<string, boolean> {
+function initKeys(): Record<string, boolean> {
   const ans: Record<string, boolean> = {}
-  for (const item of rules.value) {
-    ans[item.key] = ! props.check
+  for (const r of props.rules) {
+    ans[r.key] = ! props.pick
   }
   return ans
 }
 
-function initFormData(): Record<string, any> {
+function initForm(): Record<string, any> {
   const ans: Record<string, any> = {}
-  for (const r of rules.value) {
-    if (data.value && data.value[r.key] !== undefined) {
+  for (const r of props.rules) {
+    if (props.data[r.key] !== undefined) {
       if (r.split_sep && r.textarea) {
-        ans[r.key] = String(data.value[r.key]).split(r.split_sep).join('\n')
+        ans[r.key] = String(props.data[r.key]).split(r.split_sep).join('\n')
       } else if (r.textarea && r.json) {
-        ans[r.key] = strlib.formatJson(data.value[r.key])
+        ans[r.key] = strlib.formatJson(props.data[r.key])
       } else if (r.split_sep && r.limit) {
-        if (data.value[r.key] === '') {
+        if (props.data[r.key] === '') {
           ans[r.key] = []
         } else {
-          ans[r.key] = String(data.value[r.key]).split(r.split_sep)
+          ans[r.key] = String(props.data[r.key]).split(r.split_sep)
         }
-      } else if (r.date && data.value[r.key]) {
-        const d = dayjs(data.value[r.key])
-        ans[r.key] = d.isValid() ? d : data.value[r.key]
-      } else if (r.datetime && data.value[r.key]) {
-        const d = dayjs(data.value[r.key])
-        ans[r.key] = d.isValid() ? d : data.value[r.key]
+      } else if (r.date && props.data[r.key]) {
+        const d = dayjs(props.data[r.key])
+        ans[r.key] = d.isValid() ? d : props.data[r.key]
+      } else if (r.datetime && props.data[r.key]) {
+        const d = dayjs(props.data[r.key])
+        ans[r.key] = d.isValid() ? d : props.data[r.key]
       } else {
-        ans[r.key] = data.value[r.key]
+        ans[r.key] = props.data[r.key]
       }
     } else {
       if (r.split_sep && r.limit) {
@@ -196,10 +190,11 @@ function initFormData(): Record<string, any> {
 
 function buildSubmitData(): Record<string, any> {
   const payload: Record<string, any> = {}
-  if (formData.id !== undefined) payload.id = String(formData.id)
-  for (const r of rules.value) {
-    const val = formData[r.key]
-    if (val === undefined) continue
+  for (const r of props.rules) {
+    if (! keys[r.key] || ! form[r.key]) {
+      continue
+    }
+    const val = form[r.key]
     if (isArray(val)) {
       if (r.split_sep) {
         payload[r.key] = val.map((x) => String(x)).join(r.split_sep)
@@ -217,3 +212,11 @@ function buildSubmitData(): Record<string, any> {
   return payload
 }
 </script>
+
+<style scoped>
+.subtitle {
+  font-size: 1.1rem;
+  margin-top: 0.5rem;
+  color: navy;
+}
+</style>

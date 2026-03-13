@@ -352,7 +352,6 @@ func (x *X) ActionEdit(c *gin.Context) {
 	props := gin.H{
 		"action": "save",
 		"title":  `<i class="fa fa-plus"></i>&nbsp;&nbsp;新 增`,
-		"data":   gin.H{},
 		"rules":  x.GetRules(),
 	}
 	id := c.DefaultQuery("id", "")

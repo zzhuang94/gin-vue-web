@@ -30,7 +30,7 @@ func (xb *XB[T]) ActionBatchEdit(c *gin.Context) {
 		"subtitle": fmt.Sprintf("您将修改 %s 条数据，请先勾选要修改的属性", c.Query("count")),
 		"data":     gin.H{},
 		"rules":    xb.GetRules(),
-		"check":    true,
+		"pick":     true,
 	}
 	xb.ModalPage(c, props, "components/edit")
 }
