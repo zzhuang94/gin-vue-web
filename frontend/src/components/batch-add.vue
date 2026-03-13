@@ -5,20 +5,21 @@
       <i class="fa fa-plus"></i> 批量新增
     </template>
     <hr />
-    <a-textarea v-model:value="names" placeholder="请输入名称，每行一个，系统会自动处理空行和重复名称" :rows="10" />
+    <a-textarea v-model:value="names"
+      placeholder="请输入名称，每行一个，系统会自动处理空行和重复名称" :rows="10" />
     <hr />
   </a-modal>
 </template>
 
 <script setup lang="ts">
 import { ref } from 'vue';
-import lib from '@libs/lib.ts'
-import strlib from '@libs/strlib.ts'
+import lib from '@libs/lib'
+import strlib from '@libs/strlib'
 
 const emit = defineEmits<{'submit': []}>()
 const open = ref(true)
 const submitting = ref(false)
-const names = ref<string>('')
+const names = ref('')
 
 const submit = async () => {
   submitting.value = true

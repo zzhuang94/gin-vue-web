@@ -1,45 +1,39 @@
 <template>
   <a-select
-    v-model:value="val"
+    v-model:value="value"
     :placeholder :disabled :class :style
     show-search allow-clear
     :filterOption="false"
     :notFoundContent="loading ? undefined : '无匹配结果'"
     @search="handleSearch"
     @dropdownVisibleChange="handleDropdownVisibleChange"
-
-  >
+    >
     <template v-if="loading" #notFoundContent>
       <a-spin size="small" />
     </template>
-    <a-select-option v-for="item in options" :key="item.value" :value="item.value">
-      {{ item.label }}
+    <a-select-option v-for="item in options" :key="item.key">
+      {{ item.val }}
     </a-select-option>
   </a-select>
 </template>
 
 <script setup lang="ts">
-import { ref, watch, onMounted } from 'vue'
+import { ref, onMounted, computed } from 'vue'
+import type { RuleTrans } from '@libs/frm.ts'
 import lib from '@libs/lib.ts'
 
 interface Option {
-  value: string | number
-  label: string
-}
-
-interface Translate {
-  ajax?: boolean
-  custom?: boolean
-  [key: string]: any
+  key: string
+  val: string
 }
 
 interface Props {
   value?: string
+  translate: RuleTrans
   placeholder?: string
   disabled?: boolean
   class?: string
   style?: Record<string, any>
-  translate?: Translate
   url?: string
 }
 
@@ -53,22 +47,21 @@ const props = withDefaults(defineProps<Props>(), {
 
 const emit = defineEmits<{
   'update:value': [value: string]
-  'change': [value: string]
 }>()
 
-const val = ref<string>(props.value ?? '')
 const options = ref<Option[]>([])
 const loading = ref(false)
 const lastFetchId = ref(0)
 
-watch(() => props.value, (newVal) => { val.value = newVal ?? '' })
-watch(val, (newVal) => {
-  emit('update:value', newVal)
-  emit('change', newVal)
+const value = computed({
+  get: () => props.value,
+  set: (newVal: string) => {
+    emit('update:value', newVal)
+  }
 })
 
-const handleSearch = (value: string) => {
-  fetchData(value)
+const handleSearch = (v: string) => {
+  fetchData(v)
 }
 
 const handleDropdownVisibleChange = (open: boolean) => {
@@ -100,17 +93,18 @@ async function initOptions(): Promise<Option[]> {
     return []
   }
   const ans: Option[] = []
-  const r = await lib.curl('/base/trans/init?val=' + props.value, props.translate)
+  let r : { code: number, data: Option }
+  r = await lib.curl('/base/trans/init?val=' + props.value, props.translate)
   if (r.code == 1) {
-    ans.push({ value: r.data.key, label: r.data.val })
-  } else if (props.translate?.custom) {
-    ans.push({ value: props.value, label: props.value })
+    ans.push(r.data)
+  } else if (props.translate.custom) {
+    ans.push({ key: props.value, val: props.value })
   }
   return ans
 }
 
-async function loadData(term: string): Promise<any[]> {
-  let r: any = {}
+async function loadData(term: string): Promise<Option[]> {
+  let r: { data: Option[] } = { data: [] }
   if (props.url != '') {
     r = await lib.curl(props.url, { term })
   } else {
@@ -123,12 +117,11 @@ async function loadData(term: string): Promise<any[]> {
 }
 
 async function buildOptions(term: string): Promise<Option[]> {
-  const data = await loadData(term)
-  let ans = data.map((d: any) => ({ value: d.key, label: d.val }))
-  if (! (props.translate?.custom ?? 0) || term == '' || ans.length > 0 && ans[0]?.label == term) {
+  const ans = await loadData(term)
+  if (! props.translate.custom || term == '' || ans.length > 0 && ans[0]?.val == term) {
     return ans
   }
-  ans.unshift({ value: term, label: term })
+  ans.unshift({ key: term, val: term })
   return ans
 }
 

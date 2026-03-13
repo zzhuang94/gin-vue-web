@@ -12,6 +12,7 @@ export interface RuleTrans {
   table: string
   key: string
   val: string
+  custom?: boolean
 }
 
 export interface RuleValidation {
@@ -104,4 +105,11 @@ export interface Page {
 export interface Data {
   id: string
   [key: string]: any
+}
+
+export function isBadgeLimit(r: Rule): boolean {
+  if (!r.limit || r.split_sep) {
+    return false
+  }
+  return r.limit.every(l => l.badge !== undefined && l.badge !== '')
 }

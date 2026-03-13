@@ -1,18 +1,18 @@
 <template>
-  <div :class="['card', `card--${color}`]">
-    <div class="card__header">
-        <div class="card__header-content">
-          <span class="card__icon" v-if="icon">
+  <div :class="['card', `card-${color}`]">
+    <div class="card-header">
+        <div class="card-header-content">
+          <span class="card-icon" v-if="icon">
             <i :class="`fa fa-${icon}`"></i>
           </span>
-          <span class="card__title">{{ title }}</span>
+          <span class="card-title">{{ title }}</span>
 
           <div style="margin-left: auto">
             <slot name="more-op"></slot>
           </div>
         </div>
     </div>
-    <div class="card__body">
+    <div class="card-body">
       <slot></slot>
     </div>
   </div>
@@ -41,44 +41,43 @@ withDefaults(defineProps<Props>(), {
   overflow: hidden;
 }
 
-.card__header {
+.card-header {
   padding: 6px 10px;
   display: flex;
   align-items: center;
   color: #fff;
 }
 
-.card__header-content {
+.card-header-content {
   display: flex;
   align-items: center;
   width: 100%;
 }
 
-.card__icon {
+.card-icon {
   width: 2rem;
   font-size: 1.2rem;
 }
 
-.card__title {
+.card-title {
   margin: 0;
   font-size: 1.15rem;
   font-weight: bold;
 }
 
-.card__body {
+.card-body {
   padding: 10px;
   background: #fff;
 }
 
-/* 颜色主题 - 与Metronic保持一致 */
-.card--default .card__header { background: #f4f5f8; color: #575962; }
-.card--brand .card__header { background: #716aca; }
-.card--metal .card__header { background: #c4c5d6; color: #575962; }
-.card--accent .card__header { background: #00c5dc; }
-.card--primary .card__header { background: #5867dd; }
-.card--success .card__header { background: #1dc9b7; }
-.card--info .card__header { background: #36a3f7; }
-.card--warning .card__header { background: #ffb822; color: #111; }
-.card--danger .card__header { background: #fd397a; }
-.card--focus .card__header { background: #9816f4; }
+.card-default .card-header { background: #f4f5f8; color: #575962; }
+.card-brand .card-header { background: #716aca; }
+.card-metal .card-header { background: #c4c5d6; color: #575962; }
+.card-accent .card-header { background: #00c5dc; }
+.card-primary .card-header { background: #5867dd; }
+.card-success .card-header { background: #1dc9b7; }
+.card-info .card-header { background: #36a3f7; }
+.card-warning .card-header { background: #ffb822; color: #111; }
+.card-danger .card-header { background: #fd397a; }
+.card-focus .card-header { background: #9816f4; }
 </style>

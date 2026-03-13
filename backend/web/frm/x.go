@@ -352,6 +352,7 @@ func (x *X) ActionEdit(c *gin.Context) {
 	props := gin.H{
 		"action": "save",
 		"title":  `<i class="fa fa-plus"></i>&nbsp;&nbsp;新 增`,
+		"data":   gin.H{},
 		"rules":  x.GetRules(),
 	}
 	id := c.DefaultQuery("id", "")
@@ -501,7 +502,7 @@ func (x *X) ActionDelete(c *gin.Context) {
 	x.JsonSucc(c, "删除成功")
 }
 
-func (x *X) List(c *gin.Context, args map[string]string, title, width, order string, edit bool) {
+func (x *X) List(c *gin.Context, args gin.H, title, width, order string, edit bool) {
 	cond := builder.NewCond()
 	for k, v := range args {
 		cond = cond.And(builder.Eq{k: v})
@@ -535,7 +536,7 @@ func (x *X) List(c *gin.Context, args map[string]string, title, width, order str
 	x.ModalPage(c, props, "components/list")
 }
 
-func (x *X) GetListRules(args map[string]string) []*g.Rule {
+func (x *X) GetListRules(args gin.H) []*g.Rule {
 	ans := make([]*g.Rule, 0)
 	for _, r := range x.Rules {
 		if _, ok := args[r.Key]; ok {
