@@ -121,7 +121,7 @@ const isDisabled = (r: Rule): boolean => {
   if (props.pick) {
     return ! keys[r.key]
   }
-  return props.data.id !== '' && r.readonly
+  return !!props.data.id && r.readonly
 }
 
 const toggleKey = (key: string) => {
@@ -191,7 +191,7 @@ function initForm(): Record<string, any> {
 function buildSubmitData(): Record<string, any> {
   const payload: Record<string, any> = {}
   for (const r of props.rules) {
-    if (! keys[r.key] || ! form[r.key]) {
+    if (! keys[r.key] || form[r.key] === undefined) {
       continue
     }
     const val = form[r.key]

@@ -4,8 +4,8 @@
       <span v-html="title"></span>
     </template>
 
-    <template #footer v-if="action.sort">
-      <a-button @click="saveSort" type="primary" :loading="sortLoading">保存排序</a-button>
+    <template #footer>
+      <a-button v-if="action.sort" @click="saveSort" type="primary" :loading="sortLoading">保存排序</a-button>
     </template>
 
     <hr />

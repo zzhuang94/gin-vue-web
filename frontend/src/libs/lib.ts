@@ -128,6 +128,9 @@ function removeHtmlTags(html: string): string  {
 }
 
 function displayDK(r: Rule, v: any, autoBreak: boolean = true): string {
+  if (v === undefined || v === null) {
+    return ''
+  }
   if (r.limit_map) {
     if (r.split_sep) {
       const arr = []
@@ -169,14 +172,6 @@ function calcLimit(value: string, map: any): any {
   return ans + '</span>'
 }
 
-function isLimitBadge(obj: any): boolean {
-  const firstValue = Object.values(obj)[0]
-  if (firstValue && typeof firstValue === 'object' && firstValue !== null) {
-    return firstValue.constructor === Object && 'badge' in firstValue
-  }
-  return false
-}
-
 export default {
   loadAvatar,
   loadComponent,
@@ -194,5 +189,4 @@ export default {
 
   displayDK,
   calcLimit,
-  isLimitBadge,
 }
