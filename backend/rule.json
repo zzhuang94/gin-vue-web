@@ -571,6 +571,16 @@
             "required": true
         },
         {
+            "key": "health",
+            "name": "状态",
+            "search": 1,
+            "default": "1",
+            "limit": [
+                { "key": "1", "label": "正常", "badge": "success" },
+                { "key": "0", "label": "故障", "badge": "danger" }
+            ]
+        },
+        {
             "key": "remark",
             "name": "备注",
             "search": 2,

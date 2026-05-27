@@ -9,6 +9,7 @@ type Machine struct {
 	g.Model `xorm:"extends"`
 
 	Name   string `xorm:"name" json:"name"`
+	Health int    `xorm:"health" json:"health,string"` // 健康状态：0 故障，1 正常
 	Remark string `xorm:"remark" json:"remark"`
 }
 

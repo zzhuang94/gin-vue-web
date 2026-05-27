@@ -79,6 +79,6 @@
     "machine": {
         "name": "机器",
         "db": "core",
-        "show": ["name"]
+        "show": ["name", "health"]
     }
 }
