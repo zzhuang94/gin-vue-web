@@ -19,7 +19,6 @@ func NewMachine() *Machine {
 	r.DB = g.CoreDB
 	r.Dump = true
 	r.TopMenu = [][]string{
-		{"机器看板", "th-large", "board"},
 		{"批量新增", "plus", "batch-add-modal"},
 	}
 	return r
