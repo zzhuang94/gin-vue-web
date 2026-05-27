@@ -9,6 +9,11 @@
       >
         <template #prefix><i class="fas fa-search"></i></template>
       </a-input>
+      <a-select
+        v-model:value="sortMode"
+        class="board-sort"
+        :options="sortOptions"
+      />
       <span class="stat-total">
         共 <b>{{ stats.total }}</b> 台
         <template v-if="q.trim()">，显示 <b>{{ filtered.length }}</b> 台</template>
@@ -108,7 +113,17 @@ interface MachineItem {
   tickets: TicketBrief[]
 }
 
+type SortMode = 'default' | 'fault' | 'idle' | 'running'
+
+const sortOptions = [
+  { value: 'default', label: '默认排序' },
+  { value: 'fault', label: '故障设备靠前' },
+  { value: 'idle', label: '空闲设备靠前' },
+  { value: 'running', label: '生产设备靠前' },
+]
+
 const q = ref('')
+const sortMode = ref<SortMode>('default')
 const loading = ref(false)
 const machines = ref<MachineItem[]>([])
 const displayed = ref<MachineItem[]>([])
@@ -122,6 +137,32 @@ const filtered = computed(() => {
   const keyword = q.value.trim().toLowerCase()
   if (!keyword) return machines.value
   return machines.value.filter(m => m.name.toLowerCase().includes(keyword))
+})
+
+const sorted = computed(() => {
+  const list = [...filtered.value]
+  const byName = (a: MachineItem, b: MachineItem) =>
+    a.name.localeCompare(b.name, 'zh-CN')
+
+  switch (sortMode.value) {
+    case 'fault':
+      return list.sort((a, b) => {
+        const cmp = (a.health === 0 ? 0 : 1) - (b.health === 0 ? 0 : 1)
+        return cmp !== 0 ? cmp : byName(a, b)
+      })
+    case 'idle':
+      return list.sort((a, b) => {
+        const cmp = (a.running ? 1 : 0) - (b.running ? 1 : 0)
+        return cmp !== 0 ? cmp : byName(a, b)
+      })
+    case 'running':
+      return list.sort((a, b) => {
+        const cmp = (b.running ? 1 : 0) - (a.running ? 1 : 0)
+        return cmp !== 0 ? cmp : byName(a, b)
+      })
+    default:
+      return list
+  }
 })
 
 const stats = computed(() => {
@@ -140,7 +181,7 @@ const renderStep = 60
 function startProgressive() {
   cancelAnimationFrame(rafId)
   displayed.value = []
-  const src = filtered.value
+  const src = sorted.value
   let idx = 0
   const tick = () => {
     const end = Math.min(idx + renderStep, src.length)
@@ -194,7 +235,7 @@ async function loadData() {
   loading.value = false
 }
 
-watch(filtered, startProgressive)
+watch(sorted, startProgressive)
 
 onMounted(() => {
   updateMobile()
@@ -228,7 +269,12 @@ onBeforeUnmount(() => {
 }
 
 .board-search {
-  width: 220px;
+  width: 200px;
+  flex-shrink: 0;
+}
+
+.board-sort {
+  width: 148px;
   flex-shrink: 0;
 }
 
@@ -478,7 +524,8 @@ onBeforeUnmount(() => {
     padding: 10px;
   }
 
-  .board-search {
+  .board-search,
+  .board-sort {
     width: 100%;
   }
 
