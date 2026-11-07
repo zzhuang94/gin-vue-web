@@ -47,10 +47,10 @@ type X struct {
 	Model          g.ModelX
 	Rules          []*g.Rule
 	NoID           bool
+	SearchID       bool // 按 ID 搜索时允许跨状态查询
 	WrapTime       bool
 	AndWheres      []map[string]any
 	Header         string
-	DetailAction   string
 	BatchEdit      bool
 	BatchDelete    bool
 	Dump           bool
@@ -210,19 +210,20 @@ func (x *X) initSort(c *gin.Context) map[string]string {
 }
 
 func (x *X) ActionIndex(c *gin.Context) {
+	rules := x.getTableRules()
 	data := gin.H{
 		"header":     x.Header,
 		"batch":      x.BatchEdit || x.BatchDelete,
 		"dump":       x.Dump,
-		"rules":      x.getTableRules(),
+		"rules":      rules,
 		"topMenus":   x.BuildTopMenu(c),
 		"tableMenus": x.BuildTableMenu(c),
 		"sort":       x.initSort(c),
 		"arg":        x.GetUriArg(c),
 		"pageSize":   x.GetPageSize(c),
 	}
-	if x.DetailAction != "" {
-		data["detailAction"] = x.DetailAction
+	if x.SearchID {
+		data["searchRules"] = append(rules, &g.Rule{Key: "id", Name: "工单编号", Search: 1})
 	}
 	x.RenderDataPage(c, data, "templates/index")
 }
@@ -305,9 +306,23 @@ func (x *X) BuildQueryX(cond builder.Cond, withSelect bool) *xorm.Session {
 
 func (x *X) buildCondition(arg map[string]any) builder.Cond {
 	cond := builder.NewCond()
+	searchingByID := false
+	if value, ok := arg["id"]; x.SearchID && ok {
+		if text := strings.TrimSpace(fmt.Sprint(value)); text != "" {
+			id, err := strconv.Atoi(text)
+			if err != nil || id <= 0 {
+				return builder.Expr("1 = 0")
+			}
+			cond = builder.Eq{"id": id}
+			searchingByID = true
+		}
+	}
 
 	for _, where := range x.AndWheres {
 		for k, v := range where {
+			if searchingByID && k == "status" {
+				continue
+			}
 			cond = cond.And(builder.Eq{k: v})
 		}
 	}

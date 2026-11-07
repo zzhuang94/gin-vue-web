@@ -20,8 +20,8 @@ func NewTicket() *Ticket {
 	r := &Ticket{X: frm.NewX(&prod.Ticket{})}
 	r.DB = g.CoreDB
 	r.NoID = true
+	r.SearchID = true
 	r.Dump = true
-	r.DetailAction = "read"
 	r.AndWheres = []map[string]any{
 		{
 			"status": []string{
@@ -119,8 +119,16 @@ func (t *Ticket) buildTableMenu(c *gin.Context) []*frm.TableMenu {
 			Args:  []*frm.MenuArg{{Key: "id", Val: "id"}},
 			Conds: []*frm.MenuCond{{Key: "status", Val: "RUNNING", Comp: "EQ"}},
 		})
-		ans = append(ans, t.WrapTableMenu([]string{"修改工单", "edit", "edit"}))
-		ans = append(ans, t.WrapTableMenu([]string{"删除工单", "trash", "delete", "async"}))
+		for _, action := range [][]string{
+			{"修改工单", "edit", "edit"},
+			{"删除工单", "trash", "delete", "async"},
+		} {
+			menu := t.WrapTableMenu(action)
+			menu.Conds = []*frm.MenuCond{{
+				Key: "status", Val: []string{prod.StatusFinished, prod.StatusStopped}, Comp: "NIN",
+			}}
+			ans = append(ans, menu)
+		}
 	}
 	return ans
 }

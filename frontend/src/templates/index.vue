@@ -10,7 +10,7 @@
       </div>
 
       <div class="portlet-body">
-        <Searcher v-model:arg="arg" :rules @search="fetch" @clear="reFetch" />
+        <Searcher v-model:arg="arg" :rules="searchRules ?? rules" @search="fetch" @clear="reFetch" />
 
         <Table ref="tableRef"
            :loading :rules :data :tableMenus :batch :id="excel.DEFAULT_ID"
@@ -26,8 +26,7 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, computed, watch } from 'vue'
-import { useRoute } from 'vue-router'
+import { onMounted, computed } from 'vue'
 import type { Rule, Sort, Arg } from '@libs/frm'
 
 import { useFetch } from '@/libs/fetch'
@@ -44,8 +43,8 @@ import Pager from '@components/pager.vue'
 
 interface Props {
   header: string
-  detailAction?: string
   rules: Rule[]
+  searchRules?: Rule[]
   topMenus: Menu[]
   tableMenus: TableMenu[]
   arg: Arg
@@ -73,21 +72,6 @@ const { loading, data, arg, page, sort, fetch, reFetch } = useFetch({
 const { mc, mp, loadModal, reloadModal } = useModal()
 const { runMenu } = useMenu(loadModal, fetch)
 const { ids, runBatch } = useBatch(loadModal, fetch)
-
-const detailAction = props.detailAction
-if (detailAction) {
-  const route = useRoute()
-  const indexPath = route.path
-  watch(() => route.query.id, (id) => {
-    if (route.path !== indexPath) return
-    if (typeof id !== 'string' || !/^[1-9]\d*$/.test(id)) {
-      delete arg.value.id
-      return
-    }
-    arg.value.id = id
-    void loadModal(`${detailAction}?id=${id}`)
-  }, { immediate: true })
-}
 
 const menuClick = async (m: Menu) => {
   if (m.type.startsWith('batch-')) {
