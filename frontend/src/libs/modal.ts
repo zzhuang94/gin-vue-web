@@ -19,6 +19,10 @@ export function useModal() {
         swal.warn("抱歉，您无权限操作！")
         return
       }
+      if (r.data.code === 0) {
+        swal.error('操作失败', r.data.data)
+        return
+      }
       const { page, props } = r.data
       mc.value = lib.loadComponent(page)
       mp.value = props

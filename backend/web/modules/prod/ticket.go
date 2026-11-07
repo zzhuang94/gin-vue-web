@@ -5,9 +5,11 @@ import (
 	"backend/models/prod"
 	"backend/web/frm"
 	"fmt"
+	"strconv"
 	"time"
 
 	"github.com/gin-gonic/gin"
+	"github.com/sirupsen/logrus"
 )
 
 type Ticket struct {
@@ -19,6 +21,7 @@ func NewTicket() *Ticket {
 	r.DB = g.CoreDB
 	r.NoID = true
 	r.Dump = true
+	r.DetailAction = "read"
 	r.AndWheres = []map[string]any{
 		{
 			"status": []string{
@@ -59,6 +62,7 @@ func (t *Ticket) buildTableMenu(c *gin.Context) []*frm.TableMenu {
 	user := t.GetUser(c)
 	ans := []*frm.TableMenu{}
 	ans = append(ans, t.WrapTableMenu([]string{"查看详情", "eye", "read"}))
+	ans = append(ans, t.WrapTableMenu([]string{"打印工单", "print", "read?print=1"}))
 	if user.IsSales || user.IsManager {
 		ans = append(ans, &frm.TableMenu{
 			Menu:  t.WrapMenu([]string{"修改需求", "pencil", "apply"}),
@@ -128,8 +132,22 @@ func (t *Ticket) ActionRead(c *gin.Context) {
 		"quantity", "machine_plan", "machine_list",
 		"status", "remark",
 	}
-	rules = t.RulesFilter(rules, fields)
-	rules = t.RulesReadonly(rules, fields)
+	if c.Query("print") == "1" {
+		ticket, err := t.loadTicket(c.Query("id"))
+		if err != nil {
+			t.JsonFail(c, err)
+			return
+		}
+		printFields := append(fields, "lead_time", "progress", "rate")
+		t.ModalPage(c, gin.H{
+			"ticket":           ticket,
+			"rules":            t.RulesFilter(rules, printFields),
+			"host":             g.C.Host,
+			"closingOperation": t.closingOperation(ticket),
+		}, "modules/prod/ticket/print")
+		return
+	}
+	rules = t.RulesReadonly(t.RulesFilter(rules, fields), fields)
 	title := "<i class='fa fa-eye'></i>&nbsp;&nbsp;查看详情"
 	t.editModel(c, title, rules)
 }
@@ -211,16 +229,57 @@ func (t *Ticket) editModel(c *gin.Context, title string, rules []*g.Rule) {
 	}
 	id := c.DefaultQuery("id", "")
 	if id != "" {
-		m := t.Model.New()
-		has, err := t.DB.ID(id).Get(m)
-		if err != nil || !has {
-			t.JsonFail(c, fmt.Errorf("数据不存在"))
+		ticket, err := t.loadTicket(id)
+		if err != nil {
+			t.JsonFail(c, err)
 			return
 		}
-		props["data"] = m
+		props["data"] = ticket
 		props["action"] = "save?id=" + id
 	}
 	t.ModalPage(c, props, "components/edit")
+}
+
+func (t *Ticket) loadTicket(id string) (*prod.Ticket, error) {
+	ticketID, err := strconv.Atoi(id)
+	if err != nil || ticketID <= 0 {
+		return nil, fmt.Errorf("工单编号无效")
+	}
+	ticket := &prod.Ticket{}
+	has, err := t.DB.ID(ticketID).Get(ticket)
+	if err != nil || !has {
+		return nil, fmt.Errorf("数据不存在")
+	}
+	return ticket, nil
+}
+
+func (t *Ticket) closingOperation(ticket *prod.Ticket) map[string]string {
+	var path string
+	switch ticket.Status {
+	case prod.StatusFinished:
+		path = "/prod/ticket/finish"
+	case prod.StatusStopped:
+		path = "/prod/ticket/stop"
+	default:
+		return nil
+	}
+
+	const query = `
+SELECT e.user AS operator_name, DATE_FORMAT(l.created, '%Y-%m-%d %H:%i:%s') AS operation_time
+FROM op_log l JOIN op_event e ON e.id = l.eid
+WHERE l.data_table = 'ticket' AND l.data_id = ? AND l.op = 0 AND e.path = ?
+  AND JSON_UNQUOTE(JSON_EXTRACT(l.data_new, '$.status')) = ?
+  AND JSON_UNQUOTE(JSON_EXTRACT(l.data_old, '$.status')) <> ?
+ORDER BY l.id DESC LIMIT 1`
+	rows, err := g.BaseDB.SQL(query, ticket.Id, path, ticket.Status, ticket.Status).QueryString()
+	if err != nil {
+		logrus.WithError(err).Warn("查询工单结束记录失败")
+		return nil
+	}
+	if len(rows) == 0 {
+		return nil
+	}
+	return rows[0]
 }
 
 func (t *Ticket) updateStatus(c *gin.Context, status string) error {

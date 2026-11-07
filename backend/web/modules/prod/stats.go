@@ -18,7 +18,10 @@ func NewStats() *Stats {
 	r.AndWheres = []map[string]any{{"status": []string{prod.StatusFinished, prod.StatusStopped}}}
 	r.initRules()
 	r.TopMenu = [][]string{}
-	r.TableMenu = [][]string{{"查看详情", "eye", "/prod/ticket/read"}}
+	r.TableMenu = [][]string{
+		{"查看详情", "eye", "/prod/ticket/read"},
+		{"打印工单", "print", "/prod/ticket/read?print=1"},
+	}
 	return r
 }
 

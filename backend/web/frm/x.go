@@ -50,6 +50,7 @@ type X struct {
 	WrapTime       bool
 	AndWheres      []map[string]any
 	Header         string
+	DetailAction   string
 	BatchEdit      bool
 	BatchDelete    bool
 	Dump           bool
@@ -219,6 +220,9 @@ func (x *X) ActionIndex(c *gin.Context) {
 		"sort":       x.initSort(c),
 		"arg":        x.GetUriArg(c),
 		"pageSize":   x.GetPageSize(c),
+	}
+	if x.DetailAction != "" {
+		data["detailAction"] = x.DetailAction
 	}
 	x.RenderDataPage(c, data, "templates/index")
 }
