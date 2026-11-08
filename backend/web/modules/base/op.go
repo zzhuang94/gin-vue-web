@@ -17,6 +17,7 @@ type Op struct {
 
 func NewOp() *Op {
 	r := &Op{X: frm.NewX(&g.Event{})}
+	r.IDColumn = "e.id"
 	r.initRules()
 
 	r.BuildQuery = func(cond builder.Cond, withSelect bool) *xorm.Session {

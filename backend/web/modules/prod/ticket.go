@@ -19,8 +19,6 @@ type Ticket struct {
 func NewTicket() *Ticket {
 	r := &Ticket{X: frm.NewX(&prod.Ticket{})}
 	r.DB = g.CoreDB
-	r.NoID = true
-	r.SearchID = true
 	r.Dump = true
 	r.AndWheres = []map[string]any{
 		{

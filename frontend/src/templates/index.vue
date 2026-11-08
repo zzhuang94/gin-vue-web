@@ -10,7 +10,7 @@
       </div>
 
       <div class="portlet-body">
-        <Searcher v-model:arg="arg" :rules="searchRules ?? rules" @search="fetch" @clear="reFetch" />
+        <Searcher v-model:arg="arg" :rules @search="fetch" @clear="reFetch" />
 
         <Table ref="tableRef"
            :loading :rules :data :tableMenus :batch :id="excel.DEFAULT_ID"
@@ -44,7 +44,6 @@ import Pager from '@components/pager.vue'
 interface Props {
   header: string
   rules: Rule[]
-  searchRules?: Rule[]
   topMenus: Menu[]
   tableMenus: TableMenu[]
   arg: Arg
